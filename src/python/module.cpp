@@ -2,8 +2,12 @@
 #include <sstream>
 #include <boost/python.hpp>
 
+#include "utils.hpp"
 #include "vec.hpp"
 #include "body.hpp"
+#include "shape.hpp"
+#include "circle.hpp"
+#include "collider.hpp"
 
 using namespace std;
 namespace python = boost::python;
@@ -29,7 +33,7 @@ struct Vec_from_tuple {
         }
         auto yptr = PyTuple_GetItem(obj_ptr, 1);
         if (!PyNumber_Check(yptr)) {
-            PyErr_SetString(PyExc_ValueError, "Vec from tuple: index 0 is not a number");
+            PyErr_SetString(PyExc_ValueError, "Vec from tuple: index 1 is not a number");
             return 0;
         }
         return obj_ptr;
@@ -52,7 +56,52 @@ string vec_repr(const Vec& v) {
     return ss.str();
 }
 
+class BodyWrap: public Body {
+    PyObject *self;
+public:
+    BodyWrap(PyObject *p): self(p) {
+    }
+
+    python::object get_python_object() {
+        return python::object(python::handle<>(python::borrowed(self)));
+    }
+};
+
+python::object magic_body_extract(Body* body) {
+    auto bw = dynamic_cast<BodyWrap*>(body);
+    if (!bw) {
+        throw runtime_error("Request to get_body failed, was this body created from Python?");
+    }
+    return bw->get_python_object();
+}
+
+python::object get_collision_body(const Collision& col) {
+    return magic_body_extract(col.body);
+}
+
+python::object get_collision_other(const Collision& col) {
+    return magic_body_extract(col.other);
+}
+
+class ShapeWrap: public Shape, public python::wrapper<Shape> {
+    virtual AABB aabb() const override {
+        throw runtime_error("Do not override shape!");
+    }
+
+    virtual CollisionTimeResult collide(const Shape* /*other*/, double /*end_time*/) const override {
+        throw runtime_error("Do not override shape!");
+    }
+
+    virtual CollisionTimeResult collide(const Circle* /*other*/, double /*end_time*/) const  override {
+        throw runtime_error("Do not override shape!");
+    }
+};
+
 BOOST_PYTHON_MODULE(physics) {
+    python::def("norm_rad", norm_rad);
+    python::def("norm_deg", norm_deg);
+    python::def("to_deg", to_deg);
+    python::def("to_rad", to_rad);
     Vec_from_tuple();
     python::class_<Vec>("Vec", python::init<double, double>())
         .def_readwrite("x", &Vec::x)
@@ -88,9 +137,8 @@ BOOST_PYTHON_MODULE(physics) {
         .def(op::self / python::other<double>())
         .def(op::self / op::self)
         .def(op::str(op::self))
-        .def("__repr__", vec_repr)
-        ;
-    python::class_<Body>("Body")
+        .def("__repr__", vec_repr);
+    python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body")
         .def_readwrite("position", &Body::position)
         .def_readwrite("velocity", &Body::velocity)
         .def_readwrite("acceleration", &Body::acceleration)
@@ -99,5 +147,22 @@ BOOST_PYTHON_MODULE(physics) {
         .def_readwrite("angular_acceleration", &Body::angular_acceleration)
         .def("updatePosition", &Body::updatePosition)
         .def("updateVelocity", &Body::updateVelocity)
-        ;
+        .def("addShape", &Body::addShape);
+    python::class_<ShapeWrap, boost::noncopyable>("Shape")
+        .def_readwrite("mass", &Shape::mass);
+    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle")
+        .def_readwrite("radius", &Circle::radius);
+    python::class_<Collider>("Collider")
+        .def("newBody", &Collider::newBody)
+        .def("reset", &Collider::reset)
+        .def("nextCollision", &Collider::nextCollision)
+        .def("finishedCollision", &Collider::finishedCollision)
+        .def("hasNextCollision", &Collider::hasNextCollision);
+    python::class_<Collision>("Collision")
+        .add_property("body", &get_collision_body)
+        .add_property("other", &get_collision_other)
+        .def_readonly("time", &Collision::time);
+    python::class_<pair<Collision, Collision> >("CollisionPair")
+        .def_readonly("first", &pair<Collision, Collision>::first)
+        .def_readonly("second", &pair<Collision, Collision>::second);
 }

@@ -24,6 +24,9 @@
 
 using namespace std;
 
+Body::~Body() {
+}
+
 AABB Body::aabb() const {
     auto iter = shapes.begin();
     auto end = shapes.end();

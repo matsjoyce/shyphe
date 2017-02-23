@@ -29,6 +29,8 @@
 
 class Body {
 public:
+    virtual ~Body();
+
     Vec position, velocity, acceleration;
     double angle, angular_velocity, angular_acceleration;
 

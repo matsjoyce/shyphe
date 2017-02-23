@@ -23,7 +23,6 @@
 #include <vector>
 #include <utility>
 #include <map>
-#include <tuple>
 #include <set>
 
 #include "body.hpp"
@@ -35,7 +34,6 @@ struct Collision {
     Body* body;
     Body* other;
     double time;
-    Vec impulse;
 };
 
 class Collider {
