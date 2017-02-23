@@ -1,0 +1,110 @@
+/*
+ * LunyFringe.core.engine.physics - rigid body physics engine
+ * Copyright (C) 2016 Matthew Joyce matsjoyce@gmail.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "collider.hpp"
+
+using namespace std;
+
+void Collider::reset(double time) {
+    time_until = time;
+    current_time = 0;
+    body_times.clear();
+    for (const auto body : bodies) {
+        body_times[body] = 0;
+    }
+    _updateCollisionTimes();
+}
+
+void Collider::newBody(Body* body) {
+    bodies.push_back(body);
+    body_times[body] = 0;
+    changed_bodies.insert(body);
+}
+
+void Collider::_updateCollisionTimes() {
+    sat_axes.reset(bodies.size());
+    for (auto body : bodies) {
+        sat_axes.addBody(body, time_until);
+    }
+    auto possibleCollisions = sat_axes.possibleCollisions();
+    for (const auto& poscol : possibleCollisions) {
+        auto colresult = poscol.first->collide(poscol.second, time_until);
+        if (colresult.time == -1) {
+            continue;
+        }
+        auto pos = upper_bound(collision_times.begin(), collision_times.end(), colresult,
+                               [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time < b.time;});
+        collision_times.insert(pos, move(colresult));
+    }
+}
+
+void Collider::_updateCollisionTimesChanged() {
+    for (auto body : changed_bodies) {
+        sat_axes.removeBody(body);
+        sat_axes.addBody(body, time_until - body_times[body]);
+    }
+    auto possibleCollisions = sat_axes.possibleCollisions();
+    for (const auto& poscol : possibleCollisions) {
+        if (!changed_bodies.count(poscol.first) && !changed_bodies.count(poscol.second)) {
+            continue;
+        }
+        auto start_time = max(body_times[poscol.first], body_times[poscol.second]);
+        poscol.first->updatePosition(start_time - body_times[poscol.first]);
+        poscol.second->updatePosition(start_time - body_times[poscol.second]);
+
+        auto colresult = poscol.first->collide(poscol.second, time_until);
+
+        poscol.first->updatePosition(body_times[poscol.first] - start_time);
+        poscol.second->updatePosition(body_times[poscol.second] - start_time);
+
+        if (colresult.time == -1) {
+            continue;
+        }
+        colresult.time += start_time;
+        // Put in reverse order to allow pop from back
+        auto pos = upper_bound(collision_times.begin(), collision_times.end(), colresult,
+                               [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
+        collision_times.insert(pos, move(colresult));
+    }
+    changed_bodies.clear();
+}
+
+bool Collider::hasNextCollision() {
+    return collision_times.size();
+}
+
+std::pair<Collision, Collision> Collider::nextCollision() {
+    auto collision = collision_times.back();
+    collision_times.pop_back();
+    changed_bodies.insert(collision.a);
+    changed_bodies.insert(collision.b);
+    return {Collision{collision.a, collision.b, collision.time},
+            Collision{collision.b, collision.a, collision.time}};
+}
+
+void Collider::finishedCollision() {
+    auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
+    collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
+    _updateCollisionTimesChanged();
+    if (!hasNextCollision()) {
+        for (auto body : bodies) {
+            body->updatePosition(time_until - body_times[body]);
+        }
+    }
+}
