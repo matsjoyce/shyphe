@@ -94,8 +94,24 @@ std::pair<Collision, Collision> Collider::nextCollision() {
     collision_times.pop_back();
     changed_bodies.insert(collision.a);
     changed_bodies.insert(collision.b);
-    return {Collision{collision.a, collision.b, collision.time},
-            Collision{collision.b, collision.a, collision.time}};
+    collision.a->updatePosition(collision.time - body_times[collision.a]);
+    collision.b->updatePosition(collision.time - body_times[collision.b]);
+    body_times[collision.a] = body_times[collision.b] = collision.time;
+    auto cr = collisionResult(collision, 1, 1000, 0.1);
+    return {Collision{collision.a,
+                      collision.b,
+                      collision.time,
+                      collision.touch_point - collision.a->position,
+                      cr.impulse,
+                      cr.closing_velocity
+                      },
+            Collision{collision.b,
+                      collision.a,
+                      collision.time,
+                      collision.touch_point - collision.b->position,
+                      -cr.impulse,
+                      -cr.closing_velocity
+                      }};
 }
 
 void Collider::finishedCollision() {

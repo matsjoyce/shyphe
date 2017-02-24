@@ -28,7 +28,7 @@ CollisionTimeResult Circle::collide(const Shape* other, double end_time) const {
 }
 
 CollisionTimeResult Circle::collide(const Circle* other, double end_time) const {
-    return collide_circle_circle(this, other, end_time);
+    return collideCircleCircle(this, other, end_time);
 }
 
 // CollisionTimeResult Circle::collide(const Polygon* other) const {

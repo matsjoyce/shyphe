@@ -34,6 +34,9 @@ struct Collision {
     Body* body;
     Body* other;
     double time;
+    Vec touch_point;
+    Vec impulse;
+    Vec closing_velocity;
 };
 
 class Collider {

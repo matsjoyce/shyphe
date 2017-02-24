@@ -26,7 +26,10 @@
 
 class Vec {
 public:
-    constexpr Vec(double x_=0, double y_=0) : x(x_), y(y_) {
+    constexpr Vec(double x_, double y_) : x(x_), y(y_) {
+    }
+
+    constexpr Vec() : x(0), y(0) {
     }
 
     inline Vec operator-() {
@@ -48,19 +51,9 @@ public:
         y *= factor;
     }
 
-    inline void operator*=(const Vec& other) {
-        x *= other.x;
-        y *= other.y;
-    }
-
     inline void operator/=(double factor) {
         x /= factor;
         y /= factor;
-    }
-
-    inline void operator/=(const Vec& other) {
-        x /= other.x;
-        y /= other.y;
     }
 
     inline bool operator==(const Vec& other) const {
@@ -95,11 +88,11 @@ public:
         return std::atan2(y, x);
     }
 
-    inline double distance_to(const Vec& other) const {
+    inline double distanceTo(const Vec& other) const {
         return std::hypot(other.x - x, other.y - y);
     }
 
-    inline double bearing_to(const Vec& other) const {
+    inline double bearingTo(const Vec& other) const {
         return std::atan2(other.y - y, other.x - x);
     }
 
@@ -116,6 +109,18 @@ public:
         return {x / mag, y / mag};
     }
 
+    inline Vec proj(const Vec& axis) const {
+        Vec res = axis;
+        res *= dot(axis) / axis.squared();
+        return res;
+    }
+
+    inline Vec rej(const Vec& axis) const {
+        Vec res = *this;
+        res -= proj(axis);
+        return res;
+    }
+
     inline static Vec fromBearing(double bearing) {
         return {std::cos(bearing), std::sin(bearing)};
     }
@@ -123,39 +128,34 @@ public:
     double x, y;
 };
 
-inline Vec operator+(Vec a, const Vec& b) {
-    a += b;
-    return a;
+inline Vec operator+(const Vec& a, const Vec& b) {
+    Vec res = a;
+    res += b;
+    return res;
 }
 
-inline Vec operator-(Vec a, const Vec& b) {
-    a -= b;
-    return a;
+inline Vec operator-(const Vec& a, const Vec& b) {
+    Vec res = a;
+    res -= b;
+    return res;
 }
 
-inline Vec operator*(Vec vec, double factor) {
-    vec *= factor;
-    return vec;
+inline Vec operator*(const Vec& vec, double factor) {
+    Vec res = vec;
+    res *= factor;
+    return res;
 }
 
-inline Vec operator*(double factor, Vec vec) {
-    vec *= factor;
-    return vec;
+inline Vec operator*(double factor, const Vec& vec) {
+    Vec res = vec;
+    res *= factor;
+    return res;
 }
 
-inline Vec operator*(Vec a, const Vec& b) {
-    a *= b;
-    return a;
-}
-
-inline Vec operator/(Vec vec, double factor) {
-    vec /= factor;
-    return vec;
-}
-
-inline Vec operator/(Vec a, const Vec& b) {
-    a /= b;
-    return a;
+inline Vec operator/(const Vec& vec, double factor) {
+    Vec res = vec;
+    res /= factor;
+    return res;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vec& vec);

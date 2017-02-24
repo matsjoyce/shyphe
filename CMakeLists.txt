@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 3.6)
 project(physics)
 
+set(PROJECT_FILES src/aabb.cpp src/body.cpp src/circle.cpp
+            src/collider.cpp src/collisions.cpp src/sataxes.cpp
+            src/shape.cpp src/vec.cpp src/python/module.cpp)
+
 find_package(ECM 0.0.11 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
@@ -24,7 +28,7 @@ function(enable_cxx_compiler_flag_if_supported flag)
     endif()
 endfunction()
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 enable_cxx_compiler_flag_if_supported("-Wall")
 enable_cxx_compiler_flag_if_supported("-Wextra")
@@ -38,13 +42,19 @@ string(STRIP "${PYTHON_LDFLAGS}" PYTHON_LDFLAGS)
 
 include_directories(src)
 
-add_library(physics SHARED
-            src/aabb.cpp src/body.cpp src/circle.cpp
-            src/collider.cpp src/collisions.cpp src/sataxes.cpp
-            src/shape.cpp src/vec.cpp src/python/module.cpp)
+add_library(physics SHARED ${PROJECT_FILES})
 set_target_properties(physics PROPERTIES PREFIX "")
 target_link_libraries(physics ${Boost_LIBRARIES})
 target_link_libraries(physics ${PYTHON_LDFLAGS})
+
+add_library(physics_coverage SHARED ${PROJECT_FILES})
+target_link_libraries(physics_coverage ${Boost_LIBRARIES})
+target_link_libraries(physics_coverage ${PYTHON_LDFLAGS})
+target_compile_options(physics_coverage PRIVATE "-fprofile-arcs" "-ftest-coverage" "-O0")
+set_target_properties(physics_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage"
+                                                  OUTPUT_NAME "physics"
+                                                  PREFIX "")
+target_link_libraries(physics_coverage gcov)
 
 add_executable(test_physics test.cpp)
 target_link_libraries(test_physics physics)

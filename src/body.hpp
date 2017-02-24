@@ -35,10 +35,12 @@ public:
     double angle, angular_velocity, angular_acceleration;
 
     AABB aabb() const;
+    double mass() const;
     void updatePosition(double time);
     void updateVelocity(double time);
+    void applyImpulse(Vec impulse);
     void addShape(Shape* shape);
-    CollisionTimeResult collide(Body* other, double end_time);
+    CollisionTimeResult collide(Body* other, double end_time) const;
 private:
     std::vector<Shape*> shapes;
 };

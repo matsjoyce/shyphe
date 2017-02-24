@@ -27,12 +27,26 @@ class Circle;
 class Polygon;
 
 struct CollisionTimeResult {
-    Body* a;
-    Body* b;
-    double time;
-    Vec touchpoint;
+    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm): a(a_), b(b_), time(time_), touch_point(tp), normal(norm) {
+    }
+
+    constexpr CollisionTimeResult() {
+    }
+
+    Body* a = nullptr;
+    Body* b = nullptr;
+    double time = -1;
+    Vec touch_point = {0, 0};
+    Vec normal = {0, 0};
 };
 
-CollisionTimeResult collide_circle_circle(const Circle* a, const Circle* b, double end_time);
+CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time);
+
+struct CollisionResult {
+    Vec impulse;
+    Vec closing_velocity;
+};
+
+CollisionResult collisionResult(const CollisionTimeResult& cr, double E, double transition_impulse, double transition_reduction);
 
 #endif // COLLISIONS_HPP

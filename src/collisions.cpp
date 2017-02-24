@@ -21,14 +21,11 @@
 #include "shape.hpp"
 #include "circle.hpp"
 #include "body.hpp"
+#include <iostream>
 
 using namespace std;
 
-constexpr CollisionTimeResult noCollision() {
-    return {nullptr, nullptr, -1, {0, 0}};
-}
-
-CollisionTimeResult collide_circle_circle(const Circle* acircle, const Circle* bcircle, double end_time) {
+CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bcircle, double end_time) {
     auto abody = acircle->body;
     auto bbody = bcircle->body;
     auto apos = abody->position + acircle->position;
@@ -42,23 +39,37 @@ CollisionTimeResult collide_circle_circle(const Circle* acircle, const Circle* b
     auto c = pos_diff.squared() - radii * radii;
     auto discriminant = b * b - 4 * a * c;
 
-    if (discriminant < 0) {
-        return noCollision();
+    if (discriminant < 0 || a == 0) {
+        return {};
     }
 
     auto t0 = (-b - sqrt(discriminant)) / (2 * a);
     auto t1 = (-b + sqrt(discriminant)) / (2 * a);
 
     if (t0 > end_time) {
-        return noCollision();
+        return {};
     }
-    else if (t0 > 0) {
+    else if (t0 >= 0) {
         t1 = t0;
     }
-    else if (t1 > end_time) {
-        return noCollision();
+    else if (0 > t1 || t1 > end_time) {
+        return {};
     }
-    auto touch_point = ((apos + abody->velocity * t1) * bcircle->radius)
-                        + ((bpos + bbody->velocity * t1) * acircle->radius) / radii;
-    return {abody, bbody, t1, touch_point};
+    auto col_apos = (apos + abody->velocity * t1);
+    auto col_bpos = (bpos + bbody->velocity * t1);
+    auto touch_point = (col_apos * bcircle->radius + col_bpos * acircle->radius) / radii;
+    return {abody, bbody, t1, touch_point, (col_bpos - col_apos).norm()};
+}
+
+CollisionResult collisionResult(const CollisionTimeResult& cr, double restitution, double transition_impulse, double transition_reduction) {
+    Vec a_vel = cr.a->velocity.proj(cr.normal);
+    Vec b_vel = cr.b->velocity.proj(cr.normal);
+    double m_a = cr.a->mass();
+    double m_b = cr.b->mass();
+    Vec closing_velocity = b_vel - a_vel;
+    Vec impulse = (m_a * m_b * closing_velocity * (1 + restitution)) / (m_a + m_b);
+    if (impulse.abs() > transition_impulse) {
+        impulse = impulse * transition_reduction + impulse.norm() * transition_impulse * (1 - transition_reduction);
+    }
+    return {impulse, closing_velocity};
 }

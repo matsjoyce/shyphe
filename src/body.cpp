@@ -21,6 +21,7 @@
 #include "utils.hpp"
 
 #include <cmath>
+#include <numeric>
 
 using namespace std;
 
@@ -38,6 +39,10 @@ AABB Body::aabb() const {
         aabb &= (*iter)->aabb() + (*iter)->position;
     }
     return aabb;
+}
+
+double Body::mass() const {
+    return accumulate(shapes.begin(), shapes.end(), 0, [](double acc, const Shape* shape){return acc + shape->mass;});
 }
 
 void Body::updatePosition(double time) {
@@ -58,7 +63,7 @@ void Body::addShape(Shape* shape) {
     shape->body = this;
 }
 
-CollisionTimeResult Body::collide(Body* other, double end_time) {
+CollisionTimeResult Body::collide(Body* other, double end_time) const {
     auto soonest = CollisionTimeResult{};
     soonest.time = end_time + 1;
     for (const auto my_shape : shapes) {
@@ -74,4 +79,8 @@ CollisionTimeResult Body::collide(Body* other, double end_time) {
     }
     soonest.time = -1;
     return soonest;
+}
+
+void Body::applyImpulse(Vec impulse) {
+    velocity += impulse / mass();
 }
