@@ -162,6 +162,10 @@ class ShapeWrap: public Shape, public python::wrapper<Shape> {
         throw runtime_error("Do not override shape!");
     }
 
+    virtual Shape* clone() const override {
+        throw runtime_error("Do not override shape!");
+    }
+
     virtual CollisionTimeResult collide(const Shape* /*other*/, double /*end_time*/) const override {
         throw runtime_error("Do not override shape!");
     }
@@ -236,10 +240,12 @@ BOOST_PYTHON_MODULE(physics) {
         .def("add_shape", &BodyWrap::add_shape)
         .def("remove_shape", &BodyWrap::remove_shape);
     python::class_<ShapeWrap, boost::noncopyable>("Shape", python::no_init)
-        .def_readwrite("mass", &Shape::mass);
-    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle", python::init<double, double, const Vec&>((python::arg("radius")=0,
-                                                                                                                         python::arg("mass")=0,
-                                                                                                                         python::arg("position")=Vec{})))
+        .def_readwrite("mass", &Shape::mass)
+        .def("clone", &Shape::clone, python::return_value_policy<python::manage_new_object>());
+    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle",
+        python::init<double, double, const Vec&>((python::arg("radius")=0,
+                                                  python::arg("mass")=0,
+                                                  python::arg("position")=Vec{})))
         .def_readwrite("radius", &Circle::radius);
     python::class_<Collider>("Collider")
         .def("add_body", &Collider::addBody)

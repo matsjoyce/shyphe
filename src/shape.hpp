@@ -37,6 +37,7 @@ public:
     Shape(double mass_=0, const Vec& position_={});
     virtual ~Shape();
     virtual AABB aabb() const = 0;
+    virtual Shape* clone() const = 0;
 
     // Double dispatch
     virtual CollisionTimeResult collide(const Shape* other, double end_time) const = 0;

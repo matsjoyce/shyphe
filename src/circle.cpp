@@ -26,6 +26,10 @@ AABB Circle::aabb() const {
     return {-radius, radius, -radius, radius};
 }
 
+Shape* Circle::clone() const {
+    return new Circle{radius, mass, position};
+}
+
 CollisionTimeResult Circle::collide(const Shape* other, double end_time) const {
     return other->collide(this, end_time);
 }

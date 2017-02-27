@@ -29,6 +29,7 @@ public:
 
     Circle(double radius_=0, double mass_=0, const Vec& position_={});
     virtual AABB aabb() const override;
+    virtual Shape* clone() const override;
 
     // Double dispatch
     virtual CollisionTimeResult collide(const Shape* other, double end_time) const override;
