@@ -19,5 +19,8 @@
 
 #include "shape.hpp"
 
+Shape::Shape(double mass_/*=0*/, const Vec& position_/*={}*/) : mass(mass_), position(position_) {
+}
+
 Shape::~Shape() {
 }

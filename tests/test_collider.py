@@ -3,21 +3,11 @@ import pytest
 
 
 def test_single_bounce():
-    b1 = physics.Body()
-    b1.position = 0, 0
-    b1.velocity = 2, 0
-    c1 = physics.Circle()
-    c1.radius = 1
-    c1.mass = 1
-    b1.add_shape(c1)
+    b1 = physics.Body(position=(0, 0), velocity=(2, 0))
+    b1.add_shape(physics.Circle(radius=1, mass=1))
 
-    b2 = physics.Body()
-    b2.position = 8, 0
-    b2.velocity = -6, 0
-    c2 = physics.Circle()
-    c2.radius = 1
-    c2.mass = 1
-    b2.add_shape(c2)
+    b2 = physics.Body(position=(8, 0), velocity=(-6, 0))
+    b2.add_shape(physics.Circle(radius=1, mass=1))
 
     c = physics.Collider()
     c.add_body(b1)
@@ -62,29 +52,14 @@ def test_single_bounce():
 
 
 def test_double_bounce():
-    b1 = physics.Body()
-    b1.position = 0, 0
-    b1.velocity = 4, 0
-    c1 = physics.Circle()
-    c1.radius = 1
-    c1.mass = 1
-    b1.add_shape(c1)
+    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(physics.Circle(radius=1, mass=1))
 
-    b2 = physics.Body()
-    b2.position = 4, 0
-    b2.velocity = -4, 0
-    c2 = physics.Circle()
-    c2.radius = 1
-    c2.mass = 1
-    b2.add_shape(c2)
+    b2 = physics.Body(position=(4, 0), velocity=(-4, 0))
+    b2.add_shape(physics.Circle(radius=1, mass=1))
 
-    b3 = physics.Body()
-    b3.position = 8, 0
-    b3.velocity = 0, 0
-    c3 = physics.Circle()
-    c3.radius = 1
-    c3.mass = 1
-    b3.add_shape(c3)
+    b3 = physics.Body(position=(8, 0), velocity=(0, 0))
+    b3.add_shape(physics.Circle(radius=1, mass=1))
 
     c = physics.Collider()
     c.add_body(b1)
@@ -158,29 +133,14 @@ def test_double_bounce():
 
 
 def test_single_bounce_die():
-    b1 = physics.Body()
-    b1.position = 0, 0
-    b1.velocity = 4, 0
-    c1 = physics.Circle()
-    c1.radius = 1
-    c1.mass = 1
-    b1.add_shape(c1)
+    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(physics.Circle(radius=1, mass=1))
 
-    b2 = physics.Body()
-    b2.position = 4, 0
-    b2.velocity = -4, 0
-    c2 = physics.Circle()
-    c2.radius = 1
-    c2.mass = 1
-    b2.add_shape(c2)
+    b2 = physics.Body(position=(4, 0), velocity=(-4, 0))
+    b2.add_shape(physics.Circle(radius=1, mass=1))
 
-    b3 = physics.Body()
-    b3.position = 8, 0
-    b3.velocity = 0, 0
-    c3 = physics.Circle()
-    c3.radius = 1
-    c3.mass = 1
-    b3.add_shape(c3)
+    b3 = physics.Body(position=(8, 0), velocity=(0, 0))
+    b3.add_shape(physics.Circle(radius=1, mass=1))
 
     c = physics.Collider()
     c.add_body(b1)

@@ -34,6 +34,7 @@ public:
     double mass = 0;
     Vec position;
 
+    Shape(double mass_=0, const Vec& position_={});
     virtual ~Shape();
     virtual AABB aabb() const = 0;
 

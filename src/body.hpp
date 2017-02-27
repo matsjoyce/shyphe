@@ -29,10 +29,12 @@
 
 class Body {
 public:
-    virtual ~Body();
-
     Vec position, velocity, acceleration;
     double angle, angular_velocity, angular_acceleration;
+
+    Body(const Vec& position_={}, const Vec& velocity_={}, const Vec& acceleration_={},
+         double angle_=0, double angular_velocity_=0, double angular_acceleration_=0);
+    virtual ~Body();
 
     AABB aabb() const;
     double mass() const;
@@ -40,6 +42,7 @@ public:
     void updateVelocity(double time);
     void applyImpulse(Vec impulse, Vec position);
     void addShape(Shape* shape);
+    void removeShape(Shape* shape);
     CollisionTimeResult collide(Body* other, double end_time) const;
 private:
     std::vector<Shape*> shapes;

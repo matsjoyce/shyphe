@@ -19,6 +19,9 @@
 
 #include "circle.hpp"
 
+Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*={}*/) : Shape(mass_, position_), radius(radius_) {
+}
+
 AABB Circle::aabb() const {
     return {-radius, radius, -radius, radius};
 }

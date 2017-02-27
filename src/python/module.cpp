@@ -1,6 +1,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <map>
 #include <boost/python.hpp>
 
 #include "utils.hpp"
@@ -93,12 +94,32 @@ python::tuple vec_as_tuple(const Vec& v) {
 
 class BodyWrap: public Body {
     PyObject *self;
+    map<Shape*, python::object> pyshapes;
 public:
-    BodyWrap(PyObject *p): self(p) {
+    BodyWrap(PyObject *p, const Vec& position_/*={}*/, const Vec& velocity_/*={}*/, const Vec& acceleration_/*={}*/,
+             double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/): Body(position_,
+                                                                                                            velocity_,
+                                                                                                            acceleration_,
+                                                                                                            angle_,
+                                                                                                            angular_velocity_,
+                                                                                                            angular_acceleration_),
+                                                                                                       self(p) {
     }
 
     python::object get_python_object() {
         return python::object(python::handle<>(python::borrowed(self)));
+    }
+
+    void add_shape(python::object shape) {
+        auto ptr = python::extract<Shape*>(shape);
+        pyshapes[ptr] = shape;
+        addShape(ptr);
+    }
+
+    void remove_shape(python::object shape) {
+        auto ptr = python::extract<Shape*>(shape);
+        pyshapes.erase(ptr);
+        removeShape(ptr);
     }
 };
 
@@ -195,7 +216,13 @@ BOOST_PYTHON_MODULE(physics) {
         .def("__getitem__", vec_getitem)
         .def("__setitem__", vec_setitem)
         .def("as_tuple", vec_as_tuple);
-    python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body")
+    python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
+        python::init<const Vec&, const Vec&, const Vec&, double, double, double>((python::arg("position")=Vec{},
+                                                                                  python::arg("velocity")=Vec{},
+                                                                                  python::arg("acceleration")=Vec{},
+                                                                                  python::arg("angle")=0,
+                                                                                  python::arg("angular_velocity")=0,
+                                                                                  python::arg("angular_acceleration")=0)))
         .def_readwrite("position", &Body::position)
         .def_readwrite("velocity", &Body::velocity)
         .def_readwrite("acceleration", &Body::acceleration)
@@ -206,10 +233,13 @@ BOOST_PYTHON_MODULE(physics) {
         .def("update_position", &Body::updatePosition)
         .def("update_velocity", &Body::updateVelocity)
         .def("apply_impulse", &Body::applyImpulse)
-        .def("add_shape", &Body::addShape);
+        .def("add_shape", &BodyWrap::add_shape)
+        .def("remove_shape", &BodyWrap::remove_shape);
     python::class_<ShapeWrap, boost::noncopyable>("Shape", python::no_init)
         .def_readwrite("mass", &Shape::mass);
-    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle")
+    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle", python::init<double, double, const Vec&>((python::arg("radius")=0,
+                                                                                                                         python::arg("mass")=0,
+                                                                                                                         python::arg("position")=Vec{})))
         .def_readwrite("radius", &Circle::radius);
     python::class_<Collider>("Collider")
         .def("add_body", &Collider::addBody)

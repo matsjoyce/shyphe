@@ -25,6 +25,15 @@
 
 using namespace std;
 
+Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/, const Vec& acceleration_/*={}*/,
+            double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/) : position(position_),
+                                                                                                       velocity(velocity_),
+                                                                                                       acceleration(acceleration_),
+                                                                                                       angle(angle_),
+                                                                                                       angular_velocity(angular_velocity_),
+                                                                                                       angular_acceleration(angular_acceleration_) {
+}
+
 Body::~Body() {
 }
 
@@ -61,6 +70,14 @@ void Body::addShape(Shape* shape) {
     }
     shapes.push_back(shape);
     shape->body = this;
+}
+
+void Body::removeShape(Shape* shape) {
+    if (shape->body != this) {
+        throw runtime_error("Shape not attached to this body");
+    }
+    shapes.erase(remove(shapes.begin(), shapes.end(), shape), shapes.end());
+    shape->body = nullptr;
 }
 
 CollisionTimeResult Body::collide(Body* other, double end_time) const {
