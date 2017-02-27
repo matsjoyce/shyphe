@@ -29,6 +29,7 @@ void Collider::reset(double time) {
     body_times.clear();
     for (const auto body : bodies) {
         body_times[body] = 0;
+        body->updateVelocity(time_until);
     }
     _updateCollisionTimes();
 }
@@ -59,7 +60,11 @@ void Collider::_updateCollisionTimesCommon() {
             const auto& col = collision_times.back();
             auto p = col.a < col.b ? make_pair(col.a, col.b) : make_pair(col.b, col.a);
             if (overlapping.count(p)) {
-                overlapping.erase(p);
+                col.a->updatePosition(col.time - body_times[col.a] + ANTI_REPEAT_TIME);
+                col.b->updatePosition(col.time - body_times[col.b] + ANTI_REPEAT_TIME);
+                if (!col.a->immediate_collide(col.b)) {
+                    overlapping.erase(p);
+                }
                 collision_times.pop_back();
             }
             else {
