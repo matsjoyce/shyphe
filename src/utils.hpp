@@ -40,11 +40,14 @@ constexpr double rad_to_deg() {
 }
 
 constexpr inline double norm_rad(double angle) {
+    // radians are in the range [-pi, pi]
     return std::remainder(angle, dpi());
 }
 
 constexpr inline double norm_deg(double angle) {
-    return std::remainder(angle, 360.0);
+    // degrees are in the range (0, 360]
+    auto x = std::remainder(angle, 360.0);
+    return x < 0 ? x + 360 : x;
 }
 
 constexpr inline double to_deg(double angle) {

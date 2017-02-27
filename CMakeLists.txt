@@ -2,8 +2,9 @@ cmake_minimum_required (VERSION 3.6)
 project(physics)
 
 set(PROJECT_FILES src/aabb.cpp src/body.cpp src/circle.cpp
-            src/collider.cpp src/collisions.cpp src/sataxes.cpp
-            src/shape.cpp src/vec.cpp src/python/module.cpp)
+            src/collider.cpp src/collisions.cpp src/massshape.cpp
+            src/sataxes.cpp src/shape.cpp src/vec.cpp
+            src/python/module.cpp)
 
 find_package(ECM 0.0.11 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})

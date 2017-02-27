@@ -26,6 +26,7 @@
 
 class Body;
 class Circle;
+class MassShape;
 class Polygon;
 
 class Shape {
@@ -38,10 +39,12 @@ public:
     virtual ~Shape();
     virtual AABB aabb() const = 0;
     virtual Shape* clone() const = 0;
+    virtual bool canCollide() const = 0;
 
     // Double dispatch
     virtual CollisionTimeResult collide(const Shape* other, double end_time) const = 0;
     virtual CollisionTimeResult collide(const Circle* other, double end_time) const = 0;
+    virtual CollisionTimeResult collide(const MassShape* other, double end_time) const = 0;
 //     virtual CollisionTimeResult collide(const Polygon* other) const = 0;
 };
 

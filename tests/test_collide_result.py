@@ -5,7 +5,7 @@ import pytest
 
 
 def dummy_shape(mass):
-    return physics.Circle(mass=mass, radius=1)
+    return physics.MassShape(mass=mass)
 
 
 def test_complex_collision():

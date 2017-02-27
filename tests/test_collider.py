@@ -45,10 +45,14 @@ def test_single_bounce():
     c.finished_collision()
 
     assert not c.has_next_collision()
+    assert b1.position.as_tuple() == (0, 0)
+    assert b2.position.as_tuple() == (4, 0)
 
     c.reset(1)
 
     assert not c.has_next_collision()
+    assert b1.position.as_tuple() == (-6, 0)
+    assert b2.position.as_tuple() == (6, 0)
 
 
 def test_double_bounce():

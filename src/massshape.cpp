@@ -17,26 +17,32 @@
  *
  */
 
-#ifndef CIRCLE_HPP
-#define CIRCLE_HPP
+#include "massshape.hpp"
 
-#include "shape.hpp"
-#include "collisions.hpp"
+MassShape::MassShape(double mass_) : Shape(mass_, {}) {
 
-class Circle : public Shape {
-public:
-    double radius = 0;
+}
 
-    Circle(double radius_=0, double mass_=0, const Vec& position_={});
-    virtual AABB aabb() const override;
-    virtual Shape* clone() const override;
-    virtual bool canCollide() const override;
+AABB MassShape::aabb() const {
+    return {0, 0, 0, 0};
+}
 
-    // Double dispatch
-    virtual CollisionTimeResult collide(const Shape* other, double end_time) const override;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time) const override;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time) const override;
-//     virtual CollisionTimeResult collide(const Polygon* other) const override;
-};
+Shape* MassShape::clone() const {
+    return new MassShape(mass);
+}
 
-#endif // CIRCLE_HPP
+bool MassShape::canCollide() const {
+    return false;
+}
+
+CollisionTimeResult MassShape::collide(const Shape* /*other*/, double /*end_time*/) const {
+    return CollisionTimeResult{};
+}
+
+CollisionTimeResult MassShape::collide(const Circle* /*other*/, double /*end_time*/) const {
+    return CollisionTimeResult{};
+}
+
+CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_time*/) const {
+    return CollisionTimeResult{};
+}

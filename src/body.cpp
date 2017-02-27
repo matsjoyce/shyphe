@@ -40,12 +40,20 @@ Body::~Body() {
 AABB Body::aabb() const {
     auto iter = shapes.begin();
     auto end = shapes.end();
+    AABB aabb = {0, 0, 0, 0};
+    for (; iter != end; ++iter) {
+        if ((*iter)->canCollide()) {
+            aabb = (*iter)->aabb() + (*iter)->position;
+            break;
+        }
+    }
     if (iter == end) {
         return {0, 0, 0, 0};
     }
-    auto aabb = (*iter)->aabb() + (*iter)->position;
     for (; iter != end; ++iter) {
-        aabb &= (*iter)->aabb() + (*iter)->position;
+        if ((*iter)->canCollide()) {
+            aabb &= (*iter)->aabb() + (*iter)->position;
+        }
     }
     return aabb;
 }
@@ -84,7 +92,13 @@ CollisionTimeResult Body::collide(Body* other, double end_time) const {
     auto soonest = CollisionTimeResult{};
     soonest.time = end_time + 1;
     for (const auto my_shape : shapes) {
+        if (!my_shape->canCollide()) {
+            continue;
+        }
         for (const auto their_shape : other->shapes) {
+            if (!their_shape->canCollide()) {
+                continue;
+            }
             auto collr = my_shape->collide(their_shape, end_time);
             if (collr.time != -1 && collr.time < soonest.time) {
                 soonest = move(collr);

@@ -85,7 +85,7 @@ public:
     }
 
     inline double bearing() const {
-        return std::atan2(y, x);
+        return std::atan2(x, y);
     }
 
     inline double distanceTo(const Vec& other) const {
@@ -93,7 +93,7 @@ public:
     }
 
     inline double bearingTo(const Vec& other) const {
-        return std::atan2(other.y - y, other.x - x);
+        return std::atan2(other.x - x, other.y - y);
     }
 
     inline double dot(const Vec& other) const {
@@ -106,7 +106,7 @@ public:
 
     inline Vec norm() const {
         auto mag = abs();
-        return {x / mag, y / mag};
+        return mag ? Vec{x / mag, y / mag} : Vec{1, 0};
     }
 
     inline Vec proj(const Vec& axis) const {
@@ -122,7 +122,13 @@ public:
     }
 
     inline static Vec fromBearing(double bearing) {
-        return {std::cos(bearing), std::sin(bearing)};
+        return {std::sin(bearing), std::cos(bearing)};
+    }
+
+    inline Vec rotate(double bearing) {
+        // Clockwise
+        double c = std::cos(bearing), s = std::sin(bearing);
+        return {c * x + s * y, -s * x + c * y};
     }
 
     double x, y;

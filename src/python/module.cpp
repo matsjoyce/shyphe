@@ -11,6 +11,7 @@
 #include "circle.hpp"
 #include "collisions.hpp"
 #include "collider.hpp"
+#include "massshape.hpp"
 
 using namespace std;
 namespace python = boost::python;
@@ -209,6 +210,7 @@ BOOST_PYTHON_MODULE(physics) {
         .def("rej", &Vec::rej)
         .def("from_bearing", &Vec::fromBearing)
         .staticmethod("from_bearing")
+        .def("rotate", &Vec::rotate)
         .def(op::self + op::self)
         .def(op::self - op::self)
         .def(op::self * python::other<double>())
@@ -247,6 +249,8 @@ BOOST_PYTHON_MODULE(physics) {
                                                   python::arg("mass")=0,
                                                   python::arg("position")=Vec{})))
         .def_readwrite("radius", &Circle::radius);
+    python::class_<MassShape, boost::noncopyable, python::bases<Shape>>("MassShape",
+        python::init<double>(python::arg("mass")=0));
     python::class_<Collider>("Collider")
         .def("add_body", &Collider::addBody)
         .def("remove_body", &Collider::removeBody)

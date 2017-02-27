@@ -61,6 +61,11 @@ void Collider::_updateCollisionTimes() {
                                [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
         collision_times.insert(pos, move(colresult));
     }
+    if (!hasNextCollision()) {
+        for (auto body : bodies) {
+            body->updatePosition(time_until - body_times[body]);
+        }
+    }
 }
 
 void Collider::_updateCollisionTimesChanged() {
@@ -96,6 +101,11 @@ void Collider::_updateCollisionTimesChanged() {
     }
     changed_bodies.clear();
     removed_bodies.clear();
+    if (!hasNextCollision()) {
+        for (auto body : bodies) {
+            body->updatePosition(time_until - body_times[body]);
+        }
+    }
 }
 
 bool Collider::hasNextCollision() {
@@ -135,9 +145,4 @@ void Collider::finishedCollision() {
         body_times[body] += ANTI_REPEAT_TIME;
     }
     _updateCollisionTimesChanged();
-    if (!hasNextCollision()) {
-        for (auto body : bodies) {
-            body->updatePosition(time_until - body_times[body]);
-        }
-    }
 }

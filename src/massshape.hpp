@@ -17,26 +17,22 @@
  *
  */
 
-#ifndef CIRCLE_HPP
-#define CIRCLE_HPP
+#ifndef MASSSHAPE_HPP
+#define MASSSHAPE_HPP
 
 #include "shape.hpp"
-#include "collisions.hpp"
 
-class Circle : public Shape {
+class MassShape : public Shape {
 public:
-    double radius = 0;
+    MassShape(double mass_=0);
 
-    Circle(double radius_=0, double mass_=0, const Vec& position_={});
     virtual AABB aabb() const override;
     virtual Shape* clone() const override;
     virtual bool canCollide() const override;
 
-    // Double dispatch
     virtual CollisionTimeResult collide(const Shape* other, double end_time) const override;
     virtual CollisionTimeResult collide(const Circle* other, double end_time) const override;
     virtual CollisionTimeResult collide(const MassShape* other, double end_time) const override;
-//     virtual CollisionTimeResult collide(const Polygon* other) const override;
 };
 
-#endif // CIRCLE_HPP
+#endif // MASSSHAPE_HPP

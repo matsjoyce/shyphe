@@ -30,12 +30,20 @@ Shape* Circle::clone() const {
     return new Circle{radius, mass, position};
 }
 
+bool Circle::canCollide() const {
+    return true;
+}
+
 CollisionTimeResult Circle::collide(const Shape* other, double end_time) const {
     return other->collide(this, end_time);
 }
 
 CollisionTimeResult Circle::collide(const Circle* other, double end_time) const {
     return collideCircleCircle(this, other, end_time);
+}
+
+CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/) const {
+    return {};
 }
 
 // CollisionTimeResult Circle::collide(const Polygon* other) const {

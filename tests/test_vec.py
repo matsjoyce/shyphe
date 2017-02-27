@@ -106,11 +106,11 @@ def test_from_bearing():
     assert physics.Vec.from_bearing(physics.Vec(0, -1).bearing()).as_tuple() == pytest.approx(physics.Vec(0, -1).norm().as_tuple())
 
 
-@pytest.mark.xfail
 def test_bearing_to():
-    assert physics.Vec(0, 0).bearing_to((1, 0)) == 0
-    assert physics.Vec(0, 0).bearing_to((-1, 0)) == math.pi
-    assert physics.Vec(0, 0).bearing_to((0, 1)) == 3 * math.pi / 2
+    assert physics.Vec(0, 0).bearing_to((1, 0)) == math.pi / 2
+    assert physics.Vec(0, 0).bearing_to((-1, 0)) == -math.pi / 2
+    assert physics.Vec(0, 0).bearing_to((0, 1)) == 0
+    assert physics.Vec(0, 0).bearing_to((0, -1)) == math.pi
 
 
 def test_python_conv():
@@ -156,3 +156,13 @@ def test_python_conv():
 
     with pytest.raises(TypeError):
         v.distance_to([])
+
+
+def test_rotate():
+    assert physics.Vec(1, 0).rotate(math.pi).as_tuple() == pytest.approx((-1, 0))
+    assert physics.Vec(0, 1).rotate(math.pi).as_tuple() == pytest.approx((0, -1))
+    assert physics.Vec(2, 1).rotate(math.pi).as_tuple() == pytest.approx((-2, -1))
+    assert physics.Vec(2, 1).rotate(math.pi / 2).as_tuple() == pytest.approx((1, -2))
+    assert physics.Vec(2, 1).rotate(-math.pi / 2).as_tuple() == pytest.approx((-1, 2))
+    assert physics.Vec(0, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
+    assert physics.Vec(1, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** 0.5, 0))

@@ -4,14 +4,14 @@ import pytest
 
 def test_add_shape():
     b = physics.Body()
-    b.add_shape(physics.Circle(mass=10))
+    b.add_shape(physics.MassShape(mass=10))
 
     assert b.mass == 10
 
 
 def test_remove_shape():
     b = physics.Body()
-    c = physics.Circle(mass=10)
+    c = physics.MassShape(mass=10)
     b.add_shape(c)
     b.remove_shape(c)
 
@@ -21,7 +21,7 @@ def test_remove_shape():
 def test_broken_add_remove():
     b = physics.Body()
     b2 = physics.Body()
-    c = physics.Circle(mass=10)
+    c = physics.MassShape(mass=10)
     b.add_shape(c)
 
     with pytest.raises(RuntimeError):
@@ -39,7 +39,7 @@ def test_broken_add_remove():
 def test_clone_shape():
     b = physics.Body()
     b2 = physics.Body()
-    c = physics.Circle(mass=10)
+    c = physics.MassShape(mass=10)
     b.add_shape(c)
     b2.add_shape(c.clone())
 
