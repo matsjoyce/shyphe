@@ -18,6 +18,7 @@
  */
 
 #include "circle.hpp"
+#include "body.hpp"
 
 Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*={}*/) : Shape(mass_, position_), radius(radius_) {
 }
@@ -42,9 +43,28 @@ CollisionTimeResult Circle::collide(const Circle* other, double end_time) const 
     return collideCircleCircle(this, other, end_time);
 }
 
+
+// LCOV_EXCL_START
 CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/) const {
     return {};
 }
+// LCOV_EXCL_STOP
 
 // CollisionTimeResult Circle::collide(const Polygon* other) const {
 // }
+
+
+bool Circle::immediate_collide(const Shape* other) const {
+    return other->immediate_collide(this);
+}
+
+bool Circle::immediate_collide(const Circle* other) const {
+    return (other->body->position - body->position).abs() < other->radius + radius;
+}
+
+// LCOV_EXCL_START
+bool Circle::immediate_collide(const MassShape* other) const {
+    return false;
+}
+
+// LCOV_EXCL_STOP

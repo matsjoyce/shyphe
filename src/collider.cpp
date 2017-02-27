@@ -46,6 +46,29 @@ void Collider::removeBody(Body* body) {
     changed_bodies.erase(body);
 }
 
+void Collider::_updateCollisionTimesCommon() {
+    changed_bodies.clear();
+    removed_bodies.clear();
+    if (!hasNextCollision()) {
+        for (auto body : bodies) {
+            body->updatePosition(time_until - body_times[body]);
+        }
+    }
+    else {
+        while (collision_times.size()) {
+            const auto& col = collision_times.back();
+            auto p = col.a < col.b ? make_pair(col.a, col.b) : make_pair(col.b, col.a);
+            if (overlapping.count(p)) {
+                overlapping.erase(p);
+                collision_times.pop_back();
+            }
+            else {
+                break;
+            }
+        }
+    }
+}
+
 void Collider::_updateCollisionTimes() {
     sat_axes.reset(bodies.size());
     for (auto body : bodies) {
@@ -61,11 +84,7 @@ void Collider::_updateCollisionTimes() {
                                [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
         collision_times.insert(pos, move(colresult));
     }
-    if (!hasNextCollision()) {
-        for (auto body : bodies) {
-            body->updatePosition(time_until - body_times[body]);
-        }
-    }
+    _updateCollisionTimesCommon();
 }
 
 void Collider::_updateCollisionTimesChanged() {
@@ -99,20 +118,14 @@ void Collider::_updateCollisionTimesChanged() {
                                [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
         collision_times.insert(pos, move(colresult));
     }
-    changed_bodies.clear();
-    removed_bodies.clear();
-    if (!hasNextCollision()) {
-        for (auto body : bodies) {
-            body->updatePosition(time_until - body_times[body]);
-        }
-    }
+    _updateCollisionTimesCommon();
 }
 
 bool Collider::hasNextCollision() {
     return collision_times.size();
 }
 
-std::pair<Collision, Collision> Collider::nextCollision() {
+pair<Collision, Collision> Collider::nextCollision() {
     auto collision = collision_times.back();
     collision_times.pop_back();
     changed_bodies.insert(collision.a);
@@ -137,12 +150,20 @@ std::pair<Collision, Collision> Collider::nextCollision() {
                       }};
 }
 
-void Collider::finishedCollision() {
+void Collider::finishedCollision(const pair<Collision, Collision>& collisions) {
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
     for (auto& body : changed_bodies) {
         body->updatePosition(ANTI_REPEAT_TIME);
         body_times[body] += ANTI_REPEAT_TIME;
+    }
+    if (collisions.first.body->immediate_collide(collisions.second.body)) {
+        if (collisions.first.body < collisions.second.body) {
+            overlapping.insert({collisions.first.body, collisions.second.body});
+        }
+        else {
+            overlapping.insert({collisions.second.body, collisions.first.body});
+        }
     }
     _updateCollisionTimesChanged();
 }

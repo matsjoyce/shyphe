@@ -46,6 +46,12 @@ public:
     virtual CollisionTimeResult collide(const Circle* other, double end_time) const = 0;
     virtual CollisionTimeResult collide(const MassShape* other, double end_time) const = 0;
 //     virtual CollisionTimeResult collide(const Polygon* other) const = 0;
+
+    // Double dispatch
+    virtual bool immediate_collide(const Shape* other) const = 0;
+    virtual bool immediate_collide(const Circle* other) const = 0;
+    virtual bool immediate_collide(const MassShape* other) const = 0;
+//     virtual bool immediate_collide(const Polygon* other) const = 0;
 };
 
 #endif // SHAPE_HPP

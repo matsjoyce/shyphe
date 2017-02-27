@@ -47,7 +47,7 @@ constexpr inline double norm_rad(double angle) {
 constexpr inline double norm_deg(double angle) {
     // degrees are in the range (0, 360]
     auto x = std::remainder(angle, 360.0);
-    return x < 0 ? x + 360 : x;
+    return x < 0 ? x + 360.0 : x;
 }
 
 constexpr inline double to_deg(double angle) {

@@ -113,6 +113,11 @@ def test_bearing_to():
     assert physics.Vec(0, 0).bearing_to((0, -1)) == math.pi
 
 
+def test_vec_str():
+    assert str(physics.Vec(1, 3)) == "(1, 3)"
+    assert repr(physics.Vec(1, 3)) == "Vec(1, 3)"
+
+
 def test_python_conv():
     v = physics.Vec(1, 2)
 

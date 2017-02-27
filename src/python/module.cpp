@@ -67,7 +67,7 @@ int vec_getitem(const Vec& v, int index) {
     }
     PyErr_SetString(PyExc_IndexError, "Vec index out of range");
     python::throw_error_already_set();
-    return -1; // Never reached
+    return -1; // Never reached LCOV_EXCL_LINE
 }
 
 void vec_setitem(Vec& v, int index, double value) {
@@ -130,7 +130,7 @@ python::object magic_body_extract(Body* body) {
     }
     auto bw = dynamic_cast<BodyWrap*>(body);
     if (!bw) {
-        throw runtime_error("Request to get_body failed, was this body created from Python?");
+        throw runtime_error("Request to get_body failed, was this body created from Python?"); // LCOV_EXCL_LINE
     }
     return bw->get_python_object();
 }
@@ -156,6 +156,29 @@ template<typename T1, typename T2> struct PairToPythonConverter {
     static PyObject* convert(const pair<T1, T2>& pair) {
         return python::incref(python::make_tuple(pair.first, pair.second).ptr());
     }
+};
+
+template<typename T1, typename T2> struct PythonToPairConverter {
+    PythonToPairConverter() {
+        python::converter::registry::push_back(&convertible, &construct, python::type_id<pair<T1, T2>>());
+    }
+
+    static void* convertible(PyObject* obj) {
+        if (!PyTuple_CheckExact(obj)) return 0;
+        if (PyTuple_Size(obj) != 2) return 0;
+        return obj;
+    }
+    static void construct(PyObject* obj, python::converter::rvalue_from_python_stage1_data* data) {
+        python::tuple tuple(python::borrowed(obj));
+        void* storage = ((python::converter::rvalue_from_python_storage<pair<T1, T2>>*) data)->storage.bytes;
+        new (storage) std::pair<T1, T2>(python::extract<T1>(tuple[0]), python::extract<T2>(tuple[1]));
+        data->convertible = storage;
+    }
+};
+
+template<typename T1, typename T2> struct py_pair {
+    python::to_python_converter<std::pair<T1, T2>, PairToPythonConverter<T1, T2>> toPy;
+    PythonToPairConverter<T1, T2> fromPy;
 };
 
 class ShapeWrap: public Shape, public python::wrapper<Shape> {
@@ -265,7 +288,7 @@ BOOST_PYTHON_MODULE(physics) {
         .def_readonly("touch_point", &Collision::touch_point)
         .def_readonly("impulse", &Collision::impulse)
         .def_readonly("closing_velocity", &Collision::closing_velocity);
-    python::to_python_converter<pair<Collision, Collision>, PairToPythonConverter<Collision, Collision>>();
+    py_pair<Collision, Collision>();
 
     // Exposed for tests
 

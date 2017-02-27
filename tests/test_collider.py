@@ -42,7 +42,7 @@ def test_single_bounce():
     assert b1.velocity.as_tuple() == (-6, 0)
     assert b2.velocity.as_tuple() == (2, 0)
 
-    c.finished_collision()
+    c.finished_collision((cola, colb))
 
     assert not c.has_next_collision()
     assert b1.position.as_tuple() == (0, 0)
@@ -100,7 +100,7 @@ def test_double_bounce():
     assert b1.velocity.as_tuple() == (-4, 0)
     assert b2.velocity.as_tuple() == (4, 0)
 
-    c.finished_collision()
+    c.finished_collision((cola, colb))
 
     assert c.has_next_collision()
 
@@ -131,7 +131,7 @@ def test_double_bounce():
     assert b3.velocity.as_tuple() == (4, 0)
     assert b2.velocity.as_tuple() == (0, 0)
 
-    c.finished_collision()
+    c.finished_collision((cola, colb))
 
     assert not c.has_next_collision()
 
@@ -182,6 +182,6 @@ def test_single_bounce_die():
     assert b2.velocity.as_tuple() == (4, 0)
 
     c.remove_body(b2)
-    c.finished_collision()
+    c.finished_collision((cola, colb))
 
     assert not c.has_next_collision()

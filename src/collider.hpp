@@ -45,18 +45,20 @@ public:
     void removeBody(Body* body);
     void reset(double time);
     std::pair<Collision, Collision> nextCollision();
-    void finishedCollision();
+    void finishedCollision(const std::pair<Collision, Collision>& collisions);
     bool hasNextCollision();
 private:
     double time_until, current_time;
     std::vector<Body*> bodies;
     std::map<Body*, double> body_times;
     std::set<Body*> changed_bodies, removed_bodies;
+    std::set<std::pair<Body*, Body*>> overlapping;
     std::vector<CollisionTimeResult> collision_times;
     SATAxes sat_axes;
 
     void _updateCollisionTimes();
     void _updateCollisionTimesChanged();
+    void _updateCollisionTimesCommon();
 };
 
 #endif // COLLIDER_HPP

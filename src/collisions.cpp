@@ -33,10 +33,6 @@ CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bci
     auto pos_diff = apos - bpos;
     auto radii = acircle->radius + bcircle->radius;
 
-    if (pos_diff.abs() < radii) {
-        return {abody, bbody, 0, (apos * bcircle->radius + bpos * acircle->radius) / radii, (bpos - apos).norm()};
-    }
-
     auto vel_diff = abody->velocity - bbody->velocity;
 
     auto a = vel_diff.squared();

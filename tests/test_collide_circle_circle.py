@@ -35,23 +35,6 @@ def test_circle_circle_vertical():
     assert coll.b is b2
 
 
-def test_circle_circle_same_pos():
-    b1 = physics.Body(position=(0, 0), velocity=(0, 2))
-    c1 = physics.Circle(radius=1)
-    b1.add_shape(c1)
-
-    b2 = physics.Body(position=(0, 0), velocity=(0, -2))
-    c2 = physics.Circle(radius=1)
-    b2.add_shape(c2)
-
-    coll = physics.collide_circle_circle(c1, c2, 1)
-    assert coll.time == 0
-    assert coll.normal.abs() == 1
-    assert coll.touch_point.as_tuple() == (0, 0)
-    assert coll.a is b1
-    assert coll.b is b2
-
-
 def test_circle_circle_no_collision_opposite_dir():
     b1 = physics.Body(position=(0, 0), velocity=(0, 2))
     c1 = physics.Circle(radius=1)

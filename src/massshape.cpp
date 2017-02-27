@@ -23,16 +23,17 @@ MassShape::MassShape(double mass_) : Shape(mass_, {}) {
 
 }
 
-AABB MassShape::aabb() const {
-    return {0, 0, 0, 0};
-}
-
 Shape* MassShape::clone() const {
     return new MassShape(mass);
 }
 
 bool MassShape::canCollide() const {
     return false;
+}
+
+// LCOV_EXCL_START
+AABB MassShape::aabb() const {
+    return {0, 0, 0, 0};
 }
 
 CollisionTimeResult MassShape::collide(const Shape* /*other*/, double /*end_time*/) const {
@@ -46,3 +47,16 @@ CollisionTimeResult MassShape::collide(const Circle* /*other*/, double /*end_tim
 CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_time*/) const {
     return CollisionTimeResult{};
 }
+
+bool MassShape::immediate_collide(const Shape* other) const {
+    return false;
+}
+
+bool MassShape::immediate_collide(const Circle* other) const {
+    return false;
+}
+
+bool MassShape::immediate_collide(const MassShape* other) const {
+    return false;
+}
+// LCOV_EXCL_STOP

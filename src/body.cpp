@@ -59,7 +59,7 @@ AABB Body::aabb() const {
 }
 
 double Body::mass() const {
-    return accumulate(shapes.begin(), shapes.end(), 0, [](double acc, const Shape* shape){return acc + shape->mass;});
+    return accumulate(shapes.begin(), shapes.end(), 0.0, [](double acc, const Shape* shape){return acc + shape->mass;});
 }
 
 void Body::updatePosition(double time) {
@@ -110,6 +110,23 @@ CollisionTimeResult Body::collide(Body* other, double end_time) const {
     }
     soonest.time = -1;
     return soonest;
+}
+
+bool Body::immediate_collide(Body* other) const {
+    for (const auto my_shape : shapes) {
+        if (!my_shape->canCollide()) {
+            continue;
+        }
+        for (const auto their_shape : other->shapes) {
+            if (!their_shape->canCollide()) {
+                continue;
+            }
+            if (my_shape->immediate_collide(their_shape)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Body::applyImpulse(Vec impulse, Vec position) {

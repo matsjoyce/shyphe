@@ -44,6 +44,7 @@ public:
     void addShape(Shape* shape);
     void removeShape(Shape* shape);
     CollisionTimeResult collide(Body* other, double end_time) const;
+    bool immediate_collide(Body* other) const;
 private:
     std::vector<Shape*> shapes;
 };
