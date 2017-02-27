@@ -65,13 +65,6 @@ void SATAxes::removeBody(Body* body) {
     y_axis.erase(remove_if(y_axis.begin(), y_axis.end(), pred), y_axis.end());
 }
 
-void SATAxes::remove2Bodies(Body* bodya, Body* bodyb) {
-    auto pred = [bodya, bodyb](const SATShadow& sh){return sh.body == bodya || sh.body == bodyb;};
-
-    x_axis.erase(remove_if(x_axis.begin(), x_axis.end(), pred), x_axis.end());
-    y_axis.erase(remove_if(y_axis.begin(), y_axis.end(), pred), y_axis.end());
-}
-
 set<pair<Body*, Body*>> SATAxes::_collisionsOnAxis(const vector<SATShadow>& axis) {
     auto stack = set<Body*>{};
     auto result = set<pair<Body*, Body*>>{};

@@ -5,11 +5,13 @@ import subprocess
 import shutil
 import pathlib
 import sys
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--coverage", action="store_true")
 args, pytestargs = parser.parse_known_args()
 
+os.chdir(pathlib.Path(__file__).parent)
 subprocess.check_call(["ninja"], cwd="build")
 
 if args.coverage:

@@ -38,7 +38,7 @@ public:
     double mass() const;
     void updatePosition(double time);
     void updateVelocity(double time);
-    void applyImpulse(Vec impulse);
+    void applyImpulse(Vec impulse, Vec position);
     void addShape(Shape* shape);
     CollisionTimeResult collide(Body* other, double end_time) const;
 private:

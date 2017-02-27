@@ -129,6 +129,13 @@ python::object get_collisiontime_b(const CollisionTimeResult& col) {
     return magic_body_extract(col.b);
 }
 
+// http://stackoverflow.com/a/41593748/3946766
+template<typename T1, typename T2> struct PairToPythonConverter {
+    static PyObject* convert(const pair<T1, T2>& pair) {
+        return python::incref(python::make_tuple(pair.first, pair.second).ptr());
+    }
+};
+
 class ShapeWrap: public Shape, public python::wrapper<Shape> {
     virtual AABB aabb() const override {
         throw runtime_error("Do not override shape!");
@@ -205,11 +212,12 @@ BOOST_PYTHON_MODULE(physics) {
     python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle")
         .def_readwrite("radius", &Circle::radius);
     python::class_<Collider>("Collider")
-        .def("new_body", &Collider::newBody)
+        .def("add_body", &Collider::addBody)
+        .def("remove_body", &Collider::removeBody)
         .def("reset", &Collider::reset)
         .def("next_collision", &Collider::nextCollision)
         .def("finished_collision", &Collider::finishedCollision)
-        .def("hasNext_collision", &Collider::hasNextCollision);
+        .def("has_next_collision", &Collider::hasNextCollision);
     python::class_<Collision>("Collision")
         .add_property("body", &get_collision_body)
         .add_property("other", &get_collision_other)
@@ -217,9 +225,7 @@ BOOST_PYTHON_MODULE(physics) {
         .def_readonly("touch_point", &Collision::touch_point)
         .def_readonly("impulse", &Collision::impulse)
         .def_readonly("closing_velocity", &Collision::closing_velocity);
-    python::class_<pair<Collision, Collision>, boost::noncopyable>("CollisionPair")
-        .def_readonly("first", &pair<Collision, Collision>::first)
-        .def_readonly("second", &pair<Collision, Collision>::second);
+    python::to_python_converter<pair<Collision, Collision>, PairToPythonConverter<Collision, Collision>>();
 
     // Exposed for tests
 
@@ -234,5 +240,4 @@ BOOST_PYTHON_MODULE(physics) {
     python::class_<CollisionResult>("CollisionResult")
         .def_readonly("impulse", &CollisionResult::impulse)
         .def_readonly("closing_velocity", &CollisionResult::closing_velocity);
-
 }

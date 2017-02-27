@@ -81,6 +81,6 @@ CollisionTimeResult Body::collide(Body* other, double end_time) const {
     return soonest;
 }
 
-void Body::applyImpulse(Vec impulse) {
+void Body::applyImpulse(Vec impulse, Vec position) {
     velocity += impulse / mass();
 }

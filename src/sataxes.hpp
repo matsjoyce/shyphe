@@ -35,7 +35,6 @@ class SATAxes{
 public:
     void addBody(Body* body, double time);
     void removeBody(Body* body);
-    void remove2Bodies(Body* bodya, Body* bodyb);
     void reset(int reserve_hint=0);
     std::set<std::pair<Body*, Body*>> possibleCollisions();
 private:

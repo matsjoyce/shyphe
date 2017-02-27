@@ -41,7 +41,8 @@ struct Collision {
 
 class Collider {
 public:
-    void newBody(Body* body);
+    void addBody(Body* body);
+    void removeBody(Body* body);
     void reset(double time);
     std::pair<Collision, Collision> nextCollision();
     void finishedCollision();
@@ -50,7 +51,7 @@ private:
     double time_until, current_time;
     std::vector<Body*> bodies;
     std::map<Body*, double> body_times;
-    std::set<Body*> changed_bodies;
+    std::set<Body*> changed_bodies, removed_bodies;
     std::vector<CollisionTimeResult> collision_times;
     SATAxes sat_axes;
 

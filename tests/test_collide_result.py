@@ -99,8 +99,8 @@ def test_collision_fuzz(i):
 
     cr = physics.collision_result(col, 1, 10000, 1)
 
-    a.apply_impulse(cr.impulse)
-    b.apply_impulse(-cr.impulse)
+    a.apply_impulse(cr.impulse, col.touch_point - a.position)
+    b.apply_impulse(-cr.impulse, col.touch_point - b.position)
 
     a.update_position(1)
     b.update_position(1)

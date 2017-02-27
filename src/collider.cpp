@@ -21,6 +21,8 @@
 
 using namespace std;
 
+const double ANTI_REPEAT_TIME = 0.0001;
+
 void Collider::reset(double time) {
     time_until = time;
     current_time = 0;
@@ -31,10 +33,17 @@ void Collider::reset(double time) {
     _updateCollisionTimes();
 }
 
-void Collider::newBody(Body* body) {
+void Collider::addBody(Body* body) {
     bodies.push_back(body);
     body_times[body] = 0;
     changed_bodies.insert(body);
+}
+
+void Collider::removeBody(Body* body) {
+    bodies.erase(remove(bodies.begin(), bodies.end(), body), bodies.end());
+    body_times.erase(body);
+    removed_bodies.insert(body);
+    changed_bodies.erase(body);
 }
 
 void Collider::_updateCollisionTimes() {
@@ -49,12 +58,15 @@ void Collider::_updateCollisionTimes() {
             continue;
         }
         auto pos = upper_bound(collision_times.begin(), collision_times.end(), colresult,
-                               [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time < b.time;});
+                               [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
         collision_times.insert(pos, move(colresult));
     }
 }
 
 void Collider::_updateCollisionTimesChanged() {
+    for (auto body : removed_bodies) {
+        sat_axes.removeBody(body);
+    }
     for (auto body : changed_bodies) {
         sat_axes.removeBody(body);
         sat_axes.addBody(body, time_until - body_times[body]);
@@ -83,6 +95,7 @@ void Collider::_updateCollisionTimesChanged() {
         collision_times.insert(pos, move(colresult));
     }
     changed_bodies.clear();
+    removed_bodies.clear();
 }
 
 bool Collider::hasNextCollision() {
@@ -117,6 +130,10 @@ std::pair<Collision, Collision> Collider::nextCollision() {
 void Collider::finishedCollision() {
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
+    for (auto& body : changed_bodies) {
+        body->updatePosition(ANTI_REPEAT_TIME);
+        body_times[body] += ANTI_REPEAT_TIME;
+    }
     _updateCollisionTimesChanged();
     if (!hasNextCollision()) {
         for (auto body : bodies) {

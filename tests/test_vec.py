@@ -105,8 +105,54 @@ def test_from_bearing():
     assert physics.Vec.from_bearing(physics.Vec(-1, 0).bearing()).as_tuple() == pytest.approx(physics.Vec(-1, 0).norm().as_tuple())
     assert physics.Vec.from_bearing(physics.Vec(0, -1).bearing()).as_tuple() == pytest.approx(physics.Vec(0, -1).norm().as_tuple())
 
+
 @pytest.mark.xfail
 def test_bearing_to():
     assert physics.Vec(0, 0).bearing_to((1, 0)) == 0
     assert physics.Vec(0, 0).bearing_to((-1, 0)) == math.pi
     assert physics.Vec(0, 0).bearing_to((0, 1)) == 3 * math.pi / 2
+
+
+def test_python_conv():
+    v = physics.Vec(1, 2)
+
+    assert len(v) == 2
+    assert v[0] == v[-2] == 1
+    assert v[1] == v[-1] == 2
+
+    with pytest.raises(IndexError):
+        _ = v[2]
+
+    with pytest.raises(IndexError):
+        _ = v[-3]
+
+    assert list(v) == [1, 2]
+
+    v[0] = 3
+
+    assert v.as_tuple() == (3, 2)
+
+    v[1] = 4
+
+    assert v.as_tuple() == (3, 4)
+
+    with pytest.raises(IndexError):
+        v[2] = 1
+
+    with pytest.raises(IndexError):
+        v[-3] = 1
+
+    with pytest.raises(ValueError):
+        v.distance_to((1,))
+
+    with pytest.raises(ValueError):
+        v.distance_to((1, 2, 3))
+
+    with pytest.raises(ValueError):
+        v.distance_to((1, None))
+
+    with pytest.raises(ValueError):
+        v.distance_to((None, None))
+
+    with pytest.raises(TypeError):
+        v.distance_to([])
