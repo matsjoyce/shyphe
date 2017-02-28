@@ -119,11 +119,11 @@ def test_vec_str():
 
 
 def test_python_conv():
-    v = physics.Vec(1, 2)
+    v = physics.Vec(1.1, 2.1)
 
     assert len(v) == 2
-    assert v[0] == v[-2] == 1
-    assert v[1] == v[-1] == 2
+    assert v[0] == v[-2] == 1.1
+    assert v[1] == v[-1] == 2.1
 
     with pytest.raises(IndexError):
         _ = v[2]
@@ -131,11 +131,11 @@ def test_python_conv():
     with pytest.raises(IndexError):
         _ = v[-3]
 
-    assert list(v) == [1, 2]
+    assert list(v) == [1.1, 2.1]
 
     v[0] = 3
 
-    assert v.as_tuple() == (3, 2)
+    assert v.as_tuple() == (3, 2.1)
 
     v[1] = 4
 
@@ -164,6 +164,7 @@ def test_python_conv():
 
 
 def test_rotate():
+    assert physics.Vec(1, 0).rotate(0).as_tuple() == pytest.approx((1, 0))
     assert physics.Vec(1, 0).rotate(math.pi).as_tuple() == pytest.approx((-1, 0))
     assert physics.Vec(0, 1).rotate(math.pi).as_tuple() == pytest.approx((0, -1))
     assert physics.Vec(2, 1).rotate(math.pi).as_tuple() == pytest.approx((-2, -1))

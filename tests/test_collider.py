@@ -15,7 +15,8 @@ def test_single_bounce():
     c.reset(1)
 
     assert c.has_next_collision()
-    cola, colb = c.next_collision()
+    ctr = c.next_collision()
+    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1, 10000, 1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -42,7 +43,7 @@ def test_single_bounce():
     assert b1.velocity.as_tuple() == (-6, 0)
     assert b2.velocity.as_tuple() == (2, 0)
 
-    c.finished_collision((cola, colb))
+    c.finished_collision((cola, colb), True)
 
     assert not c.has_next_collision()
     assert b1.position.as_tuple() == (0, 0)
@@ -73,7 +74,8 @@ def test_double_bounce():
 
     assert c.has_next_collision()
 
-    cola, colb = c.next_collision()
+    ctr = c.next_collision()
+    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1, 10000, 1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -100,11 +102,12 @@ def test_double_bounce():
     assert b1.velocity.as_tuple() == (-4, 0)
     assert b2.velocity.as_tuple() == (4, 0)
 
-    c.finished_collision((cola, colb))
+    c.finished_collision((cola, colb), True)
 
     assert c.has_next_collision()
 
-    cola, colb = c.next_collision()
+    ctr = c.next_collision()
+    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1, 10000, 1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -131,7 +134,7 @@ def test_double_bounce():
     assert b3.velocity.as_tuple() == (4, 0)
     assert b2.velocity.as_tuple() == (0, 0)
 
-    c.finished_collision((cola, colb))
+    c.finished_collision((cola, colb), True)
 
     assert not c.has_next_collision()
 
@@ -154,7 +157,8 @@ def test_single_bounce_die():
 
     assert c.has_next_collision()
 
-    cola, colb = c.next_collision()
+    ctr = c.next_collision()
+    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1, 10000, 1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -182,6 +186,6 @@ def test_single_bounce_die():
     assert b2.velocity.as_tuple() == (4, 0)
 
     c.remove_body(b2)
-    c.finished_collision((cola, colb))
+    c.finished_collision((cola, colb), True)
 
     assert not c.has_next_collision()

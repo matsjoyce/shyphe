@@ -27,7 +27,12 @@ class Circle;
 class Polygon;
 
 struct CollisionTimeResult {
-    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm): a(a_), b(b_), time(time_), touch_point(tp), normal(norm) {
+    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm, bool entering_): a(a_),
+                                                                                                       b(b_),
+                                                                                                       time(time_),
+                                                                                                       touch_point(tp),
+                                                                                                       normal(norm),
+                                                                                                       entering(entering_) {
     }
 
     constexpr CollisionTimeResult() {
@@ -38,6 +43,7 @@ struct CollisionTimeResult {
     double time = -1;
     Vec touch_point = {0, 0};
     Vec normal = {0, 0};
+    bool entering = true;
 };
 
 CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time);
@@ -47,6 +53,18 @@ struct CollisionResult {
     Vec closing_velocity;
 };
 
-CollisionResult collisionResult(const CollisionTimeResult& cr, double E, double transition_impulse, double transition_reduction);
+struct CollisionParameters {
+    constexpr CollisionParameters(double restitution_, double transition_impulse_,
+                                  double transition_reduction_): restitution(restitution_),
+                                                                 transition_impulse(transition_impulse_),
+                                                                 transition_reduction(transition_reduction_) {
+    }
+
+    double restitution;
+    double transition_impulse;
+    double transition_reduction;
+};
+
+CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params);
 
 #endif // COLLISIONS_HPP

@@ -58,7 +58,7 @@ int vec_len(const Vec& /*v*/) {
     return 2;
 }
 
-int vec_getitem(const Vec& v, int index) {
+double vec_getitem(const Vec& v, int index) {
     if (index == 0 || index == -2) {
         return v.x;
     }
@@ -206,15 +206,12 @@ BOOST_PYTHON_MODULE(physics) {
     python::def("to_deg", to_deg);
     python::def("to_rad", to_rad);
     Vec_from_tuple();
+    // Note: inplace operators are not wrapped so vectors are immutable in python. As python does not copy objects, this makes everything safer
     python::class_<Vec>("Vec", python::init<double, double>())
         .def(python::init<>())
-        .def_readwrite("x", &Vec::x)
-        .def_readwrite("y", &Vec::y)
+        .def_readonly("x", &Vec::x)
+        .def_readonly("y", &Vec::y)
         .def(-op::self)
-        .def(op::self += op::self)
-        .def(op::self -= op::self)
-        .def(op::self *= python::other<double>())
-        .def(op::self /= python::other<double>())
         .def(op::self == op::self)
         .def(op::self != op::self)
         .def(op::self < op::self)
@@ -247,6 +244,7 @@ BOOST_PYTHON_MODULE(physics) {
         .def("__getitem__", vec_getitem)
         .def("__setitem__", vec_setitem)
         .def("as_tuple", vec_as_tuple);
+    // Note: All the Vec properties have to return copies to preserve immutability
     python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
         python::init<const Vec&, const Vec&, const Vec&, double, double, double>((python::arg("position")=Vec{},
                                                                                   python::arg("velocity")=Vec{},
@@ -254,9 +252,18 @@ BOOST_PYTHON_MODULE(physics) {
                                                                                   python::arg("angle")=0,
                                                                                   python::arg("angular_velocity")=0,
                                                                                   python::arg("angular_acceleration")=0)))
-        .def_readwrite("position", &Body::position)
-        .def_readwrite("velocity", &Body::velocity)
-        .def_readwrite("acceleration", &Body::acceleration)
+        .add_property("position",
+            python::make_getter(&Body::position, python::return_value_policy<python::return_by_value>()),
+            python::make_setter(&Body::position)
+        )
+        .add_property("velocity",
+            python::make_getter(&Body::velocity, python::return_value_policy<python::return_by_value>()),
+            python::make_setter(&Body::velocity)
+        )
+        .add_property("acceleration",
+            python::make_getter(&Body::acceleration, python::return_value_policy<python::return_by_value>()),
+            python::make_setter(&Body::acceleration)
+        )
         .def_readwrite("angle", &Body::angle)
         .def_readwrite("angular_velocity", &Body::angular_velocity)
         .def_readwrite("angular_acceleration", &Body::angular_acceleration)
@@ -281,6 +288,7 @@ BOOST_PYTHON_MODULE(physics) {
         .def("remove_body", &Collider::removeBody)
         .def("reset", &Collider::reset)
         .def("next_collision", &Collider::nextCollision)
+        .def("calculate_collision", &Collider::calculateCollision)
         .def("finished_collision", &Collider::finishedCollision)
         .def("has_next_collision", &Collider::hasNextCollision);
     python::class_<Collision>("Collision")
@@ -291,18 +299,20 @@ BOOST_PYTHON_MODULE(physics) {
         .def_readonly("impulse", &Collision::impulse)
         .def_readonly("closing_velocity", &Collision::closing_velocity);
     py_pair<Collision, Collision>();
-
-    // Exposed for tests
-
     python::def("collide_circle_circle", collideCircleCircle);
     python::def("collision_result", collisionResult);
-    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec>())
+    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec, bool>())
         .add_property("a", &get_collisiontime_a)
         .add_property("b", &get_collisiontime_b)
         .def_readonly("time", &CollisionTimeResult::time)
         .def_readonly("touch_point", &CollisionTimeResult::touch_point)
-        .def_readonly("normal", &CollisionTimeResult::normal);
+        .def_readonly("normal", &CollisionTimeResult::normal)
+        .def_readonly("entering", &CollisionTimeResult::entering);
     python::class_<CollisionResult>("CollisionResult")
         .def_readonly("impulse", &CollisionResult::impulse)
         .def_readonly("closing_velocity", &CollisionResult::closing_velocity);
+    python::class_<CollisionParameters>("CollisionParameters", python::init<double, double, double>())
+        .def_readwrite("restitution", &CollisionParameters::restitution)
+        .def_readwrite("transition_impulse", &CollisionParameters::transition_impulse)
+        .def_readwrite("transition_reduction", &CollisionParameters::transition_reduction);
 }

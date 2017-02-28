@@ -18,10 +18,9 @@
  */
 
 #include "collider.hpp"
+#include <iostream>
 
 using namespace std;
-
-const double ANTI_REPEAT_TIME = 0.0001;
 
 void Collider::reset(double time) {
     time_until = time;
@@ -29,7 +28,6 @@ void Collider::reset(double time) {
     body_times.clear();
     for (const auto body : bodies) {
         body_times[body] = 0;
-        body->updateVelocity(time_until);
     }
     _updateCollisionTimes();
 }
@@ -50,26 +48,26 @@ void Collider::removeBody(Body* body) {
 void Collider::_updateCollisionTimesCommon() {
     changed_bodies.clear();
     removed_bodies.clear();
+    while (collision_times.size()) {
+        const auto& col = collision_times.back();
+        auto p = col.a < col.b ? make_pair(col.a, col.b) : make_pair(col.b, col.a);
+        if (overlapping.count(p)) {
+            if (!col.entering) {
+                overlapping.erase(p);
+            }
+            collision_times.pop_back();
+        }
+        else if (!col.entering) {
+            collision_times.pop_back();
+        }
+        else {
+            break;
+        }
+    }
     if (!hasNextCollision()) {
         for (auto body : bodies) {
             body->updatePosition(time_until - body_times[body]);
-        }
-    }
-    else {
-        while (collision_times.size()) {
-            const auto& col = collision_times.back();
-            auto p = col.a < col.b ? make_pair(col.a, col.b) : make_pair(col.b, col.a);
-            if (overlapping.count(p)) {
-                col.a->updatePosition(col.time - body_times[col.a] + ANTI_REPEAT_TIME);
-                col.b->updatePosition(col.time - body_times[col.b] + ANTI_REPEAT_TIME);
-                if (!col.a->immediate_collide(col.b)) {
-                    overlapping.erase(p);
-                }
-                collision_times.pop_back();
-            }
-            else {
-                break;
-            }
+            body->updateVelocity(time_until);
         }
     }
 }
@@ -130,7 +128,7 @@ bool Collider::hasNextCollision() {
     return collision_times.size();
 }
 
-pair<Collision, Collision> Collider::nextCollision() {
+CollisionTimeResult Collider::nextCollision() {
     auto collision = collision_times.back();
     collision_times.pop_back();
     changed_bodies.insert(collision.a);
@@ -138,7 +136,11 @@ pair<Collision, Collision> Collider::nextCollision() {
     collision.a->updatePosition(collision.time - body_times[collision.a]);
     collision.b->updatePosition(collision.time - body_times[collision.b]);
     body_times[collision.a] = body_times[collision.b] = collision.time;
-    auto cr = collisionResult(collision, 1, 1000, 0.1);
+    return collision;
+}
+
+std::pair<Collision, Collision> Collider::calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params) {
+    auto cr = collisionResult(collision, params);
     return {Collision{collision.a,
                       collision.b,
                       collision.time,
@@ -155,14 +157,13 @@ pair<Collision, Collision> Collider::nextCollision() {
                       }};
 }
 
-void Collider::finishedCollision(const pair<Collision, Collision>& collisions) {
+void Collider::finishedCollision(const pair<Collision, Collision>& collisions, bool renotify) {
+    for (auto& r: collision_times) {
+        cout << "S" << r.time << " " << r.a << " " << r.b << endl;
+    }
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
-    for (auto& body : changed_bodies) {
-        body->updatePosition(ANTI_REPEAT_TIME);
-        body_times[body] += ANTI_REPEAT_TIME;
-    }
-    if (collisions.first.body->immediate_collide(collisions.second.body)) {
+    if (!renotify) {
         if (collisions.first.body < collisions.second.body) {
             overlapping.insert({collisions.first.body, collisions.second.body});
         }
@@ -171,4 +172,8 @@ void Collider::finishedCollision(const pair<Collision, Collision>& collisions) {
         }
     }
     _updateCollisionTimesChanged();
+
+    for (auto& r: collision_times) {
+        cout << "E" << r.time << " " << r.a << " " << r.b << endl;
+    }
 }

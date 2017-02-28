@@ -14,9 +14,9 @@ def test_complex_collision():
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
     b.add_shape(dummy_shape(10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), b.position - a.position)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
-    cr = physics.collision_result(col, 1, 10000, 1)
+    cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
     assert cr.impulse.as_tuple() == (-600, 0)
     assert cr.closing_velocity.as_tuple() == (-60, 0)
@@ -28,9 +28,9 @@ def test_same_direction_vertical():
     b = physics.Body(position=(0, 0), velocity=(0, -20))
     b.add_shape(dummy_shape(10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
-    cr = physics.collision_result(col, 1, 10000, 1)
+    cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
     assert cr.impulse.as_tuple() == (0, 100)
     assert cr.closing_velocity.as_tuple() == (0, 10)
@@ -42,9 +42,9 @@ def test_same_direction_horizontal():
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
     b.add_shape(dummy_shape(10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
-    cr = physics.collision_result(col, 1, 10000, 1)
+    cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
     assert cr.impulse.as_tuple() == (-100, 0)
     assert cr.closing_velocity.as_tuple() == (-10, 0)
@@ -56,9 +56,9 @@ def test_transition_reduction():
     b = physics.Body(position=(0, 0), velocity=(0, -200))
     b.add_shape(dummy_shape(10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
-    cr = physics.collision_result(col, 1, 500, 0.1)
+    cr = physics.collision_result(col, physics.CollisionParameters(1, 500, 0.1))
 
     assert cr.impulse.as_tuple() == (0, 550)
     assert cr.closing_velocity.as_tuple() == (0, 100)
@@ -77,9 +77,9 @@ def test_collision_fuzz(i):
     if d1 == 0:
         return
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), b.position - a.position)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
-    cr = physics.collision_result(col, 1, 10000, 1)
+    cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
     a.apply_impulse(cr.impulse, col.touch_point - a.position)
     b.apply_impulse(-cr.impulse, col.touch_point - b.position)

@@ -106,7 +106,7 @@ public:
 
     inline Vec norm() const {
         auto mag = abs();
-        return mag ? Vec{x / mag, y / mag} : Vec{1, 0};
+        return {x / mag, y / mag};
     }
 
     inline Vec proj(const Vec& axis) const {

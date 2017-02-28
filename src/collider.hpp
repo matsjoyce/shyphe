@@ -44,8 +44,9 @@ public:
     void addBody(Body* body);
     void removeBody(Body* body);
     void reset(double time);
-    std::pair<Collision, Collision> nextCollision();
-    void finishedCollision(const std::pair<Collision, Collision>& collisions);
+    CollisionTimeResult nextCollision();
+    std::pair<Collision, Collision> calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params);
+    void finishedCollision(const std::pair<Collision, Collision>& collisions, bool renotify);
     bool hasNextCollision();
 private:
     double time_until, current_time;

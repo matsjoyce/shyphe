@@ -16,6 +16,7 @@ def test_circle_circle_horizontal():
     assert coll.touch_point.as_tuple() == (3, 0)
     assert coll.a is b1
     assert coll.b is b2
+    assert coll.entering
 
 
 def test_circle_circle_vertical():
@@ -33,6 +34,7 @@ def test_circle_circle_vertical():
     assert coll.touch_point.as_tuple() == (0, 3)
     assert coll.a is b1
     assert coll.b is b2
+    assert coll.entering
 
 
 def test_circle_circle_no_collision_opposite_dir():
