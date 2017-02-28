@@ -29,13 +29,20 @@ class Circle;
 class MassShape;
 class Polygon;
 
+struct Signature {
+    double radar_emissions = 0;
+    double thermal_emissions = 0;
+    double radar_cross_section = 0;
+};
+
 class Shape {
 public:
     Body* body = nullptr;
     double mass = 0;
     Vec position;
+    Signature signature;
 
-    Shape(double mass_=0, const Vec& position_={});
+    Shape(double mass_=0, const Vec& position_={}, double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
     virtual ~Shape();
     virtual AABB aabb() const = 0;
     virtual Shape* clone() const = 0;

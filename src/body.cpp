@@ -19,6 +19,8 @@
 
 #include "body.hpp"
 #include "utils.hpp"
+#include "shape.hpp"
+#include "sensor.hpp"
 
 #include <cmath>
 #include <numeric>
@@ -26,12 +28,14 @@
 using namespace std;
 
 Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/, const Vec& acceleration_/*={}*/,
-            double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/) : position(position_),
-                                                                                                       velocity(velocity_),
-                                                                                                       acceleration(acceleration_),
-                                                                                                       angle(angle_),
-                                                                                                       angular_velocity(angular_velocity_),
-                                                                                                       angular_acceleration(angular_acceleration_) {
+            double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/,
+            int side_/*=0*/) : position(position_),
+                               velocity(velocity_),
+                               acceleration(acceleration_),
+                               angle(angle_),
+                               angular_velocity(angular_velocity_),
+                               angular_acceleration(angular_acceleration_),
+                               side(side_) {
 }
 
 Body::~Body() {
@@ -56,6 +60,16 @@ AABB Body::aabb() const {
         }
     }
     return aabb;
+}
+
+Signature Body::signature() {
+    Signature sig;
+    for (const auto& shape : shapes) {
+        sig.radar_cross_section += shape->signature.radar_cross_section;
+        sig.radar_emissions += shape->signature.radar_emissions;
+        sig.thermal_emissions += shape->signature.thermal_emissions;
+    }
+    return sig;
 }
 
 double Body::mass() const {
@@ -86,6 +100,22 @@ void Body::removeShape(Shape* shape) {
     }
     shapes.erase(remove(shapes.begin(), shapes.end(), shape), shapes.end());
     shape->body = nullptr;
+}
+
+void Body::addSensor(Sensor* sensor) {
+    if (sensor->body) {
+        throw runtime_error("Sensor already has body");
+    }
+    sensors.push_back(sensor);
+    sensor->body = this;
+}
+
+void Body::removeSensor(Sensor* sensor) {
+    if (sensor->body != this) {
+        throw runtime_error("Sensor not attached to this body");
+    }
+    sensors.erase(remove(sensors.begin(), sensors.end(), sensor), sensors.end());
+    sensor->body = nullptr;
 }
 
 CollisionTimeResult Body::collide(Body* other, double end_time) const {
@@ -131,4 +161,12 @@ bool Body::immediate_collide(Body* other) const {
 
 void Body::applyImpulse(Vec impulse, Vec position) {
     velocity += impulse / mass();
+}
+
+double Body::maxSensorRange() const {
+    double m = 0;
+    for (const auto& sensor : sensors) {
+        m = max(m, sensor->maxRange());
+    }
+    return m;
 }

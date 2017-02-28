@@ -27,7 +27,8 @@ class Circle : public Shape {
 public:
     double radius = 0;
 
-    Circle(double radius_=0, double mass_=0, const Vec& position_={});
+    Circle(double radius_=0, double mass_=0, const Vec& position_={},
+           double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
     virtual AABB aabb() const override;
     virtual Shape* clone() const override;
     virtual bool canCollide() const override;

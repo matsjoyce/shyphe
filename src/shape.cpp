@@ -19,7 +19,12 @@
 
 #include "shape.hpp"
 
-Shape::Shape(double mass_/*=0*/, const Vec& position_/*={}*/) : mass(mass_), position(position_) {
+Shape::Shape(double mass_/*=0*/, const Vec& position_/*={}*/,
+             double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : mass(mass_),
+                                                                                                               position(position_),
+                                                                                                               signature{radar_emissions,
+                                                                                                                         thermal_emissions,
+                                                                                                                         radar_cross_section} {
 }
 
 Shape::~Shape() {

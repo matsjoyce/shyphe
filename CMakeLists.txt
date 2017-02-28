@@ -3,8 +3,10 @@ project(physics)
 
 set(PROJECT_FILES src/aabb.cpp src/body.cpp src/circle.cpp
             src/collider.cpp src/collisions.cpp src/massshape.cpp
-            src/sataxes.cpp src/shape.cpp src/vec.cpp
-            src/python/module.cpp)
+            src/sataxes.cpp src/sensor.cpp src/sensormap.cpp
+            src/shape.cpp src/vec.cpp src/python/module.cpp
+            src/python/wrap_body.cpp src/python/wrap_collisions.cpp
+            src/python/wrap_sensors.cpp src/python/wrap_vec.cpp)
 
 find_package(ECM 0.0.11 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})

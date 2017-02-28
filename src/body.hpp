@@ -24,29 +24,39 @@
 
 #include "vec.hpp"
 #include "aabb.hpp"
-#include "shape.hpp"
 #include "collisions.hpp"
+#include "shape.hpp"
+#include "sensor.hpp"
 
 class Body {
 public:
     Vec position, velocity, acceleration;
     double angle, angular_velocity, angular_acceleration;
+    int side;
+    std::vector<SensedObject> sensor_view;
 
     Body(const Vec& position_={}, const Vec& velocity_={}, const Vec& acceleration_={},
-         double angle_=0, double angular_velocity_=0, double angular_acceleration_=0);
+         double angle_=0, double angular_velocity_=0, double angular_acceleration_=0, int side_=0);
     virtual ~Body();
 
     AABB aabb() const;
     double mass() const;
+    Signature signature();
     void updatePosition(double time);
     void updateVelocity(double time);
     void applyImpulse(Vec impulse, Vec position);
     void addShape(Shape* shape);
     void removeShape(Shape* shape);
+    void addSensor(Sensor* shape);
+    void removeSensor(Sensor* shape);
     CollisionTimeResult collide(Body* other, double end_time) const;
     bool immediate_collide(Body* other) const;
+    double maxSensorRange() const;
 private:
     std::vector<Shape*> shapes;
+    std::vector<Sensor*> sensors;
+
+    friend class SensorMap;
 };
 
 #endif // BODY_HPP

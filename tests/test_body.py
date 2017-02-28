@@ -39,8 +39,12 @@ def test_broken_add_remove():
 def test_clone_shape():
     b = physics.Body()
     b2 = physics.Body()
-    c = physics.MassShape(mass=10)
+    c = physics.Circle(radius=5, mass=10)
     b.add_shape(c)
-    b2.add_shape(c.clone())
+    c2 = c.clone()
+    b2.add_shape(c2)
 
+    assert c2.radius == c.radius
+    assert c2.mass == c.mass
+    assert type(c2) is type(c)
     assert b.mass == b.mass == 10

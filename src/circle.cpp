@@ -20,7 +20,13 @@
 #include "circle.hpp"
 #include "body.hpp"
 
-Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*={}*/) : Shape(mass_, position_), radius(radius_) {
+Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*={}*/,
+               double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_,
+                                                                                                                       position_,
+                                                                                                                       radar_cross_section,
+                                                                                                                       radar_emissions,
+                                                                                                                       thermal_emissions),
+                                                                                                                 radius(radius_) {
 }
 
 AABB Circle::aabb() const {
@@ -28,7 +34,7 @@ AABB Circle::aabb() const {
 }
 
 Shape* Circle::clone() const {
-    return new Circle{radius, mass, position};
+    return new Circle{radius, mass, position, signature.radar_cross_section, signature.radar_emissions, signature.thermal_emissions};
 }
 
 bool Circle::canCollide() const {
