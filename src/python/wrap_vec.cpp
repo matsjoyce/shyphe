@@ -90,6 +90,7 @@ void wrap_vec() {
     // Note: inplace operators are not wrapped so vectors are immutable in python. As python does not copy objects, this makes everything safer
     python::class_<Vec>("Vec", python::init<double, double>())
         .def(python::init<>())
+        .def(python::init<const Vec&>())
         .def_readonly("x", &Vec::x)
         .def_readonly("y", &Vec::y)
         .def(-op::self)

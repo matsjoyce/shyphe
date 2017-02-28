@@ -18,14 +18,15 @@ python::object get_so_body(const SensedObject& so) {
 void wrap_sensors() {
     python::class_<Sensor, boost::noncopyable>("Sensor", python::no_init)
         .add_property("max_range", &Sensor::maxRange)
+        .def_readwrite("perf", &Sensor::perf)
         .def("clone", &Sensor::clone, python::return_value_policy<python::manage_new_object>());
     python::class_<ActiveRadar, boost::noncopyable, python::bases<Sensor>>("ActiveRadar",
-                                                                              python::init<double, double>((python::arg("power")=0,
+                                                                           python::init<double, double>((python::arg("power")=0,
                                                                                                             python::arg("sensitivity")=0)))
         .def_readwrite("power", &ActiveRadar::power)
         .def_readwrite("sensitivity", &ActiveRadar::sensitivity);
     python::class_<PassiveRadar, boost::noncopyable, python::bases<Sensor>>("PassiveRadar",
-                                                                              python::init<double>(python::arg("sensitivity")=0))
+                                                                            python::init<double>(python::arg("sensitivity")=0))
         .def_readwrite("sensitivity", &PassiveRadar::sensitivity);
     python::class_<PassiveThermal, boost::noncopyable, python::bases<Sensor>>("PassiveThermal",
                                                                               python::init<double>(python::arg("sensitivity")=0))

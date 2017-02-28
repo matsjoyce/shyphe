@@ -31,7 +31,7 @@ ActiveRadar::ActiveRadar(double pwr/*=0*/, double sens/*=0*/) : power(pwr), sens
 }
 
 double ActiveRadar::intensity(const SigObject& signature, double dist) const {
-    if (signature.sig.radar_cross_section * power / dist / 2 < sensitivity) {
+    if (signature.sig.radar_cross_section * power / dist / 2 * perf < sensitivity) {
         return 0;
     }
     return signature.sig.radar_cross_section;
@@ -42,7 +42,7 @@ bool ActiveRadar::givesIdentification() const {
 }
 
 double ActiveRadar::maxRange() const {
-    return power * 50 / sensitivity;
+    return power * 50 / sensitivity * perf;
 }
 
 Sensor* ActiveRadar::clone() const {
@@ -53,7 +53,7 @@ PassiveRadar::PassiveRadar(double sens/*=0*/) : sensitivity(sens) {
 }
 
 double PassiveRadar::intensity(const SigObject& signature, double dist) const {
-    if (signature.sig.radar_emissions / dist < sensitivity) {
+    if (signature.sig.radar_emissions / dist * perf < sensitivity) {
         return 0;
     }
     return signature.sig.radar_emissions;
@@ -64,7 +64,7 @@ bool PassiveRadar::givesIdentification() const {
 }
 
 double PassiveRadar::maxRange() const {
-    return 50 / sensitivity;
+    return 50 / sensitivity * perf;
 }
 
 Sensor* PassiveRadar::clone() const {
@@ -75,7 +75,7 @@ PassiveThermal::PassiveThermal(double sens/*=0*/) : sensitivity(sens) {
 }
 
 double PassiveThermal::intensity(const SigObject& signature, double dist) const {
-    if (signature.sig.thermal_emissions / dist < sensitivity) {
+    if (signature.sig.thermal_emissions / dist * perf < sensitivity) {
         return 0;
     }
     return signature.sig.thermal_emissions;
@@ -86,7 +86,7 @@ bool PassiveThermal::givesIdentification() const {
 }
 
 double PassiveThermal::maxRange() const {
-    return 2500 / sensitivity;
+    return 2500 / sensitivity * perf;
 }
 
 Sensor* PassiveThermal::clone() const {

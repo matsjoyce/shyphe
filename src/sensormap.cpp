@@ -22,7 +22,6 @@
 #include <numeric>
 #include "sensormap.hpp"
 #include "body.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -61,13 +60,11 @@ void SensorMap::scan(Body* body) {
                 continue;
             }
             auto intensity = sensor->intensity(sig, dist);
-            cout << "I" << intensity << " " << sig.sig.radar_cross_section << endl;
             if (intensity) {
                 intensities.push_back(intensity);
                 has_indentifier = has_indentifier || sensor->givesIdentification();
             }
         }
-        cout << "S" << intensities.size() << endl;
         if (!intensities.size()) {
             continue;
         }
@@ -83,7 +80,6 @@ void SensorMap::scan(Body* body) {
                 side = SensedObject::enemy;
             }
         }
-        cout << side << endl;
         new_scan.push_back({sig.body->position - body->position,
                             {0, 0},
                             accumulate(intensities.begin(), intensities.end(), 0.0) / intensities.size(),

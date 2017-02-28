@@ -61,6 +61,7 @@ public:
     virtual Sensor* clone() const = 0;
 
     Body* body = nullptr;
+    double perf = 1;
 };
 
 class ActiveRadar : public Sensor {
