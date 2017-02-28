@@ -18,7 +18,6 @@
  */
 
 #include "collider.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -158,9 +157,6 @@ std::pair<Collision, Collision> Collider::calculateCollision(const CollisionTime
 }
 
 void Collider::finishedCollision(const pair<Collision, Collision>& collisions, bool renotify) {
-    for (auto& r: collision_times) {
-        cout << "S" << r.time << " " << r.a << " " << r.b << endl;
-    }
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
     if (!renotify) {
@@ -172,8 +168,4 @@ void Collider::finishedCollision(const pair<Collision, Collision>& collisions, b
         }
     }
     _updateCollisionTimesChanged();
-
-    for (auto& r: collision_times) {
-        cout << "E" << r.time << " " << r.a << " " << r.b << endl;
-    }
 }
