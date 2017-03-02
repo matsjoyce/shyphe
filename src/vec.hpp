@@ -80,6 +80,10 @@ public:
         return std::tie(x, y) >= std::tie(other.x, other.y);
     }
 
+    inline operator bool() const {
+        return x || y;
+    }
+
     inline double abs() const {
         return std::hypot(x, y);
     }

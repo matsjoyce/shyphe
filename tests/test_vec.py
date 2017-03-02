@@ -162,6 +162,10 @@ def test_python_conv():
     with pytest.raises(TypeError):
         v.distance_to([])
 
+    assert physics.Vec(1, 0)
+    assert physics.Vec(0, 1)
+    assert not physics.Vec()
+
 
 def test_rotate():
     assert physics.Vec(1, 0).rotate(0).as_tuple() == pytest.approx((1, 0))

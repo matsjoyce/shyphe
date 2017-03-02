@@ -115,6 +115,10 @@ void wrap_body() {
                                                                           python::arg("thermal_emissions")=0)))
         .def_readwrite("radius", &Circle::radius);
     python::class_<MassShape, boost::noncopyable, python::bases<Shape>>("MassShape",
-        python::init<double>(python::arg("mass")=0));
+        python::init<double, const Vec&, double, double, double>((python::arg("mass")=0,
+                                                                  python::arg("position")=Vec{},
+                                                                  python::arg("radar_cross_section")=0,
+                                                                  python::arg("radar_emissions")=0,
+                                                                  python::arg("thermal_emissions")=0)));
     IterableConverter<vector<SensedObject>>();
 }

@@ -24,7 +24,8 @@
 
 class MassShape : public Shape {
 public:
-    MassShape(double mass_=0);
+    MassShape(double mass_=0, const Vec& position_={},
+              double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
 
     virtual AABB aabb() const override;
     virtual Shape* clone() const override;

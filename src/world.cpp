@@ -21,6 +21,7 @@
 
 #include <numeric>
 #include <random>
+#include <iostream>
 
 using namespace std;
 
@@ -180,6 +181,16 @@ void World::finishedCollision(const pair<Collision, Collision>& collisions, bool
     _updateCollisionTimesChanged();
 }
 
+struct OldScanMergeCmp {
+    int search_radius;
+    bool operator()(const SensedObject& c, const SensedObject* v) {
+        return c.position.x < v->position.x - search_radius;
+    }
+    bool operator()(const SensedObject* v, const SensedObject& c) {
+        return c.position.x < v->position.x - search_radius;
+    }
+};
+
 void World::_updateBodySensorView(Body* body) {
     vector<SensedObject> old_scan;
     swap(old_scan, body->sensor_view);
@@ -226,4 +237,34 @@ void World::_updateBodySensorView(Body* body) {
                             sig.body});
     }
     shuffle(new_scan.begin(), new_scan.end(), ranlux48());
+    set<SensedObject*> new_scan_copy;
+    for (auto& so : new_scan) {
+        new_scan_copy.insert(&so);
+    }
+    for (auto& so : old_scan) {
+        so.position += so.velocity * time_until;
+    }
+    auto cmp = [](const SensedObject& l, const SensedObject& r){return l.position.x < r.position.x;};
+    sort(old_scan.begin(), old_scan.end(), cmp);
+    auto cmp2 = OldScanMergeCmp{32};
+    for (; cmp2.search_radius <= 1024 && new_scan_copy.size() && old_scan.size(); cmp2.search_radius <<= 1) {
+        for (auto& so : new_scan_copy) {
+            cout << cmp2(old_scan[0], so) << endl;
+            auto start = lower_bound(old_scan.begin(), old_scan.end(), so, cmp2);
+            auto end = upper_bound(start, old_scan.end(), so, cmp2);
+            for (; start != end; ++start) {
+                cout << "ITER" << start->position << endl;
+                if (fabs(start->position.y - so->position.y) > cmp2.search_radius) {
+                    continue;
+                }
+                auto intensity_ratio = start->intensity / so->intensity;
+                if (0.9 < intensity_ratio && intensity_ratio < 1.1) {
+                    so->velocity = so->position - start->position - start->velocity * time_until;
+                    new_scan_copy.erase(so);
+                    old_scan.erase(start);
+                    break;
+                }
+            }
+        }
+    }
 }

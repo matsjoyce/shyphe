@@ -19,8 +19,12 @@
 
 #include "massshape.hpp"
 
-MassShape::MassShape(double mass_) : Shape(mass_, {}) {
-
+MassShape::MassShape(double mass_/*=0*/, const Vec& position_/*={}*/,
+                     double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_,
+                                                                                                                             position_,
+                                                                                                                             radar_cross_section,
+                                                                                                                             radar_emissions,
+                                                                                                                             thermal_emissions) {
 }
 
 Shape* MassShape::clone() const {
@@ -48,15 +52,15 @@ CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_
     return CollisionTimeResult{};
 }
 
-bool MassShape::immediate_collide(const Shape* other) const {
+bool MassShape::immediate_collide(const Shape* /*other*/) const {
     return false;
 }
 
-bool MassShape::immediate_collide(const Circle* other) const {
+bool MassShape::immediate_collide(const Circle* /*other*/) const {
     return false;
 }
 
-bool MassShape::immediate_collide(const MassShape* other) const {
+bool MassShape::immediate_collide(const MassShape* /*other*/) const {
     return false;
 }
 // LCOV_EXCL_STOP

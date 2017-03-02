@@ -100,6 +100,7 @@ void wrap_vec() {
         .def(op::self <= op::self)
         .def(op::self > op::self)
         .def(op::self >= op::self)
+        .def("__bool__", &Vec::operator bool)
         .def("__abs__", &Vec::abs)
         .def("abs", &Vec::abs)
         .def("bearing", &Vec::bearing)
