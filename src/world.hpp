@@ -39,18 +39,20 @@ struct Collision {
     Vec closing_velocity;
 };
 
-class Collider {
+class World {
 public:
     void addBody(Body* body);
     void removeBody(Body* body);
-    void reset(double time);
+    void beginFrame(double time);
     CollisionTimeResult nextCollision();
     std::pair<Collision, Collision> calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params);
     void finishedCollision(const std::pair<Collision, Collision>& collisions, bool renotify);
     bool hasNextCollision();
+    void endFrame();
 private:
     double time_until, current_time;
     std::vector<Body*> bodies;
+    std::vector<SigObject> sigobjs;
     std::map<Body*, double> body_times;
     std::set<Body*> changed_bodies, removed_bodies;
     std::set<std::pair<Body*, Body*>> overlapping;
@@ -60,6 +62,7 @@ private:
     void _updateCollisionTimes();
     void _updateCollisionTimesChanged();
     void _updateCollisionTimesCommon();
+    void _updateBodySensorView(Body* body);
 };
 
 #endif // COLLIDER_HPP

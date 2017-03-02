@@ -42,7 +42,7 @@ bool ActiveRadar::givesIdentification() const {
 }
 
 double ActiveRadar::maxRange() const {
-    return power * 50 / sensitivity * perf;
+    return power * 25 / sensitivity * perf;
 }
 
 Sensor* ActiveRadar::clone() const {

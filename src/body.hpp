@@ -56,7 +56,7 @@ private:
     std::vector<Shape*> shapes;
     std::vector<Sensor*> sensors;
 
-    friend class SensorMap;
+    friend class World;
 };
 
 #endif // BODY_HPP

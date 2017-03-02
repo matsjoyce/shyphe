@@ -1,9 +1,9 @@
 #include <boost/python.hpp>
 
 #include "module.hpp"
-#include "collider.hpp"
 #include "collisions.hpp"
 #include "circle.hpp"
+#include "world.hpp"
 
 using namespace std;
 namespace python = boost::python;
@@ -27,14 +27,6 @@ python::object get_collisiontime_b(const CollisionTimeResult& col) {
 }
 
 void wrap_collisions() {
-    python::class_<Collider>("Collider")
-        .def("add_body", &Collider::addBody)
-        .def("remove_body", &Collider::removeBody)
-        .def("reset", &Collider::reset)
-        .def("next_collision", &Collider::nextCollision)
-        .def("calculate_collision", &Collider::calculateCollision)
-        .def("finished_collision", &Collider::finishedCollision)
-        .def("has_next_collision", &Collider::hasNextCollision);
     python::class_<Collision>("Collision")
         .add_property("body", &get_collision_body)
         .add_property("other", &get_collision_other)

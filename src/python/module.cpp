@@ -19,4 +19,5 @@ BOOST_PYTHON_MODULE(physics) {
     wrap_collisions();
     wrap_body();
     wrap_sensors();
+    wrap_world();
 }

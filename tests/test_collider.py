@@ -9,10 +9,10 @@ def test_single_bounce():
     b2 = physics.Body(position=(8, 0), velocity=(-6, 0))
     b2.add_shape(physics.Circle(radius=1, mass=1))
 
-    c = physics.Collider()
+    c = physics.World()
     c.add_body(b1)
     c.add_body(b2)
-    c.reset(1)
+    c.begin_frame(1)
 
     assert c.has_next_collision()
     ctr = c.next_collision()
@@ -46,12 +46,18 @@ def test_single_bounce():
     c.finished_collision((cola, colb), True)
 
     assert not c.has_next_collision()
+
+    c.end_frame()
+
     assert b1.position.as_tuple() == (0, 0)
     assert b2.position.as_tuple() == (4, 0)
 
-    c.reset(1)
+    c.begin_frame(1)
 
     assert not c.has_next_collision()
+
+    c.end_frame()
+
     assert b1.position.as_tuple() == (-6, 0)
     assert b2.position.as_tuple() == (6, 0)
 
@@ -66,11 +72,11 @@ def test_double_bounce():
     b3 = physics.Body(position=(8, 0), velocity=(0, 0))
     b3.add_shape(physics.Circle(radius=1, mass=1))
 
-    c = physics.Collider()
+    c = physics.World()
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
-    c.reset(2)
+    c.begin_frame(2)
 
     assert c.has_next_collision()
 
@@ -149,11 +155,11 @@ def test_single_bounce_die():
     b3 = physics.Body(position=(8, 0), velocity=(0, 0))
     b3.add_shape(physics.Circle(radius=1, mass=1))
 
-    c = physics.Collider()
+    c = physics.World()
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
-    c.reset(2)
+    c.begin_frame(2)
 
     assert c.has_next_collision()
 

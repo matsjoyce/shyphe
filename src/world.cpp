@@ -17,34 +17,50 @@
  *
  */
 
-#include "collider.hpp"
+#include "world.hpp"
+
+#include <numeric>
+#include <random>
 
 using namespace std;
 
-void Collider::reset(double time) {
+void World::beginFrame(double time) {
     time_until = time;
     current_time = 0;
     body_times.clear();
+    sigobjs.clear();
+    sigobjs.reserve(bodies.size());
+    for (const auto& body: bodies) {
+        sigobjs.push_back({body->position, body->signature(), body});
+    }
     for (const auto body : bodies) {
         body_times[body] = 0;
+        _updateBodySensorView(body);
     }
     _updateCollisionTimes();
 }
 
-void Collider::addBody(Body* body) {
+void World::endFrame() {
+    for (auto body : bodies) {
+        body->updatePosition(time_until - body_times[body]);
+        body->updateVelocity(time_until);
+    }
+}
+
+void World::addBody(Body* body) {
     bodies.push_back(body);
     body_times[body] = 0;
     changed_bodies.insert(body);
 }
 
-void Collider::removeBody(Body* body) {
+void World::removeBody(Body* body) {
     bodies.erase(remove(bodies.begin(), bodies.end(), body), bodies.end());
     body_times.erase(body);
     removed_bodies.insert(body);
     changed_bodies.erase(body);
 }
 
-void Collider::_updateCollisionTimesCommon() {
+void World::_updateCollisionTimesCommon() {
     changed_bodies.clear();
     removed_bodies.clear();
     while (collision_times.size()) {
@@ -63,15 +79,9 @@ void Collider::_updateCollisionTimesCommon() {
             break;
         }
     }
-    if (!hasNextCollision()) {
-        for (auto body : bodies) {
-            body->updatePosition(time_until - body_times[body]);
-            body->updateVelocity(time_until);
-        }
-    }
 }
 
-void Collider::_updateCollisionTimes() {
+void World::_updateCollisionTimes() {
     sat_axes.reset(bodies.size());
     for (auto body : bodies) {
         sat_axes.addBody(body, time_until);
@@ -89,7 +99,7 @@ void Collider::_updateCollisionTimes() {
     _updateCollisionTimesCommon();
 }
 
-void Collider::_updateCollisionTimesChanged() {
+void World::_updateCollisionTimesChanged() {
     for (auto body : removed_bodies) {
         sat_axes.removeBody(body);
     }
@@ -123,11 +133,11 @@ void Collider::_updateCollisionTimesChanged() {
     _updateCollisionTimesCommon();
 }
 
-bool Collider::hasNextCollision() {
+bool World::hasNextCollision() {
     return collision_times.size();
 }
 
-CollisionTimeResult Collider::nextCollision() {
+CollisionTimeResult World::nextCollision() {
     auto collision = collision_times.back();
     collision_times.pop_back();
     changed_bodies.insert(collision.a);
@@ -138,7 +148,7 @@ CollisionTimeResult Collider::nextCollision() {
     return collision;
 }
 
-std::pair<Collision, Collision> Collider::calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params) {
+std::pair<Collision, Collision> World::calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params) {
     auto cr = collisionResult(collision, params);
     return {Collision{collision.a,
                       collision.b,
@@ -156,7 +166,7 @@ std::pair<Collision, Collision> Collider::calculateCollision(const CollisionTime
                       }};
 }
 
-void Collider::finishedCollision(const pair<Collision, Collision>& collisions, bool renotify) {
+void World::finishedCollision(const pair<Collision, Collision>& collisions, bool renotify) {
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
     if (!renotify) {
@@ -168,4 +178,52 @@ void Collider::finishedCollision(const pair<Collision, Collision>& collisions, b
         }
     }
     _updateCollisionTimesChanged();
+}
+
+void World::_updateBodySensorView(Body* body) {
+    vector<SensedObject> old_scan;
+    swap(old_scan, body->sensor_view);
+    vector<SensedObject>& new_scan = body->sensor_view;
+    vector<double> intensities;
+    bool has_indentifier;
+    for (const auto& sig : sigobjs) {
+        if (sig.body == body) {
+            continue;
+        }
+        intensities.clear();
+        intensities.reserve(body->sensors.size());
+        has_indentifier = false;
+        double dist = (body->position - sig.body->position).abs() + 0.00001;
+        for (const auto& sensor : body->sensors) {
+            if (dist > sensor->maxRange()) {
+                continue;
+            }
+            auto intensity = sensor->intensity(sig, dist);
+            if (intensity) {
+                intensities.push_back(intensity);
+                has_indentifier = has_indentifier || sensor->givesIdentification();
+            }
+        }
+        if (!intensities.size()) {
+            continue;
+        }
+        auto side = SensedObject::unknown;
+        if (has_indentifier) {
+            if (!sig.body->side) {
+                side = SensedObject::neutral;
+            }
+            else if (body->side == sig.body->side) {
+                side = SensedObject::friendly;
+            }
+            else {
+                side = SensedObject::enemy;
+            }
+        }
+        new_scan.push_back({sig.body->position - body->position,
+                            {0, 0},
+                            accumulate(intensities.begin(), intensities.end(), 0.0) / intensities.size(),
+                            side,
+                            sig.body});
+    }
+    shuffle(new_scan.begin(), new_scan.end(), ranlux48());
 }

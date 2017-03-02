@@ -5,7 +5,6 @@
 #include "module.hpp"
 #include "body.hpp"
 #include "sensor.hpp"
-#include "sensormap.hpp"
 
 using namespace std;
 namespace python = boost::python;
@@ -44,9 +43,4 @@ void wrap_sensors() {
         .add_property("body", &get_so_body);
     python::class_<vector<SensedObject>>("vectorSensedObject")
         .def(python::vector_indexing_suite<vector<SensedObject>>());
-    python::class_<SensorMap, boost::noncopyable>("SensorMap")
-        .def("add_body", &SensorMap::addBody)
-        .def("remove_body", &SensorMap::removeBody)
-        .def("scan", &SensorMap::scan)
-        .def("reset", &SensorMap::reset);
 }

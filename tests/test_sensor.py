@@ -26,14 +26,29 @@ def test_clone():
     assert type(s) is type(s2)
 
 
+def test_body_sensor():
+    s = physics.ActiveRadar(power=50, sensitivity=2)
+    b = physics.Body()
+
+    assert b.max_sensor_range == 0
+
+    b.add_sensor(s)
+
+    assert b.max_sensor_range == 625
+
+    b.remove_sensor(s)
+
+    assert b.max_sensor_range == 0
+
+
 def test_perf():
     s = physics.ActiveRadar(power=50, sensitivity=2)
 
-    assert s.max_range == 1250
+    assert s.max_range == 625
 
     s.perf = 0.5
 
-    assert s.max_range == 1250 / 2
+    assert s.max_range == 625 / 2
 
     s = physics.PassiveRadar(sensitivity=3)
 

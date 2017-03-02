@@ -11,12 +11,11 @@ def test_simple():
     s.signature.radar_cross_section = 20
     b2.add_shape(s)
 
-    sm = physics.SensorMap()
+    sm = physics.World()
     sm.add_body(b1)
     sm.add_body(b2)
 
-    sm.reset()
-    sm.scan(b1)
+    sm.begin_frame(1)
 
     assert len(b1.sensor_view) == 1
 

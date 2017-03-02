@@ -9,6 +9,7 @@ void wrap_vec();
 void wrap_collisions();
 void wrap_body();
 void wrap_sensors();
+void wrap_world();
 
 class Body;
 boost::python::object magic_body_extract(Body* body);
