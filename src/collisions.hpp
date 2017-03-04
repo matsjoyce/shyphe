@@ -46,7 +46,7 @@ struct CollisionTimeResult {
     bool entering = true;
 };
 
-CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time);
+CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time, bool entering);
 
 struct CollisionResult {
     Vec impulse;

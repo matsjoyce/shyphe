@@ -130,6 +130,9 @@ def test_tracking():
     assert list(b.sensor_view)
     assert list(b2.sensor_view)
 
+    assert b.sensor_view[0] == b.sensor_view[0]
+    assert b.sensor_view[0] != b2.sensor_view[0]
+
     sr = b.sensor_view[0]
     assert sr.side == physics.Side.enemy
     assert sr.position.as_tuple() == (15, 0)

@@ -34,9 +34,9 @@ public:
     virtual bool canCollide() const override;
 
     // Double dispatch
-    virtual CollisionTimeResult collide(const Shape* other, double end_time) const override;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time) const override;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time) const override;
+    virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const override;
+    virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const override;
+    virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const override;
 //     virtual CollisionTimeResult collide(const Polygon* other) const override;
 
     virtual bool immediate_collide(const Shape* other) const override;

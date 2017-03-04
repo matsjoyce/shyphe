@@ -34,11 +34,17 @@ def test_body_sensor():
 
     b.add_sensor(s)
 
+    with pytest.raises(RuntimeError):
+        b.add_sensor(s)
+
     assert b.max_sensor_range == 625
 
     b.remove_sensor(s)
 
     assert b.max_sensor_range == 0
+
+    with pytest.raises(RuntimeError):
+        b.remove_sensor(s)
 
 
 def test_perf():

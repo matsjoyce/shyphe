@@ -49,9 +49,9 @@ public:
     virtual bool canCollide() const = 0;
 
     // Double dispatch
-    virtual CollisionTimeResult collide(const Shape* other, double end_time) const = 0;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time) const = 0;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time) const = 0;
+    virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const = 0;
+    virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const = 0;
+    virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const = 0;
 //     virtual CollisionTimeResult collide(const Polygon* other) const = 0;
 
     // Double dispatch

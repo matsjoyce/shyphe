@@ -21,7 +21,6 @@
 
 #include <numeric>
 #include <random>
-#include <iostream>
 
 using namespace std;
 
@@ -70,6 +69,8 @@ void World::_updateCollisionTimesCommon() {
         if (overlapping.count(p)) {
             if (!col.entering) {
                 overlapping.erase(p);
+                changed_bodies.insert(col.a);
+                changed_bodies.insert(col.b);
             }
             collision_times.pop_back();
         }
@@ -89,13 +90,14 @@ void World::_updateCollisionTimes() {
     }
     auto possibleCollisions = sat_axes.possibleCollisions();
     for (const auto& poscol : possibleCollisions) {
-        auto colresult = poscol.first->collide(poscol.second, time_until);
+        auto p = poscol.first < poscol.second ? make_pair(poscol.first, poscol.second) : make_pair(poscol.second, poscol.first);
+        auto colresult = poscol.first->collide(poscol.second, time_until, !overlapping.count(p));
         if (colresult.time == -1) {
             continue;
         }
         auto pos = upper_bound(collision_times.begin(), collision_times.end(), colresult,
                                [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
-        collision_times.insert(pos, move(colresult));
+        collision_times.insert(pos, colresult);
     }
     _updateCollisionTimesCommon();
 }
@@ -113,14 +115,14 @@ void World::_updateCollisionTimesChanged() {
         if (!changed_bodies.count(poscol.first) && !changed_bodies.count(poscol.second)) {
             continue;
         }
+
         auto start_time = max(body_times[poscol.first], body_times[poscol.second]);
         poscol.first->updatePosition(start_time - body_times[poscol.first]);
         poscol.second->updatePosition(start_time - body_times[poscol.second]);
 
-        auto colresult = poscol.first->collide(poscol.second, time_until);
-
-        poscol.first->updatePosition(body_times[poscol.first] - start_time);
-        poscol.second->updatePosition(body_times[poscol.second] - start_time);
+        auto p = poscol.first < poscol.second ? make_pair(poscol.first, poscol.second) : make_pair(poscol.second, poscol.first);
+        auto is_overlapping = overlapping.count(p);
+        auto colresult = poscol.first->collide(poscol.second, time_until, !is_overlapping);
 
         if (colresult.time == -1) {
             continue;
@@ -129,7 +131,10 @@ void World::_updateCollisionTimesChanged() {
         // Put in reverse order to allow pop from back
         auto pos = upper_bound(collision_times.begin(), collision_times.end(), colresult,
                                [](const CollisionTimeResult& a, const CollisionTimeResult& b){return a.time > b.time;});
-        collision_times.insert(pos, move(colresult));
+        collision_times.insert(pos, colresult);
+
+        poscol.first->updatePosition(body_times[poscol.first] - start_time);
+        poscol.second->updatePosition(body_times[poscol.second] - start_time);
     }
     _updateCollisionTimesCommon();
 }
@@ -139,6 +144,9 @@ bool World::hasNextCollision() {
 }
 
 CollisionTimeResult World::nextCollision() {
+    if (!collision_times.size()) {
+        throw runtime_error("No collisions! Check has_next_collision first!");
+    }
     auto collision = collision_times.back();
     collision_times.pop_back();
     changed_bodies.insert(collision.a);
@@ -167,15 +175,15 @@ std::pair<Collision, Collision> World::calculateCollision(const CollisionTimeRes
                       }};
 }
 
-void World::finishedCollision(const pair<Collision, Collision>& collisions, bool renotify) {
+void World::finishedCollision(const CollisionTimeResult& collision, bool renotify) {
     auto pred = [this](const CollisionTimeResult& col){return changed_bodies.count(col.a) || changed_bodies.count(col.b);};
     collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
     if (!renotify) {
-        if (collisions.first.body < collisions.second.body) {
-            overlapping.insert({collisions.first.body, collisions.second.body});
+        if (collision.a < collision.b) {
+            overlapping.insert({collision.a, collision.b});
         }
         else {
-            overlapping.insert({collisions.second.body, collisions.first.body});
+            overlapping.insert({collision.b, collision.a});
         }
     }
     _updateCollisionTimesChanged();
@@ -246,14 +254,12 @@ void World::_updateBodySensorView(Body* body) {
     }
     auto cmp = [](const SensedObject& l, const SensedObject& r){return l.position.x < r.position.x;};
     sort(old_scan.begin(), old_scan.end(), cmp);
-    auto cmp2 = OldScanMergeCmp{32};
+    auto cmp2 = OldScanMergeCmp{16};
     for (; cmp2.search_radius <= 1024 && new_scan_copy.size() && old_scan.size(); cmp2.search_radius <<= 1) {
         for (auto& so : new_scan_copy) {
-            cout << cmp2(old_scan[0], so) << endl;
             auto start = lower_bound(old_scan.begin(), old_scan.end(), so, cmp2);
             auto end = upper_bound(start, old_scan.end(), so, cmp2);
             for (; start != end; ++start) {
-                cout << "ITER" << start->position << endl;
                 if (fabs(start->position.y - so->position.y) > cmp2.search_radius) {
                     continue;
                 }

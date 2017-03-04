@@ -41,17 +41,17 @@ bool Circle::canCollide() const {
     return true;
 }
 
-CollisionTimeResult Circle::collide(const Shape* other, double end_time) const {
-    return other->collide(this, end_time);
+CollisionTimeResult Circle::collide(const Shape* other, double end_time, bool entering) const {
+    return other->collide(this, end_time, entering);
 }
 
-CollisionTimeResult Circle::collide(const Circle* other, double end_time) const {
-    return collideCircleCircle(this, other, end_time);
+CollisionTimeResult Circle::collide(const Circle* other, double end_time, bool entering) const {
+    return collideCircleCircle(this, other, end_time, entering);
 }
 
 
 // LCOV_EXCL_START
-CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/) const {
+CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
     return {};
 }
 // LCOV_EXCL_STOP

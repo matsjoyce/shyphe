@@ -49,7 +49,7 @@ public:
     void removeShape(Shape* shape);
     void addSensor(Sensor* shape);
     void removeSensor(Sensor* shape);
-    CollisionTimeResult collide(Body* other, double end_time) const;
+    CollisionTimeResult collide(Body* other, double end_time, bool entering) const;
     bool immediate_collide(Body* other) const;
     double maxSensorRange() const;
 private:

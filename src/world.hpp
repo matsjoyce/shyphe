@@ -46,7 +46,7 @@ public:
     void beginFrame(double time);
     CollisionTimeResult nextCollision();
     std::pair<Collision, Collision> calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params);
-    void finishedCollision(const std::pair<Collision, Collision>& collisions, bool renotify);
+    void finishedCollision(const CollisionTimeResult& collision, bool renotify);
     bool hasNextCollision();
     void endFrame();
 private:

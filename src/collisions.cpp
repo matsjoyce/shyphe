@@ -25,43 +25,47 @@
 
 using namespace std;
 
-const double TIME_OVERLAP = 0.0005;
 
-CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bcircle, double end_time) {
+CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bcircle, double end_time, bool entering) {
     auto abody = acircle->body;
     auto bbody = bcircle->body;
     auto apos = abody->position + acircle->position;
     auto bpos = bbody->position - bcircle->position;
     auto pos_diff = apos - bpos;
     auto radii = acircle->radius + bcircle->radius;
-
+    auto dist = pos_diff.abs();
     auto vel_diff = abody->velocity - bbody->velocity;
 
-    auto a = vel_diff.squared();
-    auto b = 2 * pos_diff.dot(vel_diff);
-    auto c = pos_diff.squared() - radii * radii;
-    auto discriminant = b * b - 4 * a * c;
+    double t;
 
-    if (discriminant < 0 || a == 0) {
-        return {};
+    if (((pos_diff.dot(vel_diff) < 0) == entering) && ((entering && dist <= radii) || (!entering && dist > radii))) {
+        t = 0;
     }
+    else {
+        auto a = vel_diff.squared();
+        auto b = 2 * pos_diff.dot(vel_diff);
+        auto c = pos_diff.squared() - radii * radii;
+        auto discriminant = b * b - 4 * a * c;
 
-    auto t0 = (-b - sqrt(discriminant)) / (2 * a);
-    auto t1 = (-b + sqrt(discriminant)) / (2 * a);
+        if (discriminant < 0 || a == 0) {
+            return {};
+        }
 
-    if (t0 > end_time + TIME_OVERLAP) {
-        return {};
+        if (entering) {
+            t = (-b - sqrt(discriminant)) / (2 * a);
+        }
+        else {
+            t = (-b + sqrt(discriminant)) / (2 * a);
+        }
+        if (0 > t || t > end_time) {
+            return {};
+        }
     }
-    else if (t0 >= -TIME_OVERLAP) {
-        t1 = t0;
-    }
-    else if (-TIME_OVERLAP > t1 || t1 > end_time + TIME_OVERLAP) {
-        return {};
-    }
-    auto col_apos = (apos + abody->velocity * t1);
-    auto col_bpos = (bpos + bbody->velocity * t1);
+    auto col_apos = (apos + abody->velocity * t);
+    auto col_bpos = (bpos + bbody->velocity * t);
     auto touch_point = (col_apos * bcircle->radius + col_bpos * acircle->radius) / radii;
-    return {abody, bbody, t1, touch_point, (col_bpos - col_apos).norm(), vel_diff.dot(pos_diff) < 0};
+    auto norm = col_bpos - col_apos;
+    return {abody, bbody, t, touch_point, norm ? norm.norm() : Vec{1, 0}, entering};
 }
 
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {
@@ -73,6 +77,9 @@ CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionPa
     Vec impulse = (m_a * m_b * closing_velocity * (1 + params.restitution)) / (m_a + m_b);
     if (impulse.abs() > params.transition_impulse) {
         impulse = impulse * params.transition_reduction + impulse.norm() * params.transition_impulse * (1 - params.transition_reduction);
+    }
+    else if (!impulse) {
+        impulse = 0.00001 * cr.normal;
     }
     return {impulse, closing_velocity};
 }

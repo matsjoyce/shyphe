@@ -118,7 +118,7 @@ void Body::removeSensor(Sensor* sensor) {
     sensor->body = nullptr;
 }
 
-CollisionTimeResult Body::collide(Body* other, double end_time) const {
+CollisionTimeResult Body::collide(Body* other, double end_time, bool entering) const {
     auto soonest = CollisionTimeResult{};
     soonest.time = end_time + 1;
     for (const auto my_shape : shapes) {
@@ -129,7 +129,7 @@ CollisionTimeResult Body::collide(Body* other, double end_time) const {
             if (!their_shape->canCollide()) {
                 continue;
             }
-            auto collr = my_shape->collide(their_shape, end_time);
+            auto collr = my_shape->collide(their_shape, end_time, entering);
             if (collr.time != -1 && collr.time < soonest.time) {
                 soonest = move(collr);
             }

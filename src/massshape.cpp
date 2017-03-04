@@ -40,15 +40,15 @@ AABB MassShape::aabb() const {
     return {0, 0, 0, 0};
 }
 
-CollisionTimeResult MassShape::collide(const Shape* /*other*/, double /*end_time*/) const {
+CollisionTimeResult MassShape::collide(const Shape* /*other*/, double /*end_time*/, bool /*entering*/) const {
     return CollisionTimeResult{};
 }
 
-CollisionTimeResult MassShape::collide(const Circle* /*other*/, double /*end_time*/) const {
+CollisionTimeResult MassShape::collide(const Circle* /*other*/, double /*end_time*/, bool /*entering*/) const {
     return CollisionTimeResult{};
 }
 
-CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_time*/) const {
+CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
     return CollisionTimeResult{};
 }
 
