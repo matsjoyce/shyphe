@@ -66,11 +66,11 @@ def test_transition_reduction():
 
 @pytest.mark.parametrize("i", range(20))
 def test_collision_fuzz(i):
-    a = physics.Body(position=(random.randrange(0, 50), random.randrange(0, 50)))
-    a.velocity = 20 * physics.Vec.from_bearing((random.random() - 0.5) * math.pi)
+    a = physics.Body(position=(random.randrange(0, 50), random.randrange(0, 50)),
+                     velocity=20 * physics.Vec.from_bearing((random.random() - 0.5) * math.pi))
     a.add_shape(dummy_shape(1))
-    b = physics.Body(position=(random.randrange(0, 50), random.randrange(0, 50)))
-    b.velocity = (a.position - b.position).norm() * 30
+    pos = (random.randrange(0, 50), random.randrange(0, 50))
+    b = physics.Body(position=pos, velocity=(a.position - pos).norm() * 30)
     b.add_shape(dummy_shape(1))
 
     d1 = (a.position - b.position).abs()

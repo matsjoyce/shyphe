@@ -31,7 +31,7 @@ void World::beginFrame(double time) {
     sigobjs.clear();
     sigobjs.reserve(bodies.size());
     for (const auto& body: bodies) {
-        sigobjs.push_back({body->position, body->signature(), body});
+        sigobjs.push_back({body->position(), body->signature(), body});
     }
     for (const auto body : bodies) {
         body_times[body] = 0;
@@ -162,14 +162,14 @@ std::pair<Collision, Collision> World::calculateCollision(const CollisionTimeRes
     return {Collision{collision.a,
                       collision.b,
                       collision.time,
-                      collision.touch_point - collision.a->position,
+                      collision.touch_point - collision.a->position(),
                       cr.impulse,
                       cr.closing_velocity
                       },
             Collision{collision.b,
                       collision.a,
                       collision.time,
-                      collision.touch_point - collision.b->position,
+                      collision.touch_point - collision.b->position(),
                       -cr.impulse,
                       -cr.closing_velocity
                       }};
@@ -201,8 +201,8 @@ struct OldScanMergeCmp {
 
 void World::_updateBodySensorView(Body* body) {
     vector<SensedObject> old_scan;
-    swap(old_scan, body->sensor_view);
-    vector<SensedObject>& new_scan = body->sensor_view;
+    swap(old_scan, body->_sensor_view);
+    vector<SensedObject>& new_scan = body->_sensor_view;
     vector<double> intensities;
     bool has_indentifier;
     for (const auto& sig : sigobjs) {
@@ -212,7 +212,7 @@ void World::_updateBodySensorView(Body* body) {
         intensities.clear();
         intensities.reserve(body->sensors.size());
         has_indentifier = false;
-        double dist = (body->position - sig.body->position).abs() + 0.00001;
+        double dist = (body->position() - sig.body->position()).abs() + 0.00001;
         for (const auto& sensor : body->sensors) {
             if (dist > sensor->maxRange()) {
                 continue;
@@ -228,17 +228,17 @@ void World::_updateBodySensorView(Body* body) {
         }
         auto side = SensedObject::unknown;
         if (has_indentifier) {
-            if (!sig.body->side) {
+            if (!sig.body->side()) {
                 side = SensedObject::neutral;
             }
-            else if (body->side == sig.body->side) {
+            else if (body->side() == sig.body->side()) {
                 side = SensedObject::friendly;
             }
             else {
                 side = SensedObject::enemy;
             }
         }
-        new_scan.push_back({sig.body->position - body->position,
+        new_scan.push_back({sig.body->position() - body->position(),
                             {0, 0},
                             accumulate(intensities.begin(), intensities.end(), 0.0) / intensities.size(),
                             side,

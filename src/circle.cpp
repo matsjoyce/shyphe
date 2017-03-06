@@ -65,7 +65,7 @@ bool Circle::immediate_collide(const Shape* other) const {
 }
 
 bool Circle::immediate_collide(const Circle* other) const {
-    return (other->body->position - body->position).abs() < other->radius + radius;
+    return (other->body->position() - body->position()).abs() < other->radius + radius;
 }
 
 // LCOV_EXCL_START

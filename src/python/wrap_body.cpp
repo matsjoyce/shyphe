@@ -17,9 +17,9 @@ class BodyWrap: public Body {
     map<Shape*, python::object> pyshapes;
     map<Sensor*, python::object> pysensor;
 public:
-    BodyWrap(PyObject *p, const Vec& position_/*={}*/, const Vec& velocity_/*={}*/, const Vec& acceleration_/*={}*/,
-             double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/,
-             int side_/*=0*/): Body(position_, velocity_, acceleration_, angle_, angular_velocity_, angular_acceleration_, side_), self(p) {
+    BodyWrap(PyObject *p, const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
+             double angle_/*=0*/, double angular_velocity_/*=0*/,
+             int side_/*=0*/): Body(position_, velocity_, angle_, angular_velocity_,  side_), self(p) {
     }
 
     python::object get_python_object() {
@@ -65,35 +65,29 @@ python::object magic_body_extract(Body* body) {
 void wrap_body() {
     // Note: All the Vec properties have to return copies to preserve immutability
     python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
-        python::init<const Vec&, const Vec&, const Vec&, double, double, double, int>((python::arg("position")=Vec{},
-                                                                                       python::arg("velocity")=Vec{},
-                                                                                       python::arg("acceleration")=Vec{},
-                                                                                       python::arg("angle")=0,
-                                                                                       python::arg("angular_velocity")=0,
-                                                                                       python::arg("angular_acceleration")=0,
-                                                                                       python::arg("side")=0)))
-        .add_property("position",
-            python::make_getter(&Body::position, python::return_value_policy<python::return_by_value>()),
-            python::make_setter(&Body::position)
-        )
-        .add_property("velocity",
-            python::make_getter(&Body::velocity, python::return_value_policy<python::return_by_value>()),
-            python::make_setter(&Body::velocity)
-        )
-        .add_property("acceleration",
-            python::make_getter(&Body::acceleration, python::return_value_policy<python::return_by_value>()),
-            python::make_setter(&Body::acceleration)
-        )
-        .def_readwrite("angle", &Body::angle)
-        .def_readwrite("angular_velocity", &Body::angular_velocity)
-        .def_readwrite("angular_acceleration", &Body::angular_acceleration)
-        .def_readwrite("side", &Body::side)
-        .def_readwrite("sensor_view", &Body::sensor_view)
+        python::init<const Vec&, const Vec&, double, double, int>((python::arg("position")=Vec{},
+                                                                   python::arg("velocity")=Vec{},
+                                                                   python::arg("angle")=0,
+                                                                   python::arg("angular_velocity")=0,
+                                                                   python::arg("side")=0)))
+        .add_property("position", make_function(&Body::position, python::return_value_policy<python::return_by_value>()))
+        .add_property("velocity", make_function(&Body::velocity, python::return_value_policy<python::return_by_value>()))
+        .add_property("angle", &Body::angle)
+        .add_property("angular_velocity", &Body::angularVelocity)
+        .add_property("side", &Body::side)
+        .add_property("sensor_view", make_function(&Body::sensorView, python::return_internal_reference<>()))
         .add_property("mass", &Body::mass)
         .add_property("max_sensor_range", &Body::maxSensorRange)
         .def("update_position", &Body::updatePosition)
         .def("update_velocity", &Body::updateVelocity)
+        .def("teleport", &Body::teleport)
+        .def("change_side", &Body::changeSide)
         .def("apply_impulse", &Body::applyImpulse)
+        .def("apply_local_force", &Body::applyLocalForce)
+        .def("clear_local_forces", &Body::clearLocalForces)
+        .def("apply_global_force", &Body::applyGlobalForce)
+        .def("clear_global_forces", &Body::clearGlobalForces)
+        .def("HACK_set_angluar_velocity", &Body::HACK_setAngluarVelocity)
         .def("add_shape", &BodyWrap::add_shape)
         .def("remove_shape", &BodyWrap::remove_shape)
         .def("add_sensor", &BodyWrap::add_sensor)

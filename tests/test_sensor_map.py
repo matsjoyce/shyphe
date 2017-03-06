@@ -92,11 +92,11 @@ def test_passive_thermal():
 def test_tracking():
     b = physics.Body(position=(0, 0), side=1)
     b.add_sensor(physics.ActiveRadar(power=50, sensitivity=2))
-    b.add_shape(physics.MassShape(radar_cross_section=50))
+    b.add_shape(physics.MassShape(radar_cross_section=50, mass=1))
 
     b2 = physics.Body(position=(10, 0), velocity=(5, 0), side=1)
     b2.add_sensor(physics.ActiveRadar(power=50, sensitivity=2))
-    b2.add_shape(physics.MassShape(radar_cross_section=50))
+    b2.add_shape(physics.MassShape(radar_cross_section=50, mass=1))
 
     w = physics.World()
     w.add_body(b)
@@ -122,7 +122,7 @@ def test_tracking():
 
     assert b2.position.as_tuple() == (15, 0)
 
-    b2.side = 2
+    b2.change_side(2)
 
     w.begin_frame(1)
     w.end_frame()
@@ -147,7 +147,7 @@ def test_tracking():
 
     assert b2.position.as_tuple() == (20, 0)
 
-    b2.position = (-30, 60)
+    b2.teleport((-30, 60))
 
     w.begin_frame(1)
     w.end_frame()

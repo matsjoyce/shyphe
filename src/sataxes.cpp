@@ -35,8 +35,8 @@ void SATAxes::reset(int reserve_hint)
 }
 
 void SATAxes::addBody(Body* body, double time) {
-    auto aabb = body->position + body->aabb();
-    auto end_aabb = aabb + body->velocity * time;
+    auto aabb = body->position() + body->aabb();
+    auto end_aabb = aabb + body->velocity() * time;
     aabb &= end_aabb;
 
     auto cmp = [](const SATShadow& a, const SATShadow& b){return a.position < b.position;};

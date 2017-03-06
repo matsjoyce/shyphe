@@ -29,12 +29,12 @@ using namespace std;
 CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bcircle, double end_time, bool entering) {
     auto abody = acircle->body;
     auto bbody = bcircle->body;
-    auto apos = abody->position + acircle->position;
-    auto bpos = bbody->position - bcircle->position;
+    auto apos = abody->position() + acircle->position;
+    auto bpos = bbody->position() - bcircle->position;
     auto pos_diff = apos - bpos;
     auto radii = acircle->radius + bcircle->radius;
     auto dist = pos_diff.abs();
-    auto vel_diff = abody->velocity - bbody->velocity;
+    auto vel_diff = abody->velocity() - bbody->velocity();
 
     double t;
 
@@ -61,16 +61,16 @@ CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bci
             return {};
         }
     }
-    auto col_apos = (apos + abody->velocity * t);
-    auto col_bpos = (bpos + bbody->velocity * t);
+    auto col_apos = (apos + abody->velocity() * t);
+    auto col_bpos = (bpos + bbody->velocity() * t);
     auto touch_point = (col_apos * bcircle->radius + col_bpos * acircle->radius) / radii;
     auto norm = col_bpos - col_apos;
     return {abody, bbody, t, touch_point, norm ? norm.norm() : Vec{1, 0}, entering};
 }
 
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {
-    Vec a_vel = cr.a->velocity.proj(cr.normal);
-    Vec b_vel = cr.b->velocity.proj(cr.normal);
+    Vec a_vel = cr.a->velocity().proj(cr.normal);
+    Vec b_vel = cr.b->velocity().proj(cr.normal);
     double m_a = cr.a->mass();
     double m_b = cr.b->mass();
     Vec closing_velocity = b_vel - a_vel;

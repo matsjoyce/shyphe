@@ -27,15 +27,13 @@
 
 using namespace std;
 
-Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/, const Vec& acceleration_/*={}*/,
-            double angle_/*=0*/, double angular_velocity_/*=0*/, double angular_acceleration_/*=0*/,
-            int side_/*=0*/) : position(position_),
-                               velocity(velocity_),
-                               acceleration(acceleration_),
-                               angle(angle_),
-                               angular_velocity(angular_velocity_),
-                               angular_acceleration(angular_acceleration_),
-                               side(side_) {
+Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
+            double angle_/*=0*/, double angular_velocity_/*=0*/,
+            int side_/*=0*/) : _position(position_),
+                               _velocity(velocity_),
+                               _angle(angle_),
+                               _angular_velocity(angular_velocity_),
+                               _side(side_) {
 }
 
 Body::~Body() {
@@ -77,13 +75,13 @@ double Body::mass() const {
 }
 
 void Body::updatePosition(double time) {
-    position += velocity * time;
+    _position += _velocity * time;
 }
 
 void Body::updateVelocity(double time) {
-    velocity += acceleration * time;
-    angular_velocity += angular_acceleration * time;
-    angle = norm_rad(angle + angular_velocity * time);
+    _velocity += _local_forces.rotate(_angle) * time / mass();
+//     _angular_velocity += angular_acceleration * time;
+    _angle = norm_rad(_angle + _angular_velocity * time);
 }
 
 void Body::addShape(Shape* shape) {
@@ -160,7 +158,31 @@ bool Body::immediate_collide(Body* other) const {
 }
 
 void Body::applyImpulse(Vec impulse, Vec position) {
-    velocity += impulse / mass();
+    _velocity += impulse / mass();
+}
+
+void Body::applyLocalForce(Vec impulse, Vec position) {
+    _local_forces += impulse;
+}
+
+void Body::clearLocalForces() {
+    _local_forces = {0, 0};
+}
+
+void Body::applyGlobalForce(Vec impulse, Vec position) {
+    _global_forces += impulse;
+}
+
+void Body::clearGlobalForces() {
+    _global_forces = {0, 0};
+}
+
+void Body::teleport(const Vec& to) {
+    _position = to;
+}
+
+void Body::changeSide(int side) {
+    _side = side;
 }
 
 double Body::maxSensorRange() const {
@@ -169,4 +191,8 @@ double Body::maxSensorRange() const {
         m = max(m, sensor->maxRange());
     }
     return m;
+}
+
+void Body::HACK_setAngluarVelocity(double vel) {
+    _angular_velocity = vel;
 }
