@@ -79,7 +79,7 @@ void Body::updatePosition(double time) {
 }
 
 void Body::updateVelocity(double time) {
-    _velocity += _local_forces.rotate(_angle) * time / mass();
+    _velocity += (_local_forces.rotate(_angle) + _global_forces) * time / mass();
 //     _angular_velocity += angular_acceleration * time;
     _angle = norm_rad(_angle + _angular_velocity * time);
 }
