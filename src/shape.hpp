@@ -33,6 +33,27 @@ struct Signature {
     double radar_emissions = 0;
     double thermal_emissions = 0;
     double radar_cross_section = 0;
+
+    constexpr Signature(double re=0, double te=0, double rcs=0): radar_emissions(re), thermal_emissions(te), radar_cross_section(rcs) {
+    }
+
+    operator bool() const {
+        return radar_emissions || thermal_emissions || radar_cross_section;
+    }
+
+    void operator&=(const Signature& other) {
+        radar_emissions = std::max(radar_emissions, other.radar_emissions);
+        thermal_emissions = std::max(thermal_emissions, other.thermal_emissions);
+        radar_cross_section = std::max(radar_cross_section, other.radar_cross_section);
+    }
+
+    bool approx_equals(const Signature& other, double ratio) const {
+        return (
+            (other.radar_emissions >= radar_emissions * ratio) && (other.radar_emissions <= radar_emissions / ratio)
+            && (other.thermal_emissions >= thermal_emissions * ratio) && (other.thermal_emissions <= thermal_emissions / ratio)
+            && (other.radar_cross_section >= radar_cross_section * ratio) && (other.radar_cross_section <= radar_cross_section / ratio)
+        );
+    }
 };
 
 class Shape {

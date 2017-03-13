@@ -21,7 +21,7 @@ def test_active_radar(physics):
     so = b1.sensor_view[0]
 
     assert so.body is b2
-    assert so.intensity == 20
+    assert so.signature.as_tuple() == (0, 0, 20)
     assert so.position.as_tuple() == (10, 10)
     assert so.velocity.as_tuple() == (0, 0)
     assert so.side == physics.Side.neutral
@@ -50,7 +50,7 @@ def test_passive_radar(physics):
     so = b1.sensor_view[0]
 
     assert so.body is b2
-    assert so.intensity == 25
+    assert so.signature.as_tuple() == (25, 0, 0)
     assert so.position.as_tuple() == (10, 10)
     assert so.velocity.as_tuple() == (0, 0)
     assert so.side == physics.Side.unknown
@@ -79,7 +79,7 @@ def test_passive_thermal(physics):
     so = b1.sensor_view[0]
 
     assert so.body is b2
-    assert so.intensity == 15
+    assert so.signature.as_tuple() == (0, 15, 0)
     assert so.position.as_tuple() == (10, 10)
     assert so.velocity.as_tuple() == (0, 0)
     assert so.side == physics.Side.unknown

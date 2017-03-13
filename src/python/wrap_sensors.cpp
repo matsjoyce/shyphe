@@ -35,11 +35,11 @@ void wrap_sensors() {
         .value("enemy", SensedObject::Side::enemy)
         .value("neutral", SensedObject::Side::neutral)
         .value("unknown", SensedObject::Side::unknown);
-    python::class_<SensedObject, boost::noncopyable>("SensedObject", python::init<Vec, Vec, double, SensedObject::Side, Body*>())
+    python::class_<SensedObject, boost::noncopyable>("SensedObject", python::init<Vec, Vec, Signature, SensedObject::Side, Body*>())
         .def(op::self == op::self)
         .def_readonly("position", &SensedObject::position)
         .def_readonly("velocity", &SensedObject::velocity)
-        .def_readonly("intensity", &SensedObject::intensity)
+        .def_readonly("signature", &SensedObject::signature)
         .def_readonly("side", &SensedObject::side)
         .add_property("body", &get_so_body);
     python::class_<vector<SensedObject>>("vectorSensedObject")

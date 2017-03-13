@@ -62,6 +62,10 @@ python::object magic_body_extract(Body* body) {
     return bw->get_python_object();
 }
 
+python::tuple sig_as_tuple(const Signature& s) {
+    return python::make_tuple(s.radar_emissions, s.thermal_emissions, s.radar_cross_section);
+}
+
 void wrap_body() {
     // Note: All the Vec properties have to return copies to preserve immutability
     python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
@@ -92,10 +96,14 @@ void wrap_body() {
         .def("remove_shape", &BodyWrap::remove_shape)
         .def("add_sensor", &BodyWrap::add_sensor)
         .def("remove_sensor", &BodyWrap::remove_sensor);
-    python::class_<Signature>("Signature")
+    python::class_<Signature>("Signature",
+        python::init<double, double, double>((python::arg("radar_emissions")=0,
+                                              python::arg("thermal_emissions")=0,
+                                              python::arg("radar_cross_section")=0)))
         .def_readwrite("radar_emissions", &Signature::radar_emissions)
         .def_readwrite("thermal_emissions", &Signature::thermal_emissions)
-        .def_readwrite("radar_cross_section", &Signature::radar_cross_section);
+        .def_readwrite("radar_cross_section", &Signature::radar_cross_section)
+        .def("as_tuple", &sig_as_tuple);
     python::class_<Shape, boost::noncopyable>("Shape", python::no_init)
         .def_readwrite("mass", &Shape::mass)
         .def_readwrite("signature", &Shape::signature)

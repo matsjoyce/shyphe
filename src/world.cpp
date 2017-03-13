@@ -203,27 +203,25 @@ void World::_updateBodySensorView(Body* body) {
     vector<SensedObject> old_scan;
     swap(old_scan, body->_sensor_view);
     vector<SensedObject>& new_scan = body->_sensor_view;
-    vector<double> intensities;
     bool has_indentifier;
     for (const auto& sig : sigobjs) {
         if (sig.body == body) {
             continue;
         }
-        intensities.clear();
-        intensities.reserve(body->sensors.size());
+        Signature signature;
         has_indentifier = false;
         double dist = (body->position() - sig.body->position()).abs() + 0.00001;
         for (const auto& sensor : body->sensors) {
             if (dist > sensor->maxRange()) {
                 continue;
             }
-            auto intensity = sensor->intensity(sig, dist);
-            if (intensity) {
-                intensities.push_back(intensity);
+            auto sensed_signature = sensor->intensity(sig, dist);
+            if (sensed_signature) {
+                signature &= sensed_signature;
                 has_indentifier = has_indentifier || sensor->givesIdentification();
             }
         }
-        if (!intensities.size()) {
+        if (!signature) {
             continue;
         }
         auto side = SensedObject::unknown;
@@ -240,7 +238,7 @@ void World::_updateBodySensorView(Body* body) {
         }
         new_scan.push_back({sig.body->position() - body->position(),
                             {0, 0},
-                            accumulate(intensities.begin(), intensities.end(), 0.0) / intensities.size(),
+                            signature,
                             side,
                             sig.body});
     }
@@ -263,8 +261,7 @@ void World::_updateBodySensorView(Body* body) {
                 if (fabs(start->position.y - so->position.y) > cmp2.search_radius) {
                     continue;
                 }
-                auto intensity_ratio = start->intensity / so->intensity;
-                if (0.9 < intensity_ratio && intensity_ratio < 1.1) {
+                if (so->signature.approx_equals(start->signature, 0.9)) {
                     so->velocity = so->position - start->position - start->velocity * time_until;
                     new_scan_copy.erase(so);
                     old_scan.erase(start);

@@ -23,18 +23,18 @@
 using namespace std;
 
 bool SensedObject::operator==(const SensedObject& other) {
-    return tie(position, velocity, intensity, side, body) == tie(other.position, other.velocity, other.intensity, other.side, other.body);
+    return tie(position, velocity, signature, side, body) == tie(other.position, other.velocity, other.signature, other.side, other.body);
 }
 
 
 ActiveRadar::ActiveRadar(double pwr/*=0*/, double sens/*=0*/) : power(pwr), sensitivity(sens) {
 }
 
-double ActiveRadar::intensity(const SigObject& signature, double dist) const {
+Signature ActiveRadar::intensity(const SigObject& signature, double dist) const {
     if (signature.sig.radar_cross_section * power / dist / 2 * perf < sensitivity) {
-        return 0;
+        return {};
     }
-    return signature.sig.radar_cross_section;
+    return {0, 0, signature.sig.radar_cross_section};
 }
 
 bool ActiveRadar::givesIdentification() const {
@@ -52,11 +52,11 @@ Sensor* ActiveRadar::clone() const {
 PassiveRadar::PassiveRadar(double sens/*=0*/) : sensitivity(sens) {
 }
 
-double PassiveRadar::intensity(const SigObject& signature, double dist) const {
+Signature PassiveRadar::intensity(const SigObject& signature, double dist) const {
     if (signature.sig.radar_emissions / dist * perf < sensitivity) {
-        return 0;
+        return {};
     }
-    return signature.sig.radar_emissions;
+    return {signature.sig.radar_emissions, 0, 0};
 }
 
 bool PassiveRadar::givesIdentification() const {
@@ -74,11 +74,11 @@ Sensor* PassiveRadar::clone() const {
 PassiveThermal::PassiveThermal(double sens/*=0*/) : sensitivity(sens) {
 }
 
-double PassiveThermal::intensity(const SigObject& signature, double dist) const {
+Signature PassiveThermal::intensity(const SigObject& signature, double dist) const {
     if (signature.sig.thermal_emissions / dist * perf < sensitivity) {
-        return 0;
+        return {};
     }
-    return signature.sig.thermal_emissions;
+    return {0, signature.sig.thermal_emissions, 0};
 }
 
 bool PassiveThermal::givesIdentification() const {

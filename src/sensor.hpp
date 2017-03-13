@@ -39,23 +39,23 @@ struct SensedObject {
         unknown
     };
 
-    constexpr SensedObject(const Vec& pos, const Vec& vel, double intensity_, Side side_, Body* body_) : position(pos),
-                                                                                                         velocity(vel),
-                                                                                                         intensity(intensity_),
-                                                                                                         side(side_),
-                                                                                                         body(body_) {
+    constexpr SensedObject(const Vec& pos, const Vec& vel, const Signature& signature_, Side side_, Body* body_) : position(pos),
+                                                                                                                   velocity(vel),
+                                                                                                                   signature(signature_),
+                                                                                                                   side(side_),
+                                                                                                                   body(body_) {
     }
     bool operator==(const SensedObject& other);
 
     Vec position, velocity;
-    double intensity;
+    Signature signature;
     Side side;
     Body* body;
 };
 
 class Sensor {
 public:
-    virtual double intensity(const SigObject& signature, double dist) const = 0;
+    virtual Signature intensity(const SigObject& signature, double dist) const = 0;
     virtual bool givesIdentification() const = 0;
     virtual double maxRange() const = 0;
     virtual Sensor* clone() const = 0;
@@ -67,7 +67,7 @@ public:
 class ActiveRadar : public Sensor {
 public:
     ActiveRadar(double pwr=0, double sens=0);
-    virtual double intensity(const SigObject& signature, double dist) const override;
+    virtual Signature intensity(const SigObject& signature, double dist) const override;
     virtual bool givesIdentification() const override;
     virtual double maxRange() const override;
     virtual Sensor* clone() const override;
@@ -78,7 +78,7 @@ public:
 class PassiveRadar : public Sensor {
 public:
     PassiveRadar(double sens=0);
-    virtual double intensity(const SigObject& signature, double dist) const override;
+    virtual Signature intensity(const SigObject& signature, double dist) const override;
     virtual bool givesIdentification() const override;
     virtual double maxRange() const override;
     virtual Sensor* clone() const override;
@@ -89,7 +89,7 @@ public:
 class PassiveThermal : public Sensor {
 public:
     PassiveThermal(double sens=0);
-    virtual double intensity(const SigObject& signature, double dist) const override;
+    virtual Signature intensity(const SigObject& signature, double dist) const override;
     virtual bool givesIdentification() const override;
     virtual double maxRange() const override;
     virtual Sensor* clone() const override;
