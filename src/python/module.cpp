@@ -20,4 +20,8 @@ BOOST_PYTHON_MODULE(physics) {
     wrap_body();
     wrap_sensors();
     wrap_world();
+
+#ifdef COVERAGE
+    wrap_coverage();
+#endif
 }

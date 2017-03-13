@@ -1,4 +1,3 @@
-import physics
 import math
 import pytest
 
@@ -7,12 +6,12 @@ def map_round(a):
     return tuple(round(i, 3) for i in a)
 
 
-def test_construct():
+def test_construct(physics):
     assert physics.Vec(1, 2).as_tuple() == (1, 2)
     assert physics.Vec() == (0, 0)
 
 
-def test_distance_to():
+def test_distance_to(physics):
     assert physics.Vec(1, 1).distance_to((5, 4)) == 5
     assert physics.Vec(1, 1).distance_to((1, 2)) == 1
     assert physics.Vec(1, 1).distance_to((1, 0)) == 1
@@ -21,7 +20,7 @@ def test_distance_to():
     assert physics.Vec(1, 1).distance_to((0, 0)) == 2 ** 0.5
 
 
-def test_abs():
+def test_abs(physics):
     assert physics.Vec(1, 1).abs() == 2 ** 0.5
     assert physics.Vec(0, 1).abs() == 1
     assert physics.Vec(1, 0).abs() == 1
@@ -30,7 +29,7 @@ def test_abs():
     assert physics.Vec(2, 0).abs() == 2
 
 
-def test_squared():
+def test_squared(physics):
     assert physics.Vec(1, 1).squared() == 2
     assert physics.Vec(0, 1).squared() == 1
     assert physics.Vec(1, 0).squared() == 1
@@ -39,13 +38,13 @@ def test_squared():
     assert physics.Vec(2, 0).squared() == 4
 
 
-def test_norm():
+def test_norm(physics):
     assert physics.Vec(1, 1).norm().as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
     assert physics.Vec(1, 0).norm().as_tuple() == (1, 0)
     assert physics.Vec(-3, 4).norm().as_tuple() == (-0.6, 0.8)
 
 
-def test_operators():
+def test_operators(physics):
     assert physics.Vec(1, 1) + physics.Vec(1, 1) == physics.Vec(2, 2)
     assert physics.Vec(1, 1) - physics.Vec(1, 1) == physics.Vec(0, 0)
     assert physics.Vec(1, 5) + physics.Vec(-1, 1) == physics.Vec(0, 6)
@@ -58,7 +57,7 @@ def test_operators():
     assert -physics.Vec(25, 5) == physics.Vec(-25, -5)
 
 
-def test_compare():
+def test_compare(physics):
     assert physics.Vec(1, 1) == physics.Vec(1, 1)
     assert not (physics.Vec(1, 1) != physics.Vec(1, 1))
     assert not (physics.Vec(1, 2) == physics.Vec(1, 1))
@@ -85,40 +84,45 @@ def test_compare():
     assert physics.Vec(1, 2) >= physics.Vec(1, 1)
 
 
-def test_dot():
+def test_dot(physics):
     assert physics.Vec(0, 1).dot((1, 0)) == 0
     assert physics.Vec(1, 1).dot((1, 0)) == 1
     assert physics.Vec(1, 1).dot((1, 1)) == 2
     assert physics.Vec(-1, -1).dot((1, 1)) == -2
 
 
-def test_proj_rej():
+def test_proj_rej(physics):
     assert physics.Vec(5, 0).proj((1, 1)).as_tuple() == (2.5, 2.5)
     assert physics.Vec(5, 0).rej((1, 1)).as_tuple() == (2.5, -2.5)
     assert physics.Vec(5, 9).proj((2, 4)) + physics.Vec(5, 9).rej((2, 4)) == physics.Vec(5, 9)
 
 
-def test_from_bearing():
-    assert physics.Vec.from_bearing(physics.Vec(5, 9).bearing()).as_tuple() == pytest.approx(physics.Vec(5, 9).norm().as_tuple())
-    assert physics.Vec.from_bearing(physics.Vec(1, 0).bearing()).as_tuple() == pytest.approx(physics.Vec(1, 0).norm().as_tuple())
-    assert physics.Vec.from_bearing(physics.Vec(0, 1).bearing()).as_tuple() == pytest.approx(physics.Vec(0, 1).norm().as_tuple())
-    assert physics.Vec.from_bearing(physics.Vec(-1, 0).bearing()).as_tuple() == pytest.approx(physics.Vec(-1, 0).norm().as_tuple())
-    assert physics.Vec.from_bearing(physics.Vec(0, -1).bearing()).as_tuple() == pytest.approx(physics.Vec(0, -1).norm().as_tuple())
+def test_from_bearing(physics):
+    assert (physics.Vec.from_bearing(physics.Vec(5, 9).bearing()).as_tuple()
+            == pytest.approx(physics.Vec(5, 9).norm().as_tuple()))
+    assert (physics.Vec.from_bearing(physics.Vec(1, 0).bearing()).as_tuple()
+            == pytest.approx(physics.Vec(1, 0).norm().as_tuple()))
+    assert (physics.Vec.from_bearing(physics.Vec(0, 1).bearing()).as_tuple()
+            == pytest.approx(physics.Vec(0, 1).norm().as_tuple()))
+    assert (physics.Vec.from_bearing(physics.Vec(-1, 0).bearing()).as_tuple()
+            == pytest.approx(physics.Vec(-1, 0).norm().as_tuple()))
+    assert (physics.Vec.from_bearing(physics.Vec(0, -1).bearing()).as_tuple()
+            == pytest.approx(physics.Vec(0, -1).norm().as_tuple()))
 
 
-def test_bearing_to():
+def test_bearing_to(physics):
     assert physics.Vec(0, 0).bearing_to((1, 0)) == math.pi / 2
     assert physics.Vec(0, 0).bearing_to((-1, 0)) == -math.pi / 2
     assert physics.Vec(0, 0).bearing_to((0, 1)) == 0
     assert physics.Vec(0, 0).bearing_to((0, -1)) == math.pi
 
 
-def test_vec_str():
+def test_vec_str(physics):
     assert str(physics.Vec(1, 3)) == "(1, 3)"
     assert repr(physics.Vec(1, 3)) == "Vec(1, 3)"
 
 
-def test_python_conv():
+def test_python_conv(physics):
     v = physics.Vec(1.1, 2.1)
 
     assert len(v) == 2
@@ -126,10 +130,10 @@ def test_python_conv():
     assert v[1] == v[-1] == 2.1
 
     with pytest.raises(IndexError):
-        _ = v[2]
+        v[2]
 
     with pytest.raises(IndexError):
-        _ = v[-3]
+        v[-3]
 
     assert list(v) == [1.1, 2.1]
 
@@ -167,7 +171,7 @@ def test_python_conv():
     assert not physics.Vec()
 
 
-def test_rotate():
+def test_rotate(physics):
     assert physics.Vec(1, 0).rotate(0).as_tuple() == pytest.approx((1, 0))
     assert physics.Vec(1, 0).rotate(math.pi).as_tuple() == pytest.approx((-1, 0))
     assert physics.Vec(0, 1).rotate(math.pi).as_tuple() == pytest.approx((0, -1))

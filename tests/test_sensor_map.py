@@ -1,8 +1,4 @@
-import physics
-import pytest
-
-
-def test_active_radar():
+def test_active_radar(physics):
     b1 = physics.Body(position=(0, 0))
     b1.add_sensor(physics.ActiveRadar(power=50, sensitivity=1))
 
@@ -31,7 +27,7 @@ def test_active_radar():
     assert so.side == physics.Side.neutral
 
 
-def test_passive_radar():
+def test_passive_radar(physics):
     b1 = physics.Body(position=(0, 0))
     b1.add_sensor(physics.PassiveRadar(sensitivity=1))
 
@@ -60,7 +56,7 @@ def test_passive_radar():
     assert so.side == physics.Side.unknown
 
 
-def test_passive_thermal():
+def test_passive_thermal(physics):
     b1 = physics.Body(position=(0, 0))
     b1.add_sensor(physics.PassiveThermal(sensitivity=1))
 
@@ -89,7 +85,7 @@ def test_passive_thermal():
     assert so.side == physics.Side.unknown
 
 
-def test_tracking():
+def test_tracking(physics):
     b = physics.Body(position=(0, 0), side=1)
     b.add_sensor(physics.ActiveRadar(power=50, sensitivity=2))
     b.add_shape(physics.MassShape(radar_cross_section=50, mass=1))
@@ -166,5 +162,3 @@ def test_tracking():
     assert sr.position.as_tuple() == (30, -60)
     assert sr.velocity.as_tuple() == (55, -60)
     assert sr.body == b
-
-

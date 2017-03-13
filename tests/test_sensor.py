@@ -1,8 +1,7 @@
-import physics
 import pytest
 
 
-def test_clone():
+def test_clone(physics):
     s = physics.ActiveRadar(power=50, sensitivity=2)
     s2 = s.clone()
 
@@ -26,7 +25,7 @@ def test_clone():
     assert type(s) is type(s2)
 
 
-def test_body_sensor():
+def test_body_sensor(physics):
     s = physics.ActiveRadar(power=50, sensitivity=2)
     b = physics.Body()
 
@@ -47,7 +46,7 @@ def test_body_sensor():
         b.remove_sensor(s)
 
 
-def test_perf():
+def test_perf(physics):
     s = physics.ActiveRadar(power=50, sensitivity=2)
 
     assert s.max_range == 625

@@ -11,6 +11,10 @@ void wrap_body();
 void wrap_sensors();
 void wrap_world();
 
+#ifdef COVERAGE
+void wrap_coverage();
+#endif
+
 class Body;
 boost::python::object magic_body_extract(Body* body);
 

@@ -1,15 +1,14 @@
-import physics
 import pytest
 
 
-def test_add_shape():
+def test_add_shape(physics):
     b = physics.Body()
     b.add_shape(physics.MassShape(mass=10))
 
     assert b.mass == 10
 
 
-def test_remove_shape():
+def test_remove_shape(physics):
     b = physics.Body()
     c = physics.MassShape(mass=10)
     b.add_shape(c)
@@ -18,7 +17,7 @@ def test_remove_shape():
     assert b.mass == 0
 
 
-def test_broken_add_remove():
+def test_broken_add_remove(physics):
     b = physics.Body()
     b2 = physics.Body()
     c = physics.MassShape(mass=10)
@@ -36,7 +35,7 @@ def test_broken_add_remove():
         b.remove_shape(c)
 
 
-def test_clone_shape():
+def test_clone_shape(physics):
     b = physics.Body()
     b2 = physics.Body()
     c = physics.Circle(radius=5, mass=10)

@@ -1,18 +1,13 @@
-import physics
 import random
 import math
 import pytest
 
 
-def dummy_shape(mass):
-    return physics.MassShape(mass=mass)
-
-
-def test_complex_collision():
+def test_complex_collision(physics):
     a = physics.Body(position=(0, 0), velocity=(30, 40))
-    a.add_shape(dummy_shape(10))
+    a.add_shape(physics.MassShape(mass=10))
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
-    b.add_shape(dummy_shape(10))
+    b.add_shape(physics.MassShape(mass=10))
 
     col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
@@ -22,11 +17,11 @@ def test_complex_collision():
     assert cr.closing_velocity.as_tuple() == (-60, 0)
 
 
-def test_same_direction_vertical():
+def test_same_direction_vertical(physics):
     a = physics.Body(position=(0, 2), velocity=(0, -30))
-    a.add_shape(dummy_shape(10))
+    a.add_shape(physics.MassShape(mass=10))
     b = physics.Body(position=(0, 0), velocity=(0, -20))
-    b.add_shape(dummy_shape(10))
+    b.add_shape(physics.MassShape(mass=10))
 
     col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
@@ -36,11 +31,11 @@ def test_same_direction_vertical():
     assert cr.closing_velocity.as_tuple() == (0, 10)
 
 
-def test_same_direction_horizontal():
+def test_same_direction_horizontal(physics):
     a = physics.Body(position=(0, 0), velocity=(-20, 0))
-    a.add_shape(dummy_shape(10))
+    a.add_shape(physics.MassShape(mass=10))
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
-    b.add_shape(dummy_shape(10))
+    b.add_shape(physics.MassShape(mass=10))
 
     col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
@@ -50,11 +45,11 @@ def test_same_direction_horizontal():
     assert cr.closing_velocity.as_tuple() == (-10, 0)
 
 
-def test_transition_reduction():
+def test_transition_reduction(physics):
     a = physics.Body(position=(0, 2), velocity=(0, -300))
-    a.add_shape(dummy_shape(10))
+    a.add_shape(physics.MassShape(mass=10))
     b = physics.Body(position=(0, 0), velocity=(0, -200))
-    b.add_shape(dummy_shape(10))
+    b.add_shape(physics.MassShape(mass=10))
 
     col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
 
@@ -65,13 +60,13 @@ def test_transition_reduction():
 
 
 @pytest.mark.parametrize("i", range(20))
-def test_collision_fuzz(i):
+def test_collision_fuzz(physics, i):
     a = physics.Body(position=(random.randrange(0, 50), random.randrange(0, 50)),
                      velocity=20 * physics.Vec.from_bearing((random.random() - 0.5) * math.pi))
-    a.add_shape(dummy_shape(1))
+    a.add_shape(physics.MassShape(mass=1))
     pos = (random.randrange(0, 50), random.randrange(0, 50))
     b = physics.Body(position=pos, velocity=(a.position - pos).norm() * 30)
-    b.add_shape(dummy_shape(1))
+    b.add_shape(physics.MassShape(mass=1))
 
     d1 = (a.position - b.position).abs()
     if d1 == 0:

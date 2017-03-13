@@ -1,8 +1,7 @@
-import physics
 import pytest
 
 
-def test_single_bounce():
+def test_single_bounce(physics):
     b1 = physics.Body(position=(0, 0), velocity=(2, 0))
     b1.add_shape(physics.Circle(radius=1, mass=1))
 
@@ -62,7 +61,7 @@ def test_single_bounce():
     assert b2.position.as_tuple() == (6, 0)
 
 
-def test_double_bounce():
+def test_double_bounce(physics):
     b1 = physics.Body(position=(0, 0), velocity=(4, 0))
     b1.add_shape(physics.Circle(radius=1, mass=1))
 
@@ -145,7 +144,7 @@ def test_double_bounce():
     assert not c.has_next_collision()
 
 
-def test_single_bounce_die():
+def test_single_bounce_die(physics):
     b1 = physics.Body(position=(0, 0), velocity=(4, 0))
     b1.add_shape(physics.Circle(radius=1, mass=1))
 
@@ -197,7 +196,7 @@ def test_single_bounce_die():
     assert not c.has_next_collision()
 
 
-def test_ignored():
+def test_ignored(physics):
     b1 = physics.Body(position=(0, 0), velocity=(4, 0))
     b1.add_shape(physics.Circle(radius=1, mass=1))
 

@@ -1,8 +1,4 @@
-import physics
-import pytest
-
-
-def test_mass_shape():
+def test_mass_shape(physics):
     m = physics.MassShape(mass=45)
 
     assert m.mass == 45

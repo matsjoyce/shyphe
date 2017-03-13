@@ -51,7 +51,7 @@ set_target_properties(physics PROPERTIES PREFIX "")
 target_link_libraries(physics ${Boost_LIBRARIES})
 target_link_libraries(physics ${PYTHON_LDFLAGS})
 
-add_library(physics_coverage SHARED ${PROJECT_FILES})
+add_library(physics_coverage SHARED ${PROJECT_FILES} src/python/coverage.cpp)
 target_link_libraries(physics_coverage ${Boost_LIBRARIES})
 target_link_libraries(physics_coverage ${PYTHON_LDFLAGS})
 target_compile_options(physics_coverage PRIVATE "-fprofile-arcs"
@@ -60,7 +60,9 @@ target_compile_options(physics_coverage PRIVATE "-fprofile-arcs"
                                                 "-fno-inline"
                                                 "-O0"
                                                 "-fPIC"
-                                                "-fno-default-inline")
+                                                "-fno-default-inline"
+                                                "-DCOVERAGE"
+                                                "-lgcov")
 set_target_properties(physics_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage"
                                                   OUTPUT_NAME "physics"
                                                   PREFIX "")
