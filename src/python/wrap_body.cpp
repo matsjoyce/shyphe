@@ -7,6 +7,7 @@
 #include "sensor.hpp"
 #include "circle.hpp"
 #include "massshape.hpp"
+#include "polygon.hpp"
 
 using namespace std;
 namespace python = boost::python;
@@ -92,6 +93,7 @@ void wrap_body() {
         .def("apply_global_force", &Body::applyGlobalForce)
         .def("clear_global_forces", &Body::clearGlobalForces)
         .def("HACK_set_angluar_velocity", &Body::HACK_setAngluarVelocity)
+        .def("is_overlapping", &Body::immediate_collide)
         .def("add_shape", &BodyWrap::add_shape)
         .def("remove_shape", &BodyWrap::remove_shape)
         .def("add_sensor", &BodyWrap::add_sensor)
@@ -122,5 +124,14 @@ void wrap_body() {
                                                                   python::arg("radar_cross_section")=0,
                                                                   python::arg("radar_emissions")=0,
                                                                   python::arg("thermal_emissions")=0)));
+    python::class_<Polygon, boost::noncopyable, python::bases<Shape>>("Polygon",
+        python::init<vector<Vec>, double, const Vec&, double, double, double>((python::arg("points")=python::list(),
+                                                                               python::arg("mass")=0,
+                                                                               python::arg("position")=Vec{},
+                                                                               python::arg("radar_cross_section")=0,
+                                                                               python::arg("radar_emissions")=0,
+                                                                               python::arg("thermal_emissions")=0)))
+        .def_readonly("points", &Polygon::points);
     IterableConverter<vector<SensedObject>>();
+    IterableConverter<vector<Vec>>();
 }

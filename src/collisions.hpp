@@ -47,6 +47,11 @@ struct CollisionTimeResult {
 };
 
 CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time, bool entering);
+CollisionTimeResult collideCirclePolygon(const Circle* a, const Polygon* b, double end_time, bool entering);
+CollisionTimeResult collidePolygonPolygon(const Polygon* a, const Polygon* b, double end_time, bool entering);
+
+bool immediateCollideCirclePolygon(const Circle* a, const Polygon* b);
+bool immediateCollidePolygonPolygon(const Polygon* a, const Polygon* b);
 
 struct CollisionResult {
     Vec impulse;

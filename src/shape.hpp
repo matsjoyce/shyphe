@@ -34,7 +34,7 @@ struct Signature {
     double thermal_emissions = 0;
     double radar_cross_section = 0;
 
-    constexpr Signature(double re=0, double te=0, double rcs=0): radar_emissions(re), thermal_emissions(te), radar_cross_section(rcs) {
+    constexpr Signature(double re=0, double te=0, double rcs=0) : radar_emissions(re), thermal_emissions(te), radar_cross_section(rcs) {
     }
 
     operator bool() const {
@@ -73,13 +73,13 @@ public:
     virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const = 0;
     virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const = 0;
     virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const = 0;
-//     virtual CollisionTimeResult collide(const Polygon* other) const = 0;
+    virtual CollisionTimeResult collide(const Polygon* other, double end_time, bool entering) const = 0;
 
     // Double dispatch
     virtual bool immediate_collide(const Shape* other) const = 0;
     virtual bool immediate_collide(const Circle* other) const = 0;
     virtual bool immediate_collide(const MassShape* other) const = 0;
-//     virtual bool immediate_collide(const Polygon* other) const = 0;
+    virtual bool immediate_collide(const Polygon* other) const = 0;
 };
 
 #endif // SHAPE_HPP

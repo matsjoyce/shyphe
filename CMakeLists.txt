@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 3.6)
 project(physics)
 
 set(PROJECT_FILES src/aabb.cpp src/body.cpp src/circle.cpp
-            src/collisions.cpp src/massshape.cpp src/sataxes.cpp
-            src/sensor.cpp src/shape.cpp src/vec.cpp
+            src/collisions.cpp src/massshape.cpp src/polygon.cpp
+            src/sataxes.cpp src/sensor.cpp src/shape.cpp src/vec.cpp
             src/world.cpp src/python/module.cpp src/python/wrap_body.cpp
             src/python/wrap_collisions.cpp src/python/wrap_sensors.cpp
             src/python/wrap_vec.cpp src/python/wrap_world.cpp)

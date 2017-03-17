@@ -18,6 +18,14 @@ def test_circle_circle_horizontal(physics):
     assert coll.b is b2
     assert coll.entering
 
+    coll = physics.collide_circle_circle(c1, c2, 2, False)
+    assert coll.time == pytest.approx(1.5)
+    assert coll.normal.as_tuple() == pytest.approx((-1, 0))
+    assert coll.touch_point.as_tuple() == pytest.approx((2, 0))
+    assert coll.a is b1
+    assert coll.b is b2
+    assert not coll.entering
+
 
 def test_circle_circle_vertical(physics):
     b1 = physics.Body(position=(0, 0), velocity=(0, 2))
@@ -35,6 +43,14 @@ def test_circle_circle_vertical(physics):
     assert coll.a is b1
     assert coll.b is b2
     assert coll.entering
+
+    coll = physics.collide_circle_circle(c1, c2, 2, False)
+    assert coll.time == pytest.approx(1.5)
+    assert coll.normal.as_tuple() == pytest.approx((0, -1))
+    assert coll.touch_point.as_tuple() == pytest.approx((0, 2))
+    assert coll.a is b1
+    assert coll.b is b2
+    assert not coll.entering
 
 
 def test_circle_circle_no_collision_opposite_dir(physics):

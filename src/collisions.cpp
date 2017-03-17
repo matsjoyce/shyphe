@@ -20,6 +20,7 @@
 #include "collisions.hpp"
 #include "shape.hpp"
 #include "circle.hpp"
+#include "polygon.hpp"
 #include "body.hpp"
 #include <iostream>
 
@@ -66,6 +67,90 @@ CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bci
     auto touch_point = (col_apos * bcircle->radius + col_bpos * acircle->radius) / radii;
     auto norm = col_bpos - col_apos;
     return {abody, bbody, t, touch_point, norm ? norm.norm() : Vec{1, 0}, entering};
+}
+
+
+inline pair<double, double> axis_proj_max_min(const vector<Vec>& points, Vec axis) {
+    double max, min;
+    max = min = points[0].dot(axis);
+    for (unsigned int i = 1; i < points.size(); ++i) {
+        auto dot = points[i].dot(axis);
+        if (dot < min) {
+            min = dot;
+        }
+        else if (dot > max) {
+            max = dot;
+        }
+    }
+    return {max, min};
+}
+
+CollisionTimeResult collideCirclePolygon(const Circle* acircle, const Polygon* bpoly, double end_time, bool entering) {
+    auto abody = acircle->body;
+    auto bbody = bpoly->body;
+    auto apos = abody->position() + acircle->position;
+    auto bpos = bbody->position() + bpoly->position;
+    auto pos_diff = apos - bpos;
+    auto vel_diff = abody->velocity() - bbody->velocity();
+
+    double t = -1;
+    Vec max_axis;
+
+    for (int i = -1; i < static_cast<int>(bpoly->points.size()); ++i) {
+        double local_t;
+        auto axis = (i < 0)? pos_diff.norm() : (bpoly->points[(i + 1) % bpoly->points.size()] - bpoly->points[i]).perp();
+        auto vel_diff_proj = vel_diff.dot(axis);
+        auto pos_diff_proj = pos_diff.dot(axis);
+        cout << axis << vel_diff_proj << " " << pos_diff_proj << endl;
+        if (!vel_diff_proj) {
+            continue;
+        }
+        auto max_min = axis_proj_max_min(bpoly->points, axis);
+        cout << "DIST" << (max_min.first - pos_diff_proj + acircle->radius) << endl;
+        if (pos_diff_proj > 0) {
+            local_t = max(0.0, (max_min.first - pos_diff_proj + acircle->radius) / vel_diff_proj);
+        }
+        else {
+            local_t = max(0.0, (max_min.second - pos_diff_proj - acircle->radius) / vel_diff_proj);
+        }
+        if (local_t > t) {
+            t = local_t;
+            max_axis = axis;
+        }
+    }
+    if (t > end_time || t < 0) {
+        return {};
+    }
+    auto touch_point = (apos + abody->velocity() * t) - max_axis * acircle->radius;
+    return {abody, bbody, t, touch_point, -max_axis, entering};
+}
+
+CollisionTimeResult collidePolygonPolygon(const Polygon* a, const Polygon* b, double end_time, bool entering) {
+
+}
+
+bool immediateCollideCirclePolygon(const Circle* acircle, const Polygon* bpoly) {
+    auto abody = acircle->body;
+    auto bbody = bpoly->body;
+    auto apos = abody->position() + acircle->position;
+    auto bpos = bbody->position() + bpoly->position;
+    auto pos_diff = apos - bpos;
+    for (unsigned int i = 0; i < bpoly->points.size(); ++i) {
+        auto axis = (bpoly->points[(i + 1) % bpoly->points.size()] - bpoly->points[i]).perp();
+        auto max_min = axis_proj_max_min(bpoly->points, axis);
+        auto pos_diff_proj = pos_diff.dot(axis);
+        if (max_min.first - pos_diff_proj < -acircle->radius || max_min.second - pos_diff_proj > acircle->radius) {
+            return false;
+        }
+    }
+    auto axis = pos_diff.norm();
+    auto max_min = axis_proj_max_min(bpoly->points, axis);
+    auto pos_diff_proj = pos_diff.abs();
+    return !(max_min.first - pos_diff_proj < -acircle->radius || max_min.second - pos_diff_proj > -acircle->radius);
+}
+
+bool immediateCollidePolygonPolygon(const Polygon* a, const Polygon* b) {
+
 }
 
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {

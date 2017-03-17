@@ -49,15 +49,15 @@ CollisionTimeResult Circle::collide(const Circle* other, double end_time, bool e
     return collideCircleCircle(this, other, end_time, entering);
 }
 
+CollisionTimeResult Circle::collide(const Polygon* other, double end_time, bool entering) const {
+    return collideCirclePolygon(this, other, end_time, entering);
+}
 
 // LCOV_EXCL_START
 CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
     return {};
 }
 // LCOV_EXCL_STOP
-
-// CollisionTimeResult Circle::collide(const Polygon* other) const {
-// }
 
 
 bool Circle::immediate_collide(const Shape* other) const {
@@ -68,9 +68,12 @@ bool Circle::immediate_collide(const Circle* other) const {
     return (other->body->position() - body->position()).abs() < other->radius + radius;
 }
 
-// LCOV_EXCL_START
-bool Circle::immediate_collide(const MassShape* other) const {
-    return false;
+bool Circle::immediate_collide(const Polygon* other) const {
+    return immediateCollideCirclePolygon(this, other);
 }
 
+// LCOV_EXCL_START
+bool Circle::immediate_collide(const MassShape* /*other*/) const {
+    return false;
+}
 // LCOV_EXCL_STOP

@@ -100,6 +100,10 @@ public:
         return std::atan2(other.x - x, other.y - y);
     }
 
+    inline double cross(const Vec& other) const {
+        return x * other.y - y * other.x;
+    }
+
     inline double dot(const Vec& other) const {
         return x * other.x + y * other.y;
     }
@@ -111,6 +115,11 @@ public:
     inline Vec norm() const {
         auto mag = abs();
         return {x / mag, y / mag};
+    }
+
+    inline Vec perp() const {
+        auto mag = abs();
+        return {-y / mag, x / mag};
     }
 
     inline Vec proj(const Vec& axis) const {

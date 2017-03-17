@@ -3,6 +3,7 @@
 #include "module.hpp"
 #include "collisions.hpp"
 #include "circle.hpp"
+#include "polygon.hpp"
 #include "world.hpp"
 
 using namespace std;
@@ -36,6 +37,10 @@ void wrap_collisions() {
         .def_readonly("closing_velocity", &Collision::closing_velocity);
     py_pair<Collision, Collision>();
     python::def("collide_circle_circle", collideCircleCircle);
+    python::def("collide_circle_polygon", collideCirclePolygon);
+    python::def("collide_polygon_polygon", collidePolygonPolygon);
+    python::def("immediate_collide_circle_polygon", immediateCollideCirclePolygon);
+    python::def("immediate_collide_polygon_polygon", immediateCollidePolygonPolygon);
     python::def("collision_result", collisionResult);
     python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec, bool>())
         .add_property("a", &get_collisiontime_a)

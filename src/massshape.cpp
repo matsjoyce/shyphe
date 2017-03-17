@@ -52,6 +52,10 @@ CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_
     return CollisionTimeResult{};
 }
 
+CollisionTimeResult MassShape::collide(const Polygon* /*other*/, double /*end_time*/, bool /*entering*/) const {
+    return CollisionTimeResult{};
+}
+
 bool MassShape::immediate_collide(const Shape* /*other*/) const {
     return false;
 }
@@ -61,6 +65,10 @@ bool MassShape::immediate_collide(const Circle* /*other*/) const {
 }
 
 bool MassShape::immediate_collide(const MassShape* /*other*/) const {
+    return false;
+}
+
+bool MassShape::immediate_collide(const Polygon* /*other*/) const {
     return false;
 }
 // LCOV_EXCL_STOP
