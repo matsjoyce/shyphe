@@ -92,8 +92,9 @@ void wrap_body() {
         .def("clear_local_forces", &Body::clearLocalForces)
         .def("apply_global_force", &Body::applyGlobalForce)
         .def("clear_global_forces", &Body::clearGlobalForces)
-        .def("HACK_set_angluar_velocity", &Body::HACK_setAngluarVelocity)
-        .def("is_overlapping", &Body::immediate_collide)
+        .def("HACK_set_angular_velocity", &Body::HACK_setAngularVelocity)
+        .def("collide", &Body::collide)
+        .def("distance_between", &Body::distanceBetween)
         .def("add_shape", &BodyWrap::add_shape)
         .def("remove_shape", &BodyWrap::remove_shape)
         .def("add_sensor", &BodyWrap::add_sensor)
@@ -132,6 +133,6 @@ void wrap_body() {
                                                                                python::arg("radar_emissions")=0,
                                                                                python::arg("thermal_emissions")=0)))
         .def_readonly("points", &Polygon::points);
-    IterableConverter<vector<SensedObject>>();
-    IterableConverter<vector<Vec>>();
+    IterableConverter<vector<SensedObject>>("SensedObjectVector");
+    IterableConverter<vector<Vec>>("VecVector");
 }

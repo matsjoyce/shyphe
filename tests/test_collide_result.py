@@ -9,7 +9,7 @@ def test_complex_collision(physics):
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
     b.add_shape(physics.MassShape(mass=10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
 
     cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
@@ -23,7 +23,7 @@ def test_same_direction_vertical(physics):
     b = physics.Body(position=(0, 0), velocity=(0, -20))
     b.add_shape(physics.MassShape(mass=10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
 
     cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
@@ -37,7 +37,7 @@ def test_same_direction_horizontal(physics):
     b = physics.Body(position=(2, 0), velocity=(-30, 0))
     b.add_shape(physics.MassShape(mass=10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
 
     cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 
@@ -51,7 +51,7 @@ def test_transition_reduction(physics):
     b = physics.Body(position=(0, 0), velocity=(0, -200))
     b.add_shape(physics.MassShape(mass=10))
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
 
     cr = physics.collision_result(col, physics.CollisionParameters(1, 500, 0.1))
 
@@ -72,7 +72,7 @@ def test_collision_fuzz(physics, i):
     if d1 == 0:
         return
 
-    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm(), True)
+    col = physics.CollisionTimeResult(a, b, 0, (0, 0), (b.position - a.position).norm())
 
     cr = physics.collision_result(col, physics.CollisionParameters(1, 10000, 1))
 

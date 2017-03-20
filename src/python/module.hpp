@@ -4,6 +4,7 @@
 #include <utility>
 #include <boost/python.hpp>
 #include <boost/python/stl_iterator.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 void wrap_vec();
 void wrap_collisions();
@@ -50,8 +51,10 @@ template<typename T1, typename T2> struct py_pair {
 };
 
 template <typename Container> struct IterableConverter {
-  IterableConverter() {
+  IterableConverter(const char* name) {
     boost::python::converter::registry::push_back(&convertible, &construct, boost::python::type_id<Container>());
+    boost::python::class_<Container>(name)
+        .def(boost::python::vector_indexing_suite<Container>());
   }
 
   static void* convertible(PyObject* obj) {

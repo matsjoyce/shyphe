@@ -35,15 +35,81 @@ def test_broken_add_remove(physics):
         b.remove_shape(c)
 
 
-def test_clone_shape(physics):
-    b = physics.Body()
-    b2 = physics.Body()
-    c = physics.Circle(radius=5, mass=10)
-    b.add_shape(c)
-    c2 = c.clone()
-    b2.add_shape(c2)
+def test_body_distance(physics):
+    b1 = physics.Body(position=(0, 0))
+    b1.add_shape(physics.Circle(radius=1, position=(1, 0)))
+    b1.add_shape(physics.Circle(radius=1, position=(-1, 0)))
+    b1.add_shape(physics.MassShape(position=(5, 0)))
 
-    assert c2.radius == c.radius
-    assert c2.mass == c.mass
-    assert type(c2) is type(c)
-    assert b.mass == b.mass == 10
+    b2 = physics.Body(position=(10, 0))
+    b2.add_shape(physics.Circle(radius=1, position=(0, 1)))
+    b2.add_shape(physics.Circle(radius=1, position=(-1, 0)))
+    b2.add_shape(physics.MassShape(position=(-5, 0)))
+
+    assert b1.distance_between(b2) == 6
+
+
+def test_body_collide(physics):
+    b1 = physics.Body(position=(0, 0), velocity=(1, 0))
+    b1.add_shape(physics.Circle(radius=1, position=(1, 0)))
+    b1.add_shape(physics.Circle(radius=1, position=(-1, 0)))
+    b1.add_shape(physics.MassShape(position=(5, 0)))
+
+    b2 = physics.Body(position=(10, 0), velocity=(-5, 0))
+    b2.add_shape(physics.Circle(radius=1, position=(0, 1)))
+    b2.add_shape(physics.Circle(radius=1, position=(-1, 0)))
+    b2.add_shape(physics.MassShape(position=(-5, 0)))
+
+    colr = b1.collide(b2, 2, False)
+
+    assert colr.time == pytest.approx(1.0)
+
+
+def test_local_linear_acceleration(physics):
+    b = physics.Body()
+    c = physics.MassShape(mass=1)
+    b.add_shape(c)
+    b.apply_local_force((1, 0), (0, 0))
+
+    b.update_velocity(1)
+
+    assert b.velocity == (1, 0)
+
+    b.update_velocity(1)
+
+    assert b.velocity == (2, 0)
+
+    b.update_velocity(1)
+
+    assert b.velocity == (3, 0)
+
+    b.clear_local_forces()
+
+    b.update_velocity(1)
+
+    assert b.velocity == (3, 0)
+
+
+def test_global_acceleration(physics):
+    b = physics.Body()
+    c = physics.MassShape(mass=1)
+    b.add_shape(c)
+    b.apply_global_force((1, 0), (0, 0))
+
+    b.update_velocity(1)
+
+    assert b.velocity == (1, 0)
+
+    b.update_velocity(1)
+
+    assert b.velocity == (2, 0)
+
+    b.update_velocity(1)
+
+    assert b.velocity == (3, 0)
+
+    b.clear_global_forces()
+
+    b.update_velocity(1)
+
+    assert b.velocity == (3, 0)

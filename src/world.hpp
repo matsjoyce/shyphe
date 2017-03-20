@@ -41,21 +41,22 @@ struct Collision {
 
 class World {
 public:
+    World(double frame_time_=1);
     void addBody(Body* body);
     void removeBody(Body* body);
-    void beginFrame(double time);
+    void beginFrame();
     CollisionTimeResult nextCollision();
     std::pair<Collision, Collision> calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params);
     void finishedCollision(const CollisionTimeResult& collision, bool renotify);
     bool hasNextCollision();
     void endFrame();
 private:
-    double time_until, current_time;
+    double time_until = 0, current_time = 0, frame_time;
     std::vector<Body*> bodies;
     std::vector<SigObject> sigobjs;
     std::map<Body*, double> body_times;
     std::set<Body*> changed_bodies, removed_bodies;
-    std::set<std::pair<Body*, Body*>> overlapping;
+    std::map<std::pair<Body*, Body*>, bool> ignore_current_collision;
     std::vector<CollisionTimeResult> collision_times;
     SATAxes sat_axes;
 

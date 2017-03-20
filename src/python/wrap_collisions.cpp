@@ -36,19 +36,20 @@ void wrap_collisions() {
         .def_readonly("impulse", &Collision::impulse)
         .def_readonly("closing_velocity", &Collision::closing_velocity);
     py_pair<Collision, Collision>();
-    python::def("collide_circle_circle", collideCircleCircle);
-    python::def("collide_circle_polygon", collideCirclePolygon);
-    python::def("collide_polygon_polygon", collidePolygonPolygon);
-    python::def("immediate_collide_circle_polygon", immediateCollideCirclePolygon);
-    python::def("immediate_collide_polygon_polygon", immediateCollidePolygonPolygon);
+    python::def("collide_shapes", collideShapes);
+    python::def("distance_between", distanceBetween);
     python::def("collision_result", collisionResult);
-    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec, bool>())
+    python::class_<DistanceResult>("CollisionTimeResult", python::init<double, Vec, Vec, Vec>())
+        .def_readonly("distance", &DistanceResult::distance)
+        .def_readonly("a_point", &DistanceResult::a_point)
+        .def_readonly("b_point", &DistanceResult::b_point)
+        .def_readonly("normal", &DistanceResult::normal);
+    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec>())
         .add_property("a", &get_collisiontime_a)
         .add_property("b", &get_collisiontime_b)
         .def_readonly("time", &CollisionTimeResult::time)
         .def_readonly("touch_point", &CollisionTimeResult::touch_point)
-        .def_readonly("normal", &CollisionTimeResult::normal)
-        .def_readonly("entering", &CollisionTimeResult::entering);
+        .def_readonly("normal", &CollisionTimeResult::normal);
     python::class_<CollisionResult>("CollisionResult")
         .def_readonly("impulse", &CollisionResult::impulse)
         .def_readonly("closing_velocity", &CollisionResult::closing_velocity);

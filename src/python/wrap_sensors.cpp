@@ -42,6 +42,4 @@ void wrap_sensors() {
         .def_readonly("signature", &SensedObject::signature)
         .def_readonly("side", &SensedObject::side)
         .add_property("body", &get_so_body);
-    python::class_<vector<SensedObject>>("vectorSensedObject")
-        .def(python::vector_indexing_suite<vector<SensedObject>>());
 }

@@ -1,4 +1,4 @@
-def test_mass_shape(physics):
+def test_clone(physics):
     m = physics.MassShape(mass=45)
 
     assert m.mass == 45
@@ -10,6 +10,7 @@ def test_mass_shape(physics):
     m2 = m.clone()
 
     assert m2.mass == 50
+    assert type(m2) is type(m)
 
     m2.mass = 55
 

@@ -20,6 +20,8 @@
 #include "circle.hpp"
 #include "body.hpp"
 
+using namespace std;
+
 Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*={}*/,
                double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_,
                                                                                                                        position_,
@@ -41,39 +43,10 @@ bool Circle::canCollide() const {
     return true;
 }
 
-CollisionTimeResult Circle::collide(const Shape* other, double end_time, bool entering) const {
-    return other->collide(this, end_time, entering);
+type_index Circle::shape_type() const {
+    return {typeid(Circle)};
 }
 
-CollisionTimeResult Circle::collide(const Circle* other, double end_time, bool entering) const {
-    return collideCircleCircle(this, other, end_time, entering);
+double Circle::boundingRadius() const {
+    return radius;
 }
-
-CollisionTimeResult Circle::collide(const Polygon* other, double end_time, bool entering) const {
-    return collideCirclePolygon(this, other, end_time, entering);
-}
-
-// LCOV_EXCL_START
-CollisionTimeResult Circle::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return {};
-}
-// LCOV_EXCL_STOP
-
-
-bool Circle::immediate_collide(const Shape* other) const {
-    return other->immediate_collide(this);
-}
-
-bool Circle::immediate_collide(const Circle* other) const {
-    return (other->body->position() - body->position()).abs() < other->radius + radius;
-}
-
-bool Circle::immediate_collide(const Polygon* other) const {
-    return immediateCollideCirclePolygon(this, other);
-}
-
-// LCOV_EXCL_START
-bool Circle::immediate_collide(const MassShape* /*other*/) const {
-    return false;
-}
-// LCOV_EXCL_STOP

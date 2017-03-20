@@ -36,9 +36,6 @@ Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
                                _side(side_) {
 }
 
-Body::~Body() {
-}
-
 AABB Body::aabb() const {
     auto iter = shapes.begin();
     auto end = shapes.end();
@@ -116,7 +113,7 @@ void Body::removeSensor(Sensor* sensor) {
     sensor->body = nullptr;
 }
 
-CollisionTimeResult Body::collide(Body* other, double end_time, bool entering) const {
+CollisionTimeResult Body::collide(Body* other, double end_time, bool ignore_initial) const {
     auto soonest = CollisionTimeResult{};
     soonest.time = end_time + 1;
     for (const auto my_shape : shapes) {
@@ -127,7 +124,7 @@ CollisionTimeResult Body::collide(Body* other, double end_time, bool entering) c
             if (!their_shape->canCollide()) {
                 continue;
             }
-            auto collr = my_shape->collide(their_shape, end_time, entering);
+            auto collr = collideShapes(my_shape, their_shape, end_time, ignore_initial);
             if (collr.time != -1 && collr.time < soonest.time) {
                 soonest = move(collr);
             }
@@ -140,7 +137,9 @@ CollisionTimeResult Body::collide(Body* other, double end_time, bool entering) c
     return soonest;
 }
 
-bool Body::immediate_collide(Body* other) const {
+double Body::distanceBetween(Body* other) const {
+    bool initial = true;
+    double dist = (other->_position - _position).abs();
     for (const auto my_shape : shapes) {
         if (!my_shape->canCollide()) {
             continue;
@@ -149,12 +148,14 @@ bool Body::immediate_collide(Body* other) const {
             if (!their_shape->canCollide()) {
                 continue;
             }
-            if (my_shape->immediate_collide(their_shape)) {
-                return true;
+            auto d = ::distanceBetween(my_shape, their_shape).distance;
+            if (initial || d < dist) {
+                dist = d;
+                initial = false;
             }
         }
     }
-    return false;
+    return dist;
 }
 
 void Body::applyImpulse(Vec impulse, Vec position) {
@@ -193,6 +194,6 @@ double Body::maxSensorRange() const {
     return m;
 }
 
-void Body::HACK_setAngluarVelocity(double vel) {
+void Body::HACK_setAngularVelocity(double vel) {
     _angular_velocity = vel;
 }

@@ -19,16 +19,10 @@
 
 #include "massshape.hpp"
 
-MassShape::MassShape(double mass_/*=0*/, const Vec& position_/*={}*/,
-                     double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_,
-                                                                                                                             position_,
-                                                                                                                             radar_cross_section,
-                                                                                                                             radar_emissions,
-                                                                                                                             thermal_emissions) {
-}
+using namespace std;
 
 Shape* MassShape::clone() const {
-    return new MassShape(mass);
+    return new MassShape(mass, position, signature.radar_cross_section, signature.radar_emissions, signature.thermal_emissions);
 }
 
 bool MassShape::canCollide() const {
@@ -36,39 +30,15 @@ bool MassShape::canCollide() const {
 }
 
 // LCOV_EXCL_START
+type_index MassShape::shape_type() const {
+    return {typeid(MassShape)};
+}
+
+double MassShape::boundingRadius() const {
+    return 0;
+}
+
 AABB MassShape::aabb() const {
     return {0, 0, 0, 0};
-}
-
-CollisionTimeResult MassShape::collide(const Shape* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return CollisionTimeResult{};
-}
-
-CollisionTimeResult MassShape::collide(const Circle* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return CollisionTimeResult{};
-}
-
-CollisionTimeResult MassShape::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return CollisionTimeResult{};
-}
-
-CollisionTimeResult MassShape::collide(const Polygon* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return CollisionTimeResult{};
-}
-
-bool MassShape::immediate_collide(const Shape* /*other*/) const {
-    return false;
-}
-
-bool MassShape::immediate_collide(const Circle* /*other*/) const {
-    return false;
-}
-
-bool MassShape::immediate_collide(const MassShape* /*other*/) const {
-    return false;
-}
-
-bool MassShape::immediate_collide(const Polygon* /*other*/) const {
-    return false;
 }
 // LCOV_EXCL_STOP

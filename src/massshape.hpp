@@ -24,22 +24,12 @@
 
 class MassShape : public Shape {
 public:
-    MassShape(double mass_=0, const Vec& position_={},
-              double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
-
+    using Shape::Shape;
     virtual AABB aabb() const override;
     virtual Shape* clone() const override;
     virtual bool canCollide() const override;
-
-    virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const Polygon* other, double end_time, bool entering) const override;
-
-    virtual bool immediate_collide(const Shape* other) const override;
-    virtual bool immediate_collide(const Circle* other) const override;
-    virtual bool immediate_collide(const MassShape* other) const override;
-    virtual bool immediate_collide(const Polygon* other) const override;
+    virtual std::type_index shape_type() const override;
+    virtual double boundingRadius() const override;
 };
 
 #endif // MASSSHAPE_HPP

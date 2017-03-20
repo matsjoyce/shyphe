@@ -32,7 +32,7 @@ class Body {
 public:
     Body(const Vec& position_={}, const Vec& velocity_={},
          double angle_=0, double angular_velocity_=0, int side_=0);
-    virtual ~Body();
+    virtual ~Body() = default;
 
     AABB aabb() const;
     double mass() const;
@@ -64,7 +64,7 @@ public:
     void clearLocalForces();
     void clearGlobalForces();
 
-    void HACK_setAngluarVelocity(double vel);
+    void HACK_setAngularVelocity(double vel);
 
     Signature signature();
     void updatePosition(double time);
@@ -73,8 +73,8 @@ public:
     void removeShape(Shape* shape);
     void addSensor(Sensor* shape);
     void removeSensor(Sensor* shape);
-    CollisionTimeResult collide(Body* other, double end_time, bool entering) const;
-    bool immediate_collide(Body* other) const;
+    CollisionTimeResult collide(Body* other, double end_time, bool ignore_initial) const;
+    double distanceBetween(Body* other) const;
     double maxSensorRange() const;
 private:
     Vec _position, _velocity;

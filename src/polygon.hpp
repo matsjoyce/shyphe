@@ -34,16 +34,8 @@ public:
     virtual AABB aabb() const override;
     virtual Shape* clone() const override;
     virtual bool canCollide() const override;
-
-    virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const override;
-    virtual CollisionTimeResult collide(const Polygon* other, double end_time, bool entering) const override;
-
-    virtual bool immediate_collide(const Shape* other) const override;
-    virtual bool immediate_collide(const Circle* other) const override;
-    virtual bool immediate_collide(const MassShape* other) const override;
-    virtual bool immediate_collide(const Polygon* other) const override;
+    virtual std::type_index shape_type() const override;
+    virtual double boundingRadius() const override;
 
 };
 

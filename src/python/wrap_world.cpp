@@ -9,7 +9,7 @@ namespace op = boost::python::self_ns;
 
 
 void wrap_world() {
-    python::class_<World>("World")
+    python::class_<World>("World", python::init<double>())
         .def("add_body", &World::addBody)
         .def("remove_body", &World::removeBody)
         .def("begin_frame", &World::beginFrame)

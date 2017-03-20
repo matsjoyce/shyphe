@@ -8,12 +8,12 @@ def test_active_radar(physics):
     b3 = physics.Body(position=(10, -10))
     b3.add_shape(physics.MassShape(radar_emissions=10, thermal_emissions=10))
 
-    w = physics.World()
+    w = physics.World(1)
     w.add_body(b1)
     w.add_body(b2)
     w.add_body(b3)
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert len(b1.sensor_view) == 1
@@ -37,12 +37,12 @@ def test_passive_radar(physics):
     b3 = physics.Body(position=(10, -10))
     b3.add_shape(physics.MassShape(radar_cross_section=10, thermal_emissions=10))
 
-    w = physics.World()
+    w = physics.World(1)
     w.add_body(b1)
     w.add_body(b2)
     w.add_body(b3)
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert len(b1.sensor_view) == 1
@@ -66,12 +66,12 @@ def test_passive_thermal(physics):
     b3 = physics.Body(position=(10, -10))
     b3.add_shape(physics.MassShape(radar_cross_section=10, radar_emissions=10))
 
-    w = physics.World()
+    w = physics.World(1)
     w.add_body(b1)
     w.add_body(b2)
     w.add_body(b3)
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert len(b1.sensor_view) == 1
@@ -94,11 +94,11 @@ def test_tracking(physics):
     b2.add_sensor(physics.ActiveRadar(power=50, sensitivity=2))
     b2.add_shape(physics.MassShape(radar_cross_section=50, mass=1))
 
-    w = physics.World()
+    w = physics.World(1)
     w.add_body(b)
     w.add_body(b2)
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert list(b.sensor_view)
@@ -120,7 +120,7 @@ def test_tracking(physics):
 
     b2.change_side(2)
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert list(b.sensor_view)
@@ -145,7 +145,7 @@ def test_tracking(physics):
 
     b2.teleport((-30, 60))
 
-    w.begin_frame(1)
+    w.begin_frame()
     w.end_frame()
 
     assert list(b.sensor_view)

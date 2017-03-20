@@ -22,135 +22,196 @@
 #include "circle.hpp"
 #include "polygon.hpp"
 #include "body.hpp"
-#include <iostream>
+#include <typeindex>
+#include <map>
+#include <cmath>
+#include <tuple>
 
 using namespace std;
 
+const double COLLISION_LIMIT = 1e-8;
+typedef DistanceResult (*DistanceDispatch)(const Shape&, const Body&, const Shape&, const Body&);
 
-CollisionTimeResult collideCircleCircle(const Circle* acircle, const Circle* bcircle, double end_time, bool entering) {
-    auto abody = acircle->body;
-    auto bbody = bcircle->body;
-    auto apos = abody->position() + acircle->position;
-    auto bpos = bbody->position() - bcircle->position;
-    auto pos_diff = apos - bpos;
-    auto radii = acircle->radius + bcircle->radius;
-    auto dist = pos_diff.abs();
-    auto vel_diff = abody->velocity() - bbody->velocity();
+const map<pair<type_index, type_index>, DistanceDispatch> DISPATCH_TABLE = {
+    {{type_index(typeid(Circle)), type_index(typeid(Circle))}, &distanceBetweenCircleCircle},
+    {{type_index(typeid(Circle)), type_index(typeid(Polygon))}, &distanceBetweenCirclePolygon},
+    {{type_index(typeid(Polygon)), type_index(typeid(Circle))}, &distanceBetweenPolygonCircle},
+    {{type_index(typeid(Polygon)), type_index(typeid(Polygon))}, &distanceBetweenPolygonPolygon}
+};
 
-    double t;
-
-    if (((pos_diff.dot(vel_diff) < 0) == entering) && ((entering && dist <= radii) || (!entering && dist > radii))) {
-        t = 0;
-    }
-    else {
-        auto a = vel_diff.squared();
-        auto b = 2 * pos_diff.dot(vel_diff);
-        auto c = pos_diff.squared() - radii * radii;
-        auto discriminant = b * b - 4 * a * c;
-
-        if (discriminant < 0 || a == 0) {
-            return {};
-        }
-
-        if (entering) {
-            t = (-b - sqrt(discriminant)) / (2 * a);
-        }
-        else {
-            t = (-b + sqrt(discriminant)) / (2 * a);
-        }
-        if (0 > t || t > end_time) {
-            return {};
-        }
-    }
-    auto col_apos = (apos + abody->velocity() * t);
-    auto col_bpos = (bpos + bbody->velocity() * t);
-    auto touch_point = (col_apos * bcircle->radius + col_bpos * acircle->radius) / radii;
-    auto norm = col_bpos - col_apos;
-    return {abody, bbody, t, touch_point, norm ? norm.norm() : Vec{1, 0}, entering};
+DistanceResult distanceBetween(const Shape* a, const Shape* b) {
+    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a->shape_type(), b->shape_type()));
+    return dist_func(*a, *a->body, *b, *b->body);
 }
 
+CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_time, bool ignore_initial) {
+    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a->shape_type(), b->shape_type()));
+    Body abody = *a->body, bbody = *b->body;
+    auto vel_diff = abody.velocity() - bbody.velocity();
+    DistanceResult current_distance;
+    double time = 0;
+    unsigned int iteration = 0;
+    while (iteration < 20) {
+        current_distance = dist_func(*a, abody, *b, bbody);
 
-inline pair<double, double> axis_proj_max_min(const vector<Vec>& points, Vec axis) {
-    double max, min;
-    max = min = points[0].dot(axis);
-    for (unsigned int i = 1; i < points.size(); ++i) {
-        auto dot = points[i].dot(axis);
-        if (dot < min) {
+        double vel = vel_diff.dot(current_distance.normal)
+                     + (a->position.abs() + a->boundingRadius()) * a->body->angularVelocity()
+                     + (b->position.abs() + b->boundingRadius()) * b->body->angularVelocity();
+        double add_time = current_distance.distance / vel;
+        time += add_time;
+        if (time > end_time) {
+            return {};
+        }
+        auto cmp = (ignore_initial && !iteration) ? current_distance.distance : abs(current_distance.distance);
+        if (cmp < COLLISION_LIMIT) {
+            auto vel_at = vel_diff + (current_distance.a_point + a->position).perp() * a->body->angularVelocity() - (current_distance.b_point + b->position).perp() * b->body->angularVelocity();
+            if (vel_at.dot(current_distance.normal) > 0 && (iteration || !ignore_initial)) {
+                break;
+            }
+            else {
+                add_time += COLLISION_LIMIT * 3 / vel_at;
+                time += COLLISION_LIMIT * 3 / vel_at;
+            }
+        }
+        if (vel <= 0 || time < 0) {
+            return {};
+        }
+
+        abody.updatePosition(add_time);
+        bbody.updatePosition(add_time);
+
+        ++iteration;
+    }
+    return {a->body, b->body, time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
+}
+
+DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+    const auto& a_circle = dynamic_cast<const Circle&>(a);
+    const auto& b_circle = dynamic_cast<const Circle&>(b);
+
+    auto apos = a_body.position() + a_circle.position;
+    auto bpos = b_body.position() + b_circle.position;
+    auto ray = bpos - apos;
+    auto norm = ray ? ray.norm() : Vec{1, 0};
+    return {ray.abs() - a_circle.radius - b_circle.radius, apos + a_circle.radius * norm, bpos - b_circle.radius * norm, norm};
+}
+
+DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+    const auto& a_circle = dynamic_cast<const Circle&>(a);
+    const auto& b_poly = dynamic_cast<const Polygon&>(b);
+
+    auto apos = a_body.position() + a_circle.position;
+    auto bpos = b_body.position() + b_poly.position;
+    DistanceResult d;
+    for (unsigned int i = 0; i < b_poly.points.size(); ++i) {
+        auto p1 = b_poly.points[i], p2 = b_poly.points[(i + 1) % b_poly.points.size()];
+        auto u = p2 - p1, v = apos - p1 - bpos;
+        auto determinant = u.dot(v) / u.squared();
+        Vec p;
+        if (0 <= determinant && determinant <= 1) {
+            p = bpos + p1 + determinant * u;
+        }
+        else if (determinant < 0) {
+            p = bpos + p1;
+        }
+        else {
+            p = bpos + p2;
+        }
+        auto ray = p - apos;
+        if (ray.abs() < abs(d.distance) || !i) {
+            if (u.perp().dot(ray) < 0) {
+                d.distance = ray.abs();
+                d.normal = ray.norm();
+            }
+            else {
+                d.distance = -ray.abs();
+                d.normal = -ray.norm();
+            }
+            d.a_point = apos + d.normal * a_circle.radius;
+            d.b_point = p;
+            d.distance -= a_circle.radius;
+        }
+    }
+    return d;
+}
+
+DistanceResult distanceBetweenPolygonCircle(const Shape& p, const Body& pb, const Shape& c, const Body& cb) {
+    auto d = distanceBetweenCirclePolygon(c, cb, p, pb);
+    return {d.distance, d.b_point, d.a_point, -d.normal};
+}
+
+tuple<double, Vec, Vec> axis_proj(const vector<Vec>& points, Vec axis) {
+    double min;
+    bool initial = true;
+    Vec p1, p2;
+    for (const auto& point : points) {
+        auto dot = point.dot(axis);
+        if (initial || dot < min) {
             min = dot;
+            p1 = p2 = point;
+            initial = false;
         }
-        else if (dot > max) {
-            max = dot;
-        }
-    }
-    return {max, min};
-}
-
-CollisionTimeResult collideCirclePolygon(const Circle* acircle, const Polygon* bpoly, double end_time, bool entering) {
-    auto abody = acircle->body;
-    auto bbody = bpoly->body;
-    auto apos = abody->position() + acircle->position;
-    auto bpos = bbody->position() + bpoly->position;
-    auto pos_diff = apos - bpos;
-    auto vel_diff = abody->velocity() - bbody->velocity();
-
-    double t = -1;
-    Vec max_axis;
-
-    for (int i = -1; i < static_cast<int>(bpoly->points.size()); ++i) {
-        double local_t;
-        auto axis = (i < 0)? pos_diff.norm() : (bpoly->points[(i + 1) % bpoly->points.size()] - bpoly->points[i]).perp();
-        auto vel_diff_proj = vel_diff.dot(axis);
-        auto pos_diff_proj = pos_diff.dot(axis);
-        cout << axis << vel_diff_proj << " " << pos_diff_proj << endl;
-        if (!vel_diff_proj) {
-            continue;
-        }
-        auto max_min = axis_proj_max_min(bpoly->points, axis);
-        cout << "DIST" << (max_min.first - pos_diff_proj + acircle->radius) << endl;
-        if (pos_diff_proj > 0) {
-            local_t = max(0.0, (max_min.first - pos_diff_proj + acircle->radius) / vel_diff_proj);
-        }
-        else {
-            local_t = max(0.0, (max_min.second - pos_diff_proj - acircle->radius) / vel_diff_proj);
-        }
-        if (local_t > t) {
-            t = local_t;
-            max_axis = axis;
+        else if (dot == min) {
+            p2 = point;
         }
     }
-    if (t > end_time || t < 0) {
-        return {};
-    }
-    auto touch_point = (apos + abody->velocity() * t) - max_axis * acircle->radius;
-    return {abody, bbody, t, touch_point, -max_axis, entering};
+    return {min, p1, p2};
 }
 
-CollisionTimeResult collidePolygonPolygon(const Polygon* a, const Polygon* b, double end_time, bool entering) {
+tuple<double, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Polygon& b_poly, Vec ray) {
+    Vec p1, p2, min_axis, axis;
+    double first_min, second_min;
 
-}
+    for (unsigned int i = 0; i < a_poly.points.size(); ++i) {
+        auto v1 = a_poly.points[i], v2 = a_poly.points[(i + 1) % a_poly.points.size()];
+        axis = (v2 - v1).norm().perp();
+        auto mins = axis_proj(b_poly.points, axis);
+        auto min = get<0>(mins) - v1.dot(axis) + ray.dot(axis);
+        if (!i || min > first_min) {
+            second_min = first_min;
+            first_min = min;
+            min_axis = axis;
 
-bool immediateCollideCirclePolygon(const Circle* acircle, const Polygon* bpoly) {
-    auto abody = acircle->body;
-    auto bbody = bpoly->body;
-    auto apos = abody->position() + acircle->position;
-    auto bpos = bbody->position() + bpoly->position;
-    auto pos_diff = apos - bpos;
-    for (unsigned int i = 0; i < bpoly->points.size(); ++i) {
-        auto axis = (bpoly->points[(i + 1) % bpoly->points.size()] - bpoly->points[i]).perp();
-        auto max_min = axis_proj_max_min(bpoly->points, axis);
-        auto pos_diff_proj = pos_diff.dot(axis);
-        if (max_min.first - pos_diff_proj < -acircle->radius || max_min.second - pos_diff_proj > acircle->radius) {
-            return false;
+            if (i >= 1 && (get<1>(mins) == p2 || get<2>(mins) == p2)) {
+                p1 = get<2>(mins); p2 = get<1>(mins);
+            }
+            else {
+                p1 = get<1>(mins); p2 = get<2>(mins);
+            }
+        }
+        else if (i >= 1 && min >= second_min) {
+            second_min = min;
+            if (get<1>(mins) == p2 || get<2>(mins) == p2) {
+                p1 = p2;
+            }
         }
     }
-    auto axis = pos_diff.norm();
-    auto max_min = axis_proj_max_min(bpoly->points, axis);
-    auto pos_diff_proj = pos_diff.abs();
-    return !(max_min.first - pos_diff_proj < -acircle->radius || max_min.second - pos_diff_proj > -acircle->radius);
+    return {first_min, min_axis, p1};
 }
 
-bool immediateCollidePolygonPolygon(const Polygon* a, const Polygon* b) {
+DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+    const auto& a_poly = dynamic_cast<const Polygon&>(a);
+    const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
+    auto apos = a_body.position() + a_poly.position;
+    auto bpos = b_body.position() + b_poly.position;
+    auto ray = bpos - apos;
+    DistanceResult dist;
+
+    auto res = axis_proj_poly(a_poly, b_poly, ray);
+    dist.distance = get<0>(res);
+    dist.normal = get<1>(res);
+    dist.b_point = get<2>(res) + bpos;
+    dist.a_point = dist.b_point - dist.normal * dist.distance;
+
+    res = axis_proj_poly(b_poly, a_poly, -ray);
+    if (get<0>(res) > dist.distance) {
+        dist.distance = get<0>(res);
+        dist.normal = -get<1>(res);
+        dist.a_point = get<2>(res) + apos;
+        dist.b_point = dist.a_point + dist.normal * dist.distance;
+    }
+    return dist;
 }
 
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {

@@ -118,8 +118,7 @@ public:
     }
 
     inline Vec perp() const {
-        auto mag = abs();
-        return {-y / mag, x / mag};
+        return {-y, x};
     }
 
     inline Vec proj(const Vec& axis) const {

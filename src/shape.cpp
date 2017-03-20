@@ -26,6 +26,3 @@ Shape::Shape(double mass_/*=0*/, const Vec& position_/*={}*/,
                                                                                                                          thermal_emissions,
                                                                                                                          radar_cross_section} {
 }
-
-Shape::~Shape() {
-}

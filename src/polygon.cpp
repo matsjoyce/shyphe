@@ -29,31 +29,32 @@ Polygon::Polygon(const std::vector<Vec>& points_/*={}*/, double mass_/*=0*/, con
                                                                                                                          thermal_emissions),
                                                                                                                     points(points_) {
     // http://stackoverflow.com/a/1881201/3946766
-    if (points.size() > 3) {
+    if (points.size() >= 3) {
         double example = 0;
         for (unsigned int i = 0; i < points.size(); ++i) {
             auto p1 = points[i], p2 = points[(i + 1) % points.size()], p3 = points[(i + 2) % points.size()];
             auto cross = (p2 - p1).cross(p3 - p2);
-            if (!example) {
+            if (cross == 0) {
+                points.erase(points.begin() + (i + 1) % points.size());
+                --i;
+            }
+            else if (!example) {
                 example = cross;
             }
             else if ((example > 0 && cross < 0) || (example < 0 && cross > 0)) {
                 throw runtime_error("Polygon is concave, this is not supported");
             }
         }
-        if (example < 0) {
+        if (example > 0) {
             reverse(points.begin(), points.end());
         }
     }
-    else if (points.size() < 3) {
+    else {
         throw runtime_error("Not enough points");
     }
 }
 
 AABB Polygon::aabb() const {
-    if (!points.size()) {
-        return {0, 0, 0, 0};
-    }
     double minx, maxx, miny, maxy;
     minx = maxx = points[0].x;
     miny = maxy = points[0].y;
@@ -84,38 +85,14 @@ bool Polygon::canCollide() const {
     return true;
 }
 
-CollisionTimeResult Polygon::collide(const Shape* other, double end_time, bool entering) const {
-    return other->collide(this, end_time, entering);
+type_index Polygon::shape_type() const {
+    return {typeid(Polygon)};
 }
 
-CollisionTimeResult Polygon::collide(const Circle* other, double end_time, bool entering) const {
-    return collideCirclePolygon(other, this, end_time, entering);
-}
-
-// LCOV_EXCL_START
-CollisionTimeResult Polygon::collide(const MassShape* /*other*/, double /*end_time*/, bool /*entering*/) const {
-    return {};
-}
-// LCOV_EXCL_STOP
-
-CollisionTimeResult Polygon::collide(const Polygon* other, double end_time, bool entering) const {
-    return collidePolygonPolygon(this, other, end_time, entering);
-}
-
-bool Polygon::immediate_collide(const Shape* other) const {
-    return other->immediate_collide(this);
-}
-
-bool Polygon::immediate_collide(const Circle* other) const {
-    return immediateCollideCirclePolygon(other, this);
-}
-
-// LCOV_EXCL_START
-bool Polygon::immediate_collide(const MassShape* /*other*/) const {
-    return false;
-}
-// LCOV_EXCL_STOP
-
-bool Polygon::immediate_collide(const Polygon* other) const {
-    return immediateCollidePolygonPolygon(this, other);
+double Polygon::boundingRadius() const {
+    double br = 0;
+    for (const auto& point : points) {
+        br = max(br, point.abs());
+    }
+    return br;
 }

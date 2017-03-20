@@ -23,6 +23,7 @@
 #include "aabb.hpp"
 #include "collisions.hpp"
 #include "vec.hpp"
+#include <typeindex>
 
 class Body;
 class Circle;
@@ -64,22 +65,12 @@ public:
     Signature signature;
 
     Shape(double mass_=0, const Vec& position_={}, double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
-    virtual ~Shape();
+    virtual ~Shape() = default;
     virtual AABB aabb() const = 0;
     virtual Shape* clone() const = 0;
     virtual bool canCollide() const = 0;
-
-    // Double dispatch
-    virtual CollisionTimeResult collide(const Shape* other, double end_time, bool entering) const = 0;
-    virtual CollisionTimeResult collide(const Circle* other, double end_time, bool entering) const = 0;
-    virtual CollisionTimeResult collide(const MassShape* other, double end_time, bool entering) const = 0;
-    virtual CollisionTimeResult collide(const Polygon* other, double end_time, bool entering) const = 0;
-
-    // Double dispatch
-    virtual bool immediate_collide(const Shape* other) const = 0;
-    virtual bool immediate_collide(const Circle* other) const = 0;
-    virtual bool immediate_collide(const MassShape* other) const = 0;
-    virtual bool immediate_collide(const Polygon* other) const = 0;
+    virtual std::type_index shape_type() const = 0;
+    virtual double boundingRadius() const = 0;
 };
 
 #endif // SHAPE_HPP

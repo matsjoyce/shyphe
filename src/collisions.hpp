@@ -22,17 +22,28 @@
 
 #include "vec.hpp"
 
+class Shape;
 class Body;
 class Circle;
 class Polygon;
 
+struct DistanceResult {
+    constexpr DistanceResult(double dist, Vec a, Vec b, Vec norm): distance(dist), a_point(a), b_point(b), normal(norm) {
+    }
+
+    constexpr DistanceResult() {
+    }
+
+    double distance = 0;
+    Vec a_point, b_point, normal;
+};
+
 struct CollisionTimeResult {
-    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm, bool entering_): a(a_),
-                                                                                                       b(b_),
-                                                                                                       time(time_),
-                                                                                                       touch_point(tp),
-                                                                                                       normal(norm),
-                                                                                                       entering(entering_) {
+    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm): a(a_),
+                                                                                       b(b_),
+                                                                                       time(time_),
+                                                                                       touch_point(tp),
+                                                                                       normal(norm) {
     }
 
     constexpr CollisionTimeResult() {
@@ -43,15 +54,15 @@ struct CollisionTimeResult {
     double time = -1;
     Vec touch_point = {0, 0};
     Vec normal = {0, 0};
-    bool entering = true;
 };
 
-CollisionTimeResult collideCircleCircle(const Circle* a, const Circle* b, double end_time, bool entering);
-CollisionTimeResult collideCirclePolygon(const Circle* a, const Polygon* b, double end_time, bool entering);
-CollisionTimeResult collidePolygonPolygon(const Polygon* a, const Polygon* b, double end_time, bool entering);
+CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_time, bool ignore_initial);
 
-bool immediateCollideCirclePolygon(const Circle* a, const Polygon* b);
-bool immediateCollidePolygonPolygon(const Polygon* a, const Polygon* b);
+DistanceResult distanceBetweenCircleCircle(const Shape&, const Body&, const Shape&, const Body&);
+DistanceResult distanceBetweenCirclePolygon(const Shape&, const Body&, const Shape&, const Body&);
+DistanceResult distanceBetweenPolygonCircle(const Shape&, const Body&, const Shape&, const Body&);
+DistanceResult distanceBetweenPolygonPolygon(const Shape&, const Body&, const Shape&, const Body&);
+DistanceResult distanceBetween(const Shape*, const Shape*);
 
 struct CollisionResult {
     Vec impulse;
