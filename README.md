@@ -13,3 +13,11 @@ Possible split-off:
 
 hysiope - High Speed Impulse Only Physics Engine
 hyscipe - High Speed Continuous Impulse Physics Engine
+shyphe - Stiff HIgh velocity PHysics Engine
+
+Features:
+
+ - Continuous collision detection
+ - High speed bodies
+ - Rigid bodies
+ - Impulse
