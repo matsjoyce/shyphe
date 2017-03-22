@@ -34,7 +34,8 @@ void wrap_collisions() {
         .def_readonly("time", &Collision::time)
         .def_readonly("touch_point", &Collision::touch_point)
         .def_readonly("impulse", &Collision::impulse)
-        .def_readonly("closing_velocity", &Collision::closing_velocity);
+        .def_readonly("closing_velocity", &Collision::closing_velocity)
+        .def("apply_impulse", &Collision::apply_impulse);
     py_pair<Collision, Collision>();
     python::def("collide_shapes", collideShapes);
     python::def("distance_between", distanceBetween);

@@ -34,8 +34,9 @@ public:
          double angle_=0, double angular_velocity_=0, int side_=0);
     virtual ~Body() = default;
 
-    AABB aabb() const;
+    AABB aabb(double time) const;
     double mass() const;
+    double momentOfInertia() const;
     inline const Vec& position() const {
         return _position;
     }

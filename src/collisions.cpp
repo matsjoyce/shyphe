@@ -51,34 +51,42 @@ CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_tim
     DistanceResult current_distance;
     double time = 0;
     unsigned int iteration = 0;
-    while (iteration < 20) {
+    while (iteration < 1000) {
         current_distance = dist_func(*a, abody, *b, bbody);
 
         double vel = vel_diff.dot(current_distance.normal)
-                     + (a->position.abs() + a->boundingRadius()) * a->body->angularVelocity()
-                     + (b->position.abs() + b->boundingRadius()) * b->body->angularVelocity();
+                     + (a->position.abs() + a->boundingRadius()) * abs(a->body->angularVelocity())
+                     + (b->position.abs() + b->boundingRadius()) * abs(b->body->angularVelocity());
         double add_time = current_distance.distance / vel;
         time += add_time;
+
+        abody.updatePosition(add_time);
+        bbody.updatePosition(add_time);
+
         if (time > end_time) {
             return {};
         }
         auto cmp = (ignore_initial && !iteration) ? current_distance.distance : abs(current_distance.distance);
         if (cmp < COLLISION_LIMIT) {
-            auto vel_at = vel_diff + (current_distance.a_point + a->position).perp() * a->body->angularVelocity() - (current_distance.b_point + b->position).perp() * b->body->angularVelocity();
-            if (vel_at.dot(current_distance.normal) > 0 && (iteration || !ignore_initial)) {
-                break;
+            auto vel_at = vel_diff
+                          - (current_distance.a_point - abody.position()).perp() * a->body->angularVelocity()
+                          + (current_distance.b_point - bbody.position()).perp() * b->body->angularVelocity();
+            if (vel_at.dot(current_distance.normal) > 0) {
+                if (!ignore_initial) {
+                    break;
+                }
             }
             else {
-                add_time += COLLISION_LIMIT * 3 / vel_at;
-                time += COLLISION_LIMIT * 3 / vel_at;
+                ignore_initial = false;
             }
+            add_time = max(COLLISION_LIMIT * 3, COLLISION_LIMIT * 3 / abs(vel_at.dot(current_distance.normal)));
+            time += add_time;
+            abody.updatePosition(add_time);
+            bbody.updatePosition(add_time);
         }
         if (vel <= 0 || time < 0) {
             return {};
         }
-
-        abody.updatePosition(add_time);
-        bbody.updatePosition(add_time);
 
         ++iteration;
     }
@@ -89,8 +97,8 @@ DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, c
     const auto& a_circle = dynamic_cast<const Circle&>(a);
     const auto& b_circle = dynamic_cast<const Circle&>(b);
 
-    auto apos = a_body.position() + a_circle.position;
-    auto bpos = b_body.position() + b_circle.position;
+    auto apos = a_body.position() + a_circle.position.rotate(a_body.angle());
+    auto bpos = b_body.position() + b_circle.position.rotate(b_body.angle());
     auto ray = bpos - apos;
     auto norm = ray ? ray.norm() : Vec{1, 0};
     return {ray.abs() - a_circle.radius - b_circle.radius, apos + a_circle.radius * norm, bpos - b_circle.radius * norm, norm};
@@ -100,11 +108,11 @@ DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, 
     const auto& a_circle = dynamic_cast<const Circle&>(a);
     const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
-    auto apos = a_body.position() + a_circle.position;
-    auto bpos = b_body.position() + b_poly.position;
+    auto apos = a_body.position() + a_circle.position.rotate(a_body.angle());
+    auto bpos = b_body.position() + b_poly.position.rotate(b_body.angle());
     DistanceResult d;
     for (unsigned int i = 0; i < b_poly.points.size(); ++i) {
-        auto p1 = b_poly.points[i], p2 = b_poly.points[(i + 1) % b_poly.points.size()];
+        auto p1 = b_poly.points[i].rotate(b_body.angle()), p2 = b_poly.points[(i + 1) % b_poly.points.size()].rotate(b_body.angle());
         auto u = p2 - p1, v = apos - p1 - bpos;
         auto determinant = u.dot(v) / u.squared();
         Vec p;
@@ -140,32 +148,33 @@ DistanceResult distanceBetweenPolygonCircle(const Shape& p, const Body& pb, cons
     return {d.distance, d.b_point, d.a_point, -d.normal};
 }
 
-tuple<double, Vec, Vec> axis_proj(const vector<Vec>& points, Vec axis) {
+tuple<double, Vec, Vec> axis_proj(const vector<Vec>& points, Vec axis, double angle) {
     double min;
     bool initial = true;
     Vec p1, p2;
     for (const auto& point : points) {
-        auto dot = point.dot(axis);
+        auto rpoint = point.rotate(angle);
+        auto dot = rpoint.dot(axis);
         if (initial || dot < min) {
             min = dot;
-            p1 = p2 = point;
+            p1 = p2 = rpoint;
             initial = false;
         }
         else if (dot == min) {
-            p2 = point;
+            p2 = rpoint;
         }
     }
     return {min, p1, p2};
 }
 
-tuple<double, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Polygon& b_poly, Vec ray) {
+tuple<double, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Polygon& b_poly, Vec ray, double a_angle, double b_angle) {
     Vec p1, p2, min_axis, axis;
     double first_min, second_min;
 
     for (unsigned int i = 0; i < a_poly.points.size(); ++i) {
-        auto v1 = a_poly.points[i], v2 = a_poly.points[(i + 1) % a_poly.points.size()];
+        auto v1 = a_poly.points[i].rotate(a_angle), v2 = a_poly.points[(i + 1) % a_poly.points.size()].rotate(a_angle);
         axis = (v2 - v1).norm().perp();
-        auto mins = axis_proj(b_poly.points, axis);
+        auto mins = axis_proj(b_poly.points, axis, b_angle);
         auto min = get<0>(mins) - v1.dot(axis) + ray.dot(axis);
         if (!i || min > first_min) {
             second_min = first_min;
@@ -193,18 +202,18 @@ DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body,
     const auto& a_poly = dynamic_cast<const Polygon&>(a);
     const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
-    auto apos = a_body.position() + a_poly.position;
-    auto bpos = b_body.position() + b_poly.position;
+    auto apos = a_body.position() + a_poly.position.rotate(a_body.angle());
+    auto bpos = b_body.position() + b_poly.position.rotate(b_body.angle());
     auto ray = bpos - apos;
     DistanceResult dist;
 
-    auto res = axis_proj_poly(a_poly, b_poly, ray);
+    auto res = axis_proj_poly(a_poly, b_poly, ray, a_body.angle(), b_body.angle());
     dist.distance = get<0>(res);
     dist.normal = get<1>(res);
     dist.b_point = get<2>(res) + bpos;
     dist.a_point = dist.b_point - dist.normal * dist.distance;
 
-    res = axis_proj_poly(b_poly, a_poly, -ray);
+    res = axis_proj_poly(b_poly, a_poly, -ray, b_body.angle(), a_body.angle());
     if (get<0>(res) > dist.distance) {
         dist.distance = get<0>(res);
         dist.normal = -get<1>(res);
@@ -214,18 +223,27 @@ DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body,
     return dist;
 }
 
+inline double square(double x) {
+    return x * x;
+}
+
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {
-    Vec a_vel = cr.a->velocity().proj(cr.normal);
-    Vec b_vel = cr.b->velocity().proj(cr.normal);
-    double m_a = cr.a->mass();
-    double m_b = cr.b->mass();
-    Vec closing_velocity = b_vel - a_vel;
-    Vec impulse = (m_a * m_b * closing_velocity * (1 + params.restitution)) / (m_a + m_b);
+    const Body& a = *cr.a;
+    const Body& b = *cr.b;
+    Vec a_perp_touch_point = -(cr.touch_point - a.position()).perp();
+    Vec b_perp_touch_point = -(cr.touch_point - b.position()).perp();
+    Vec a_vel = a.velocity() + a_perp_touch_point * a.angularVelocity();
+    Vec b_vel = b.velocity() + b_perp_touch_point * b.angularVelocity();
+    double relative_vel = (b_vel - a_vel).dot(cr.normal);
+    if (relative_vel >= 0) {
+        throw runtime_error("Collision with no movement");
+    }
+    double top = (1 + params.restitution) * relative_vel;
+    double bottom = 1 / a.mass() + square(a_perp_touch_point.dot(cr.normal)) / a.momentOfInertia()
+                  + 1 / b.mass() + square(b_perp_touch_point.dot(cr.normal)) / b.momentOfInertia();
+    Vec impulse = cr.normal * top / bottom;
     if (impulse.abs() > params.transition_impulse) {
         impulse = impulse * params.transition_reduction + impulse.norm() * params.transition_impulse * (1 - params.transition_reduction);
     }
-    else if (!impulse) {
-        impulse = 0.00001 * cr.normal;
-    }
-    return {impulse, closing_velocity};
+    return {impulse, cr.normal * relative_vel};
 }

@@ -54,25 +54,31 @@ Polygon::Polygon(const std::vector<Vec>& points_/*={}*/, double mass_/*=0*/, con
     }
 }
 
-AABB Polygon::aabb() const {
+AABB Polygon::aabb(double angle) const {
     double minx, maxx, miny, maxy;
-    minx = maxx = points[0].x;
-    miny = maxy = points[0].y;
+    bool initial = true;
 
-    for (unsigned int i = 1; i < points.size(); ++i) {
-        auto point = points[i];
-        if (point.x < minx) {
-            minx = point.x;
+    for (const auto& point : points) {
+        auto rpoint = point.rotate(angle);
+        if (initial) {
+            minx = maxx = rpoint.x;
         }
-        else if (point.x > maxx) {
-            maxx = point.x;
+        else if (rpoint.x < minx) {
+            minx = rpoint.x;
         }
-        if (point.y < miny) {
-            miny = point.y;
+        else if (rpoint.x > maxx) {
+            maxx = rpoint.x;
         }
-        else if (point.y > maxy) {
-            maxy = point.y;
+        if (initial) {
+            miny = maxy = rpoint.y;
         }
+        else if (rpoint.y < miny) {
+            miny = rpoint.y;
+        }
+        else if (rpoint.y > maxy) {
+            maxy = rpoint.y;
+        }
+        initial = false;
     }
     return {minx, maxx, miny, maxy};
 }
@@ -95,4 +101,15 @@ double Polygon::boundingRadius() const {
         br = max(br, point.abs());
     }
     return br;
+}
+
+double Polygon::momentOfInertia() const {
+    double top = 0, bottom = 0;
+    for (unsigned int i = 0; i < points.size(); ++i) {
+        auto p1 = points[i], p2 = points[(i + 1) % points.size()];
+        auto c = p2.cross(p1);
+        bottom += c;
+        top += c * (p1.squared() + p1.dot(p2) + p2.squared());
+    }
+    return top / bottom * mass / 6;
 }

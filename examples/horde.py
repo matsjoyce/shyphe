@@ -2,8 +2,8 @@ from build import physics
 import pygame_go as pygo
 import random
 
-SHAPE_SIZE = 25
-NUMBER_OF_BODIES = 300
+SHAPE_SIZE = 50
+NUMBER_OF_BODIES = 50
 
 window = pygo.window(1200, 600, frame_rate=20)
 
@@ -20,10 +20,10 @@ bodies = []
 circles = []
 
 bodies_x = window.width // SHAPE_SIZE
-bodies_x_spacing = window.width // bodies_x + 10
+bodies_x_spacing = window.width // bodies_x + 50
 bodies_x = window.width // bodies_x_spacing
 bodies_y = window.height // SHAPE_SIZE
-bodies_y_spacing = window.height // bodies_y + 10
+bodies_y_spacing = window.height // bodies_y + 50
 bodies_y = window.width // bodies_y_spacing
 
 for i in range(NUMBER_OF_BODIES):
@@ -55,17 +55,18 @@ while window.active():
     while world.has_next_collision():
         ctr = world.next_collision()
         cola, colb = world.calculate_collision(ctr, physics.CollisionParameters(1, 10000, 1))
-        cola.body.apply_impulse(cola.impulse, cola.touch_point)
-        colb.body.apply_impulse(colb.impulse, colb.touch_point)
+        cola.apply_impulse()
+        colb.apply_impulse()
         colliding.extend((cola.body, colb.body))
         world.finished_collision(ctr, True)
     world.end_frame()
 
     for body in bodies:
         if body not in colliding:
-            window.draw_image((circle_image if body in circles else square_image),
-                              align=pygo.center, position=body.position.as_tuple())
+            image = circle_image if body in circles else square_image
         else:
-            window.draw_image((colliding_circle_image if body in circles else colliding_square_image),
-                              align=pygo.center, position=body.position.as_tuple())
+            image = colliding_circle_image if body in circles else colliding_square_image
+        rimage = image.copy()
+        rimage.rotate(physics.to_deg(body.angle))
+        window.draw_image(rimage, align=pygo.center, x=body.position.x, y=window.height - body.position.y)
     window.update()

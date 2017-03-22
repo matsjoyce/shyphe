@@ -191,8 +191,8 @@ def test_double_bounce_poly(physics):
     assert col1.closing_velocity.as_tuple() == (-8, 0)
     assert col2.closing_velocity.as_tuple() == (8, 0)
 
-    b1.apply_impulse(col1.impulse, col1.touch_point)
-    b2.apply_impulse(col2.impulse, col2.touch_point)
+    col1.apply_impulse()
+    col2.apply_impulse()
 
     assert b1.velocity.as_tuple() == (-4, 0)
     assert b2.velocity.as_tuple() == (4, 0)
@@ -223,8 +223,8 @@ def test_double_bounce_poly(physics):
     assert col3.closing_velocity.as_tuple() == (4, 0)
     assert col2.closing_velocity.as_tuple() == (-4, 0)
 
-    b3.apply_impulse(col3.impulse, col3.touch_point)
-    b2.apply_impulse(col2.impulse, col2.touch_point)
+    col2.apply_impulse()
+    col3.apply_impulse()
 
     assert b3.velocity.as_tuple() == (4, 0)
     assert b2.velocity.as_tuple() == (0, 0)

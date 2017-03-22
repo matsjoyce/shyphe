@@ -26,6 +26,11 @@ constexpr double pi() {
     return 3.141592653589793238462643383279502884;
 }
 
+constexpr double hpi() {
+    // Half pi
+    return 3.141592653589793238462643383279502884 / 2;
+}
+
 constexpr double dpi() {
     // Double pi
     return 2 * 3.141592653589793238462643383279502884;

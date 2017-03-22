@@ -31,7 +31,8 @@ Circle::Circle(double radius_/*=0*/, double mass_/*=0*/, const Vec& position_/*=
                                                                                                                  radius(radius_) {
 }
 
-AABB Circle::aabb() const {
+AABB Circle::aabb(double /*angle*/) const
+{
     return {-radius, radius, -radius, radius};
 }
 
@@ -49,4 +50,8 @@ type_index Circle::shape_type() const {
 
 double Circle::boundingRadius() const {
     return radius;
+}
+
+double Circle::momentOfInertia() const {
+    return mass * radius * radius / 2;
 }

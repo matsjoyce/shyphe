@@ -66,11 +66,12 @@ public:
 
     Shape(double mass_=0, const Vec& position_={}, double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
     virtual ~Shape() = default;
-    virtual AABB aabb() const = 0;
+    virtual AABB aabb(double angle) const = 0;
     virtual Shape* clone() const = 0;
     virtual bool canCollide() const = 0;
     virtual std::type_index shape_type() const = 0;
     virtual double boundingRadius() const = 0;
+    virtual double momentOfInertia() const = 0;
 };
 
 #endif // SHAPE_HPP

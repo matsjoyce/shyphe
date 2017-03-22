@@ -82,6 +82,7 @@ void wrap_body() {
         .add_property("side", &Body::side)
         .add_property("sensor_view", make_function(&Body::sensorView, python::return_internal_reference<>()))
         .add_property("mass", &Body::mass)
+        .add_property("moment_of_inertia", &Body::momentOfInertia)
         .add_property("max_sensor_range", &Body::maxSensorRange)
         .def("update_position", &Body::updatePosition)
         .def("update_velocity", &Body::updateVelocity)
@@ -109,6 +110,7 @@ void wrap_body() {
         .def("as_tuple", &sig_as_tuple);
     python::class_<Shape, boost::noncopyable>("Shape", python::no_init)
         .def_readwrite("mass", &Shape::mass)
+        .add_property("moment_of_inertia", &Shape::momentOfInertia)
         .def_readwrite("signature", &Shape::signature)
         .def("clone", &Shape::clone, python::return_value_policy<python::manage_new_object>());
     python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle",

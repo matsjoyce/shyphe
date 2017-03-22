@@ -37,6 +37,8 @@ struct Collision {
     Vec touch_point;
     Vec impulse;
     Vec closing_velocity;
+
+    void apply_impulse();
 };
 
 class World {

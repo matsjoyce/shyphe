@@ -25,11 +25,12 @@
 class MassShape : public Shape {
 public:
     using Shape::Shape;
-    virtual AABB aabb() const override;
+    virtual AABB aabb(double angle) const override;
     virtual Shape* clone() const override;
     virtual bool canCollide() const override;
     virtual std::type_index shape_type() const override;
     virtual double boundingRadius() const override;
+    virtual double momentOfInertia() const override;
 };
 
 #endif // MASSSHAPE_HPP

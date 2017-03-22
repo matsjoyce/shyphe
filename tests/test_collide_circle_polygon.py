@@ -52,7 +52,7 @@ def test_distance_between_rotated(physics):
     b1.teleport((1, 0))
     b2.teleport((4, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(1)
+    assert physics.distance_between(p, c).distance == pytest.approx(1)
 
     b2.teleport((2.9, 0))
 
@@ -61,7 +61,7 @@ def test_distance_between_rotated(physics):
     b1.teleport((0, 0))
     b2.teleport((0, 3))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(1)
+    assert physics.distance_between(p, c).distance == pytest.approx(1)
 
     x = (1 + 2 ** -0.5) * 2 ** -0.5
 
@@ -71,7 +71,7 @@ def test_distance_between_rotated(physics):
 
     b2.teleport((x + 0.0001, x + 0.0001))
 
-    assert physics.distance_between(c, p).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
+    assert physics.distance_between(p, c).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
 
     b2.teleport((0, 0))
 

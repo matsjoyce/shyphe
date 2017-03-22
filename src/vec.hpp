@@ -32,7 +32,7 @@ public:
     constexpr Vec() : x(0), y(0) {
     }
 
-    inline Vec operator-() {
+    inline Vec operator-() const {
         return {-x, -y};
     }
 
@@ -80,7 +80,7 @@ public:
         return std::tie(x, y) >= std::tie(other.x, other.y);
     }
 
-    inline operator bool() const {
+    explicit inline operator bool() const {
         return x || y;
     }
 
@@ -128,8 +128,8 @@ public:
     }
 
     inline Vec rej(const Vec& axis) const {
-        Vec res = *this;
-        res -= proj(axis);
+        Vec res = axis.perp();
+        res *= dot(res) / axis.squared();
         return res;
     }
 
@@ -137,7 +137,7 @@ public:
         return {std::sin(bearing), std::cos(bearing)};
     }
 
-    inline Vec rotate(double bearing) {
+    inline Vec rotate(double bearing) const {
         // Clockwise
         double c = std::cos(bearing), s = std::sin(bearing);
         return {c * x + s * y, -s * x + c * y};

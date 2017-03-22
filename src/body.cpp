@@ -27,22 +27,22 @@
 
 using namespace std;
 
-Body:: Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
-            double angle_/*=0*/, double angular_velocity_/*=0*/,
-            int side_/*=0*/) : _position(position_),
-                               _velocity(velocity_),
-                               _angle(angle_),
-                               _angular_velocity(angular_velocity_),
-                               _side(side_) {
+Body::Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
+           double angle_/*=0*/, double angular_velocity_/*=0*/,
+           int side_/*=0*/) : _position(position_),
+                              _velocity(velocity_),
+                              _angle(angle_),
+                              _angular_velocity(angular_velocity_),
+                              _side(side_) {
 }
 
-AABB Body::aabb() const {
+AABB aabbAtAngle(const vector<Shape*>& shapes, double angle) {
     auto iter = shapes.begin();
     auto end = shapes.end();
     AABB aabb = {0, 0, 0, 0};
     for (; iter != end; ++iter) {
         if ((*iter)->canCollide()) {
-            aabb = (*iter)->aabb() + (*iter)->position;
+            aabb = (*iter)->aabb(angle) + (*iter)->position.rotate(angle);
             break;
         }
     }
@@ -51,10 +51,24 @@ AABB Body::aabb() const {
     }
     for (; iter != end; ++iter) {
         if ((*iter)->canCollide()) {
-            aabb &= (*iter)->aabb() + (*iter)->position;
+            aabb &= (*iter)->aabb(angle) + (*iter)->position.rotate(angle);
         }
     }
     return aabb;
+}
+
+AABB Body::aabb(double time) const {
+    AABB aabb = aabbAtAngle(shapes, _angle);
+    if (_angular_velocity) {
+        auto end_angle = _angle + _angular_velocity * time;
+        aabb &= aabbAtAngle(shapes, end_angle);
+        int extreme_end = floor(norm_rad(end_angle - _angle + dpi()) / hpi());
+
+        for (int extreme_angles = ceil(_angle / hpi()); extreme_angles <= extreme_end; ++extreme_angles) {
+            aabb &= aabbAtAngle(shapes, extreme_angles * hpi());
+        }
+    }
+    return aabb & (aabb + _velocity * time);
 }
 
 Signature Body::signature() {
@@ -71,14 +85,22 @@ double Body::mass() const {
     return accumulate(shapes.begin(), shapes.end(), 0.0, [](double acc, const Shape* shape){return acc + shape->mass;});
 }
 
+double Body::momentOfInertia() const {
+    double moi = 0;
+    for (const auto& shape : shapes) {
+        moi += shape->momentOfInertia() + shape->mass * shape->position.squared();
+    }
+    return moi;
+}
+
 void Body::updatePosition(double time) {
     _position += _velocity * time;
+    _angle = norm_rad(_angle + _angular_velocity * time);
 }
 
 void Body::updateVelocity(double time) {
     _velocity += (_local_forces.rotate(_angle) + _global_forces) * time / mass();
 //     _angular_velocity += angular_acceleration * time;
-    _angle = norm_rad(_angle + _angular_velocity * time);
 }
 
 void Body::addShape(Shape* shape) {
@@ -160,6 +182,7 @@ double Body::distanceBetween(Body* other) const {
 
 void Body::applyImpulse(Vec impulse, Vec position) {
     _velocity += impulse / mass();
+    _angular_velocity -= position.perp().dot(impulse) / momentOfInertia();
 }
 
 void Body::applyLocalForce(Vec impulse, Vec position) {

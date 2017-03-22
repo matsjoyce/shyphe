@@ -251,3 +251,7 @@ void World::_updateBodySensorView(Body* body) {
         }
     }
 }
+
+void Collision::apply_impulse() {
+    body->applyImpulse(impulse, touch_point);
+}

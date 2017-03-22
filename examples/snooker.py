@@ -3,7 +3,6 @@ import pygame_go as pygo
 import random
 
 SHAPE_SIZE = 50
-NUMBER_OF_BODIES = 300
 
 window = pygo.window(1200, 600, frame_rate=20)
 
@@ -50,10 +49,10 @@ while window.active():
     while world.has_next_collision():
         ctr = world.next_collision()
         cola, colb = world.calculate_collision(ctr, physics.CollisionParameters(0.9, 10000, 1))
-        cola.body.apply_impulse(cola.impulse, cola.touch_point)
-        colb.body.apply_impulse(colb.impulse, colb.touch_point)
-        colliding.extend((cola.body, colb.body))
+        cola.apply_impulse()
+        colb.apply_impulse()
         world.finished_collision(ctr, True)
+        colliding.extend((cola.body, colb.body))
     world.end_frame()
 
     for body in bodies:
@@ -64,4 +63,3 @@ while window.active():
             window.draw_image(colliding_circle_image,
                               align=pygo.center, position=body.position.as_tuple())
     window.update()
-

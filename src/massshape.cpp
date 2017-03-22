@@ -29,6 +29,10 @@ bool MassShape::canCollide() const {
     return false;
 }
 
+double MassShape::momentOfInertia() const {
+    return 1;
+}
+
 // LCOV_EXCL_START
 type_index MassShape::shape_type() const {
     return {typeid(MassShape)};
@@ -38,7 +42,7 @@ double MassShape::boundingRadius() const {
     return 0;
 }
 
-AABB MassShape::aabb() const {
+AABB MassShape::aabb(double /*angle*/) const {
     return {0, 0, 0, 0};
 }
 // LCOV_EXCL_STOP
