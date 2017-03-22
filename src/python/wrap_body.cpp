@@ -67,6 +67,16 @@ python::tuple sig_as_tuple(const Signature& s) {
     return python::make_tuple(s.radar_emissions, s.thermal_emissions, s.radar_cross_section);
 }
 
+python::tuple aabb_as_tuple(const AABB& aabb) {
+    return python::make_tuple(aabb.min_x, aabb.max_x, aabb.min_y, aabb.max_y);
+}
+
+string aabb_repr(const AABB& aabb) {
+    stringstream ss;
+    ss << "AABB(" << aabb.min_x << ", " << aabb.max_x << ", " << aabb.min_y << ", " << aabb.max_y << ")";
+    return ss.str();
+}
+
 void wrap_body() {
     // Note: All the Vec properties have to return copies to preserve immutability
     python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
@@ -84,6 +94,7 @@ void wrap_body() {
         .add_property("mass", &Body::mass)
         .add_property("moment_of_inertia", &Body::momentOfInertia)
         .add_property("max_sensor_range", &Body::maxSensorRange)
+        .def("aabb", &Body::aabb)
         .def("update_position", &Body::updatePosition)
         .def("update_velocity", &Body::updateVelocity)
         .def("teleport", &Body::teleport)
@@ -108,10 +119,34 @@ void wrap_body() {
         .def_readwrite("thermal_emissions", &Signature::thermal_emissions)
         .def_readwrite("radar_cross_section", &Signature::radar_cross_section)
         .def("as_tuple", &sig_as_tuple);
+    python::class_<AABB>("AABB", python::init<double, double, double, double>())
+        .def(python::init<Vec, double, double>())
+        .def(python::init<Vec, Vec>())
+        .def_readonly("min_x", &AABB::min_x)
+        .def_readonly("min_y", &AABB::min_y)
+        .def_readonly("max_x", &AABB::max_x)
+        .def_readonly("max_y", &AABB::max_y)
+        .add_property("center", &AABB::center)
+        .add_property("bottomleft", &AABB::bottomleft)
+        .add_property("bottomright", &AABB::bottomright)
+        .add_property("topleft", &AABB::topleft)
+        .add_property("topright", &AABB::topright)
+        .def(op::self + python::other<Vec>())
+        .def(python::other<Vec>() + op::self)
+        .def(op::self & python::other<AABB>())
+        .def(op::str(op::self))
+        .def("as_tuple", aabb_as_tuple)
+        .def("__repr__", aabb_repr);
     python::class_<Shape, boost::noncopyable>("Shape", python::no_init)
         .def_readwrite("mass", &Shape::mass)
+        .add_property("position",
+             python::make_getter(&Shape::position, python::return_value_policy<python::return_by_value>()),
+             python::make_setter(&Shape::position))
         .add_property("moment_of_inertia", &Shape::momentOfInertia)
         .def_readwrite("signature", &Shape::signature)
+        .def("aabb", &Shape::aabb)
+        .def("bounding_radius", &Shape::boundingRadius)
+        .def("can_collide", &Shape::canCollide)
         .def("clone", &Shape::clone, python::return_value_policy<python::manage_new_object>());
     python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle",
         python::init<double, double, const Vec&, double, double, double>((python::arg("radius")=0,

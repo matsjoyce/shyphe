@@ -65,7 +65,7 @@ def test_distance_between_square_triangle(physics):
     assert db.a_point.as_tuple() == (9, -1)
     assert db.b_point.as_tuple() == (1, -1)
 
-    b1.teleport((1, 0))
+    p1.position = (1, 0)
     b2.teleport((4, 0))
 
     assert physics.distance_between(p1, p2).distance == pytest.approx(1)
@@ -86,7 +86,7 @@ def test_distance_between_square_triangle(physics):
 
     assert physics.distance_between(p1, p2).distance == pytest.approx(-1)
 
-    b1.teleport((0, 0))
+    p1.position = (0, 0)
 
     assert physics.distance_between(p1, p2).distance == pytest.approx(-1)
 

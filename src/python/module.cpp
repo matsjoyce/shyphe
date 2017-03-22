@@ -15,6 +15,11 @@ BOOST_PYTHON_MODULE(physics) {
     python::def("norm_deg", norm_deg);
     python::def("to_deg", to_deg);
     python::def("to_rad", to_rad);
+
+    python::scope().attr("pi") = pi();
+    python::scope().attr("hpi") = hpi();
+    python::scope().attr("dpi") = dpi();
+
     wrap_vec();
     wrap_collisions();
     wrap_body();

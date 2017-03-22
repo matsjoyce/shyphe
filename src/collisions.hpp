@@ -39,11 +39,14 @@ struct DistanceResult {
 };
 
 struct CollisionTimeResult {
-    constexpr CollisionTimeResult(Body* a_, Body* b_, double time_, Vec tp, Vec norm): a(a_),
-                                                                                       b(b_),
-                                                                                       time(time_),
-                                                                                       touch_point(tp),
-                                                                                       normal(norm) {
+    constexpr CollisionTimeResult(Body* a_, Body* b_, Shape* a_shape_, Shape* b_shape_,
+                                  double time_, Vec tp, Vec norm): a(a_),
+                                                                   b(b_),
+                                                                   a_shape(a_shape_),
+                                                                   b_shape(b_shape_),
+                                                                   time(time_),
+                                                                   touch_point(tp),
+                                                                   normal(norm) {
     }
 
     constexpr CollisionTimeResult() {
@@ -51,12 +54,14 @@ struct CollisionTimeResult {
 
     Body* a = nullptr;
     Body* b = nullptr;
+    Shape* a_shape = nullptr;
+    Shape* b_shape = nullptr;
     double time = -1;
     Vec touch_point = {0, 0};
     Vec normal = {0, 0};
 };
 
-CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_time, bool ignore_initial);
+CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool ignore_initial);
 
 DistanceResult distanceBetweenCircleCircle(const Shape&, const Body&, const Shape&, const Body&);
 DistanceResult distanceBetweenCirclePolygon(const Shape&, const Body&, const Shape&, const Body&);
@@ -70,15 +75,10 @@ struct CollisionResult {
 };
 
 struct CollisionParameters {
-    constexpr CollisionParameters(double restitution_, double transition_impulse_,
-                                  double transition_reduction_): restitution(restitution_),
-                                                                 transition_impulse(transition_impulse_),
-                                                                 transition_reduction(transition_reduction_) {
+    constexpr CollisionParameters(double restitution_): restitution(restitution_) {
     }
 
     double restitution;
-    double transition_impulse;
-    double transition_reduction;
 };
 
 CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params);

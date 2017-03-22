@@ -33,7 +33,9 @@ void wrap_collisions() {
         .add_property("other", &get_collision_other)
         .def_readonly("time", &Collision::time)
         .def_readonly("touch_point", &Collision::touch_point)
-        .def_readonly("impulse", &Collision::impulse)
+        .add_property("impulse",
+             python::make_getter(&Collision::impulse, python::return_value_policy<python::return_by_value>()),
+             python::make_setter(&Collision::impulse))
         .def_readonly("closing_velocity", &Collision::closing_velocity)
         .def("apply_impulse", &Collision::apply_impulse);
     py_pair<Collision, Collision>();
@@ -45,7 +47,7 @@ void wrap_collisions() {
         .def_readonly("a_point", &DistanceResult::a_point)
         .def_readonly("b_point", &DistanceResult::b_point)
         .def_readonly("normal", &DistanceResult::normal);
-    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, double, Vec, Vec>())
+    python::class_<CollisionTimeResult>("CollisionTimeResult", python::init<Body*, Body*, Shape*, Shape*, double, Vec, Vec>())
         .add_property("a", &get_collisiontime_a)
         .add_property("b", &get_collisiontime_b)
         .def_readonly("time", &CollisionTimeResult::time)
@@ -54,8 +56,6 @@ void wrap_collisions() {
     python::class_<CollisionResult>("CollisionResult")
         .def_readonly("impulse", &CollisionResult::impulse)
         .def_readonly("closing_velocity", &CollisionResult::closing_velocity);
-    python::class_<CollisionParameters>("CollisionParameters", python::init<double, double, double>())
-        .def_readwrite("restitution", &CollisionParameters::restitution)
-        .def_readwrite("transition_impulse", &CollisionParameters::transition_impulse)
-        .def_readwrite("transition_reduction", &CollisionParameters::transition_reduction);
+    python::class_<CollisionParameters>("CollisionParameters", python::init<double>())
+        .def_readwrite("restitution", &CollisionParameters::restitution);
 }

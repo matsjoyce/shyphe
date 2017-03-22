@@ -62,10 +62,19 @@ AABB Body::aabb(double time) const {
     if (_angular_velocity) {
         auto end_angle = _angle + _angular_velocity * time;
         aabb &= aabbAtAngle(shapes, end_angle);
-        int extreme_end = floor(norm_rad(end_angle - _angle + dpi()) / hpi());
+        int extreme_start = ceil(_angle / hpi());
+        int extreme_range = (end_angle - _angle) / hpi();
+        int extreme_end;
+        if (extreme_range < 0) {
+            extreme_end = extreme_start;
+            extreme_start -= floor(abs(extreme_range));
+        }
+        else {
+            extreme_end = extreme_start + floor(abs(extreme_range));
+        }
 
-        for (int extreme_angles = ceil(_angle / hpi()); extreme_angles <= extreme_end; ++extreme_angles) {
-            aabb &= aabbAtAngle(shapes, extreme_angles * hpi());
+        for (; extreme_start <= extreme_end; ++extreme_start) {
+            aabb &= aabbAtAngle(shapes, extreme_start * hpi());
         }
     }
     return aabb & (aabb + _velocity * time);

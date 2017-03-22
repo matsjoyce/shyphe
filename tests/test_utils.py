@@ -3,6 +3,12 @@ import random
 import pytest
 
 
+def test_consts(physics):
+    assert physics.pi == math.pi
+    assert physics.dpi == math.pi * 2
+    assert physics.hpi == math.pi / 2
+
+
 def test_to_deg(physics):
     assert physics.to_deg(0) == 0
     assert physics.to_deg(math.pi / 2) == 90

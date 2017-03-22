@@ -45,3 +45,20 @@ def test_degenerate(physics):
 
     assert list(p1.points) == [physics.Vec(-1, -1), physics.Vec(-1, 1), physics.Vec(1, 1), physics.Vec(1, -1)]
 
+
+def test_aabb(physics):
+    p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+
+    assert p.can_collide()
+    assert p.aabb(0).as_tuple() == (-1, 1, -1, 1)
+    assert p.aabb(physics.to_rad(45)).as_tuple() == pytest.approx((-2 ** 0.5, 2 ** 0.5, -2 ** 0.5, 2 ** 0.5))
+
+
+def test_moi(physics):
+    p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=5)
+
+    assert p.moment_of_inertia == 10 / 3
+
+    p = physics.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=10)
+
+    assert p.moment_of_inertia == 20 / 3

@@ -38,6 +38,46 @@ def test_distance_between_simple(physics):
     assert physics.distance_between(c, p).distance == pytest.approx(-1)
 
 
+def test_distance_between_simple2(physics):
+    b1 = physics.Body(position=(0, 0))
+    c = physics.Circle(radius=1)
+    b1.add_shape(c)
+
+    b2 = physics.Body(position=(10, 0))
+    p = physics.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)])
+    b2.add_shape(p)
+
+    assert physics.distance_between(c, p).distance == pytest.approx(8)
+
+    c.position = (1, 0)
+    b2.teleport((4, 0))
+
+    assert physics.distance_between(p, c).distance == pytest.approx(1)
+
+    b2.teleport((2.9, 0))
+
+    assert physics.distance_between(c, p).distance == pytest.approx(-0.1)
+
+    c.position = (0, 0)
+    b2.teleport((0, 3))
+
+    assert physics.distance_between(p, c).distance == pytest.approx(1)
+
+    x = (1 + 2 ** -0.5) * 2 ** -0.5
+
+    b2.teleport((x - 0.0001, x - 0.0001))
+
+    assert physics.distance_between(c, p).distance == pytest.approx(-(0.0001 ** 2 * 2) ** 0.5)
+
+    b2.teleport((x + 0.0001, x + 0.0001))
+
+    assert physics.distance_between(p, c).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
+
+    b2.teleport((0, 0))
+
+    assert physics.distance_between(c, p).distance == pytest.approx(-1 - 2 ** -0.5)
+
+
 def test_distance_between_rotated(physics):
     b1 = physics.Body(position=(0, 0))
     c = physics.Circle(radius=1)

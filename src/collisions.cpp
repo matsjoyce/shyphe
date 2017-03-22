@@ -44,7 +44,7 @@ DistanceResult distanceBetween(const Shape* a, const Shape* b) {
     return dist_func(*a, *a->body, *b, *b->body);
 }
 
-CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_time, bool ignore_initial) {
+CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool ignore_initial) {
     DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a->shape_type(), b->shape_type()));
     Body abody = *a->body, bbody = *b->body;
     auto vel_diff = abody.velocity() - bbody.velocity();
@@ -57,7 +57,7 @@ CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_tim
         double vel = vel_diff.dot(current_distance.normal)
                      + (a->position.abs() + a->boundingRadius()) * abs(a->body->angularVelocity())
                      + (b->position.abs() + b->boundingRadius()) * abs(b->body->angularVelocity());
-        double add_time = current_distance.distance / vel;
+        double add_time = abs(current_distance.distance) / vel;
         time += add_time;
 
         abody.updatePosition(add_time);
@@ -66,23 +66,20 @@ CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_tim
         if (time > end_time) {
             return {};
         }
-        auto cmp = (ignore_initial && !iteration) ? current_distance.distance : abs(current_distance.distance);
-        if (cmp < COLLISION_LIMIT) {
+        if (current_distance.distance < COLLISION_LIMIT) {
             auto vel_at = vel_diff
                           - (current_distance.a_point - abody.position()).perp() * a->body->angularVelocity()
                           + (current_distance.b_point - bbody.position()).perp() * b->body->angularVelocity();
-            if (vel_at.dot(current_distance.normal) > 0) {
-                if (!ignore_initial) {
-                    break;
-                }
-            }
-            else {
-                ignore_initial = false;
+            if (vel_at.dot(current_distance.normal) > 0 && !ignore_initial) {
+                break;
             }
             add_time = max(COLLISION_LIMIT * 3, COLLISION_LIMIT * 3 / abs(vel_at.dot(current_distance.normal)));
             time += add_time;
             abody.updatePosition(add_time);
             bbody.updatePosition(add_time);
+        }
+        else {
+            ignore_initial = false;
         }
         if (vel <= 0 || time < 0) {
             return {};
@@ -90,7 +87,7 @@ CollisionTimeResult collideShapes(const Shape* a, const Shape* b, double end_tim
 
         ++iteration;
     }
-    return {a->body, b->body, time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
+    return {a->body, b->body, a, b, time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
 }
 
 DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
@@ -110,6 +107,7 @@ DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, 
 
     auto apos = a_body.position() + a_circle.position.rotate(a_body.angle());
     auto bpos = b_body.position() + b_poly.position.rotate(b_body.angle());
+    cout << a_circle.position << bpos << endl;
     DistanceResult d;
     for (unsigned int i = 0; i < b_poly.points.size(); ++i) {
         auto p1 = b_poly.points[i].rotate(b_body.angle()), p2 = b_poly.points[(i + 1) % b_poly.points.size()].rotate(b_body.angle());
@@ -241,9 +239,5 @@ CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionPa
     double top = (1 + params.restitution) * relative_vel;
     double bottom = 1 / a.mass() + square(a_perp_touch_point.dot(cr.normal)) / a.momentOfInertia()
                   + 1 / b.mass() + square(b_perp_touch_point.dot(cr.normal)) / b.momentOfInertia();
-    Vec impulse = cr.normal * top / bottom;
-    if (impulse.abs() > params.transition_impulse) {
-        impulse = impulse * params.transition_reduction + impulse.norm() * params.transition_impulse * (1 - params.transition_reduction);
-    }
-    return {impulse, cr.normal * relative_vel};
+    return {cr.normal * top / bottom, cr.normal * relative_vel};
 }

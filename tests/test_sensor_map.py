@@ -27,6 +27,24 @@ def test_active_radar(physics):
     assert so.side == physics.Side.neutral
 
 
+def test_out_of_range(physics):
+    b1 = physics.Body(position=(0, 0))
+    s = physics.ActiveRadar(power=5, sensitivity=1)
+    b1.add_sensor(s)
+
+    b2 = physics.Body(position=(s.max_range + 0.1, 0))
+    b2.add_shape(physics.MassShape(radar_cross_section=20))
+
+    w = physics.World(1)
+    w.add_body(b1)
+    w.add_body(b2)
+
+    w.begin_frame()
+    w.end_frame()
+
+    assert len(b1.sensor_view) == 0
+
+
 def test_passive_radar(physics):
     b1 = physics.Body(position=(0, 0))
     b1.add_sensor(physics.PassiveRadar(sensitivity=1))
