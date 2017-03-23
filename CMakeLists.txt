@@ -56,21 +56,16 @@ add_library(shyphe_coverage SHARED ${PROJECT_FILES} src/python/coverage.cpp)
 target_link_libraries(shyphe_coverage ${Boost_LIBRARIES})
 target_link_libraries(shyphe_coverage ${PYTHON_LDFLAGS})
 target_compile_options(shyphe_coverage PRIVATE "-fprofile-arcs"
-                                                "-ftest-coverage"
-                                                "-fno-elide-constructors"
-                                                "-fno-inline"
-                                                "-O0"
-                                                "-g"
-                                                "-fPIC"
-                                                "-fno-default-inline"
-                                                "-DCOVERAGE"
-                                                "-lgcov")
+                                               "-ftest-coverage"
+                                               "-fno-elide-constructors"
+                                               "-fno-inline"
+                                               "-O0"
+                                               "-g"
+                                               "-fPIC"
+                                               "-fno-default-inline"
+                                               "-DCOVERAGE"
+                                               "-lgcov")
 set_target_properties(shyphe_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage"
-                                                  OUTPUT_NAME "shyphe"
-                                                  PREFIX "")
+                                                 OUTPUT_NAME "shyphe"
+                                                 PREFIX "")
 target_link_libraries(shyphe_coverage gcov)
-
-# get_cmake_property(_variableNames VARIABLES)
-# foreach (_variableName ${_variableNames})
-#     message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
