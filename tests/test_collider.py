@@ -510,3 +510,21 @@ def test_ignored(physics):
     ctr = c.next_collision()
 
     assert (ctr.a, ctr.b) == (b1, b2) or (ctr.b, ctr.a) == (b1, b2)
+
+
+def test_bodies(physics):
+    b1 = physics.Body()
+    b2 = physics.Body()
+    b3 = physics.Body()
+    b4 = physics.Body()
+    b5 = physics.Body()
+
+    c = physics.World(1)
+    c.add_body(b1)
+    c.add_body(b2)
+    c.add_body(b3)
+    c.add_body(b4)
+    c.add_body(b5)
+
+    assert c.bodies[0] is b1
+    assert list(c.bodies) == [b1, b2, b3, b4, b5]

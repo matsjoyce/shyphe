@@ -1,13 +1,9 @@
 #include <iostream>
-#include <boost/python.hpp>
 
 #include "utils.hpp"
 #include "module.hpp"
 
 using namespace std;
-namespace python = boost::python;
-namespace op = boost::python::self_ns;
-
 
 BOOST_PYTHON_MODULE(physics) {
     cout.sync_with_stdio(true);

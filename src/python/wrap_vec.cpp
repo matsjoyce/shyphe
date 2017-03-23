@@ -1,4 +1,3 @@
-#include <boost/python.hpp>
 #include <string>
 #include <sstream>
 
@@ -6,8 +5,6 @@
 #include "vec.hpp"
 
 using namespace std;
-namespace python = boost::python;
-namespace op = boost::python::self_ns;
 
 struct Vec_from_tuple {
     Vec_from_tuple() {
@@ -110,6 +107,7 @@ void wrap_vec() {
         .def("dot", &Vec::dot)
         .def("squared", &Vec::squared)
         .def("norm", &Vec::norm)
+        .def("reflect", &Vec::reflect)
         .def("perp", &Vec::perp)
         .def("proj", &Vec::proj)
         .def("rej", &Vec::rej)

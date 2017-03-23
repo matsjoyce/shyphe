@@ -1,10 +1,6 @@
-#include <boost/python.hpp>
-
 #include "module.hpp"
 
 using namespace std;
-namespace python = boost::python;
-namespace op = boost::python::self_ns;
 
 // https://www.osadl.org/Dumping-gcov-data-at-runtime-simple-ex.online-coverage-analysis.0.html
 

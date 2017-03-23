@@ -1,7 +1,7 @@
-#include <boost/python.hpp>
-#include <map>
-
 #include "module.hpp"
+#include "shared_ptr_support.hpp"
+#include "container_support.hpp"
+#include "tuple_support.hpp"
 #include "body.hpp"
 #include "shape.hpp"
 #include "sensor.hpp"
@@ -10,58 +10,6 @@
 #include "polygon.hpp"
 
 using namespace std;
-namespace python = boost::python;
-namespace op = boost::python::self_ns;
-
-class BodyWrap: public Body {
-    PyObject *self;
-    map<Shape*, python::object> pyshapes;
-    map<Sensor*, python::object> pysensor;
-public:
-    BodyWrap(PyObject *p, const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
-             double angle_/*=0*/, double angular_velocity_/*=0*/,
-             int side_/*=0*/): Body(position_, velocity_, angle_, angular_velocity_,  side_), self(p) {
-    }
-
-    python::object get_python_object() {
-        return python::object(python::handle<>(python::borrowed(self)));
-    }
-
-    void add_shape(python::object shape) {
-        auto ptr = python::extract<Shape*>(shape);
-        pyshapes[ptr] = shape;
-        addShape(ptr);
-    }
-
-    void remove_shape(python::object shape) {
-        auto ptr = python::extract<Shape*>(shape);
-        pyshapes.erase(ptr);
-        removeShape(ptr);
-    }
-
-    void add_sensor(python::object sensor) {
-        auto ptr = python::extract<Sensor*>(sensor);
-        pysensor[ptr] = sensor;
-        addSensor(ptr);
-    }
-
-    void remove_sensor(python::object sensor) {
-        auto ptr = python::extract<Sensor*>(sensor);
-        pysensor.erase(ptr);
-        removeSensor(ptr);
-    }
-};
-
-python::object magic_body_extract(Body* body) {
-    if (!body) {
-        return python::object(); // None
-    }
-    auto bw = dynamic_cast<BodyWrap*>(body);
-    if (!bw) {
-        throw runtime_error("Request to get_body failed, was this body created from Python?"); // LCOV_EXCL_LINE
-    }
-    return bw->get_python_object();
-}
 
 python::tuple sig_as_tuple(const Signature& s) {
     return python::make_tuple(s.radar_emissions, s.thermal_emissions, s.radar_cross_section);
@@ -77,9 +25,18 @@ string aabb_repr(const AABB& aabb) {
     return ss.str();
 }
 
+tuple<CollisionTimeResult, shared_ptr<Shape>, shared_ptr<Shape>> body_collide(Body& a, Body* b, double et, bool i) {
+    CollisionTimeResult ctr;
+    Shape* s1;
+    Shape* s2;
+    tie(ctr, s1, s2) = a.collide(b, et, i);
+    return {ctr, s1->shared_from_this(), s2->shared_from_this()};
+}
+
 void wrap_body() {
     // Note: All the Vec properties have to return copies to preserve immutability
-    python::class_<Body, boost::noncopyable, boost::shared_ptr<BodyWrap>>("Body",
+    SharedConverter<Body>();
+    python::class_<Body, boost::noncopyable, py_ptr<Body>>("Body",
         python::init<const Vec&, const Vec&, double, double, int>((python::arg("position")=Vec{},
                                                                    python::arg("velocity")=Vec{},
                                                                    python::arg("angle")=0,
@@ -94,6 +51,8 @@ void wrap_body() {
         .add_property("mass", &Body::mass)
         .add_property("moment_of_inertia", &Body::momentOfInertia)
         .add_property("max_sensor_range", &Body::maxSensorRange)
+        .add_property("shapes", python::make_function(&Body::shapes, python::return_internal_reference<>()))
+        .add_property("sensors", python::make_function(&Body::sensors, python::return_internal_reference<>()))
         .def("aabb", &Body::aabb)
         .def("update_position", &Body::updatePosition)
         .def("update_velocity", &Body::updateVelocity)
@@ -105,12 +64,12 @@ void wrap_body() {
         .def("apply_global_force", &Body::applyGlobalForce)
         .def("clear_global_forces", &Body::clearGlobalForces)
         .def("HACK_set_angular_velocity", &Body::HACK_setAngularVelocity)
-        .def("collide", &Body::collide)
+        .def("collide", body_collide)
         .def("distance_between", &Body::distanceBetween)
-        .def("add_shape", &BodyWrap::add_shape)
-        .def("remove_shape", &BodyWrap::remove_shape)
-        .def("add_sensor", &BodyWrap::add_sensor)
-        .def("remove_sensor", &BodyWrap::remove_sensor);
+        .def("add_shape", &Body::addShape)
+        .def("remove_shape", &Body::removeShape)
+        .def("add_sensor", &Body::addSensor)
+        .def("remove_sensor", &Body::removeSensor);
     python::class_<Signature>("Signature",
         python::init<double, double, double>((python::arg("radar_emissions")=0,
                                               python::arg("thermal_emissions")=0,
@@ -137,7 +96,9 @@ void wrap_body() {
         .def(op::str(op::self))
         .def("as_tuple", aabb_as_tuple)
         .def("__repr__", aabb_repr);
-    python::class_<Shape, boost::noncopyable>("Shape", python::no_init)
+
+    SharedConverter<Shape>();
+    python::class_<Shape, boost::noncopyable, py_ptr<Shape>>("Shape", python::no_init)
         .def_readwrite("mass", &Shape::mass)
         .add_property("position",
              python::make_getter(&Shape::position, python::return_value_policy<python::return_by_value>()),
@@ -148,7 +109,7 @@ void wrap_body() {
         .def("bounding_radius", &Shape::boundingRadius)
         .def("can_collide", &Shape::canCollide)
         .def("clone", &Shape::clone, python::return_value_policy<python::manage_new_object>());
-    python::class_<Circle, boost::noncopyable, python::bases<Shape>>("Circle",
+    python::class_<Circle, boost::noncopyable, python::bases<Shape>, py_ptr<Circle>>("Circle",
         python::init<double, double, const Vec&, double, double, double>((python::arg("radius")=0,
                                                                           python::arg("mass")=0,
                                                                           python::arg("position")=Vec{},
@@ -156,13 +117,13 @@ void wrap_body() {
                                                                           python::arg("radar_emissions")=0,
                                                                           python::arg("thermal_emissions")=0)))
         .def_readwrite("radius", &Circle::radius);
-    python::class_<MassShape, boost::noncopyable, python::bases<Shape>>("MassShape",
+    python::class_<MassShape, boost::noncopyable, python::bases<Shape>, py_ptr<MassShape>>("MassShape",
         python::init<double, const Vec&, double, double, double>((python::arg("mass")=0,
                                                                   python::arg("position")=Vec{},
                                                                   python::arg("radar_cross_section")=0,
                                                                   python::arg("radar_emissions")=0,
                                                                   python::arg("thermal_emissions")=0)));
-    python::class_<Polygon, boost::noncopyable, python::bases<Shape>>("Polygon",
+    python::class_<Polygon, boost::noncopyable, python::bases<Shape>, py_ptr<Polygon>>("Polygon",
         python::init<vector<Vec>, double, const Vec&, double, double, double>((python::arg("points")=python::list(),
                                                                                python::arg("mass")=0,
                                                                                python::arg("position")=Vec{},
@@ -170,6 +131,9 @@ void wrap_body() {
                                                                                python::arg("radar_emissions")=0,
                                                                                python::arg("thermal_emissions")=0)))
         .def_readonly("points", &Polygon::points);
-    IterableConverter<vector<SensedObject>>("SensedObjectVector");
-    IterableConverter<vector<Vec>>("VecVector");
+    ContainerConverter<vector<SensedObject>>("SensedObjectVector");
+    ContainerConverter<vector<Vec>>("VecVector");
+    ContainerConverter<vector<shared_ptr<Shape>>, true>("ShapeVector");
+    ContainerConverter<vector<shared_ptr<Sensor>>, true>("SensorVector");
+    TupleConverter<CollisionTimeResult, shared_ptr<Shape>, shared_ptr<Shape>>();
 }

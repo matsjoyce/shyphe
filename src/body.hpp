@@ -21,6 +21,8 @@
 #define BODY_HPP
 
 #include <vector>
+#include <tuple>
+#include <memory>
 
 #include "vec.hpp"
 #include "aabb.hpp"
@@ -28,7 +30,7 @@
 #include "shape.hpp"
 #include "sensor.hpp"
 
-class Body {
+class Body : public std::enable_shared_from_this<Body> {
 public:
     Body(const Vec& position_={}, const Vec& velocity_={},
          double angle_=0, double angular_velocity_=0, int side_=0);
@@ -37,23 +39,37 @@ public:
     AABB aabb(double time) const;
     double mass() const;
     double momentOfInertia() const;
+
     inline const Vec& position() const {
         return _position;
     }
+
     inline const Vec& velocity() const {
         return _velocity;
     }
+
     inline double angle() const {
         return _angle;
     }
+
     inline double angularVelocity() const {
         return _angular_velocity;
     }
+
     inline int side() const {
         return _side;
     }
+
     inline const std::vector<SensedObject>& sensorView() const {
         return _sensor_view;
+    }
+
+    inline const std::vector<std::shared_ptr<Shape>>& shapes() const {
+        return _shapes;
+    }
+
+    inline const std::vector<std::shared_ptr<Sensor>>& sensors() const {
+        return _sensors;
     }
 
     void changeSide(int new_side);
@@ -70,11 +86,11 @@ public:
     Signature signature();
     void updatePosition(double time);
     void updateVelocity(double time);
-    void addShape(Shape* shape);
-    void removeShape(Shape* shape);
-    void addSensor(Sensor* shape);
-    void removeSensor(Sensor* shape);
-    CollisionTimeResult collide(Body* other, double end_time, bool ignore_initial) const;
+    void addShape(std::shared_ptr<Shape> shape);
+    void removeShape(std::shared_ptr<Shape> shape);
+    void addSensor(std::shared_ptr<Sensor> shape);
+    void removeSensor(std::shared_ptr<Sensor> shape);
+    std::tuple<CollisionTimeResult, Shape*, Shape*> collide(Body* other, double end_time, bool ignore_initial) const;
     double distanceBetween(Body* other) const;
     double maxSensorRange() const;
 private:
@@ -84,8 +100,8 @@ private:
     int _side;
     std::vector<SensedObject> _sensor_view;
 
-    std::vector<Shape*> shapes;
-    std::vector<Sensor*> sensors;
+    std::vector<std::shared_ptr<Shape>> _shapes;
+    std::vector<std::shared_ptr<Sensor>> _sensors;
 
     friend class World;
 };

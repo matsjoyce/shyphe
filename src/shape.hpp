@@ -24,6 +24,7 @@
 #include "collisions.hpp"
 #include "vec.hpp"
 #include <typeindex>
+#include <memory>
 
 class Body;
 class Circle;
@@ -57,9 +58,8 @@ struct Signature {
     }
 };
 
-class Shape {
+class Shape : public std::enable_shared_from_this<Shape> {
 public:
-    Body* body = nullptr;
     double mass = 0;
     Vec position;
     Signature signature;

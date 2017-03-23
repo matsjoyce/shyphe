@@ -24,15 +24,25 @@
 #include <utility>
 #include <map>
 #include <set>
+#include <memory>
 
 #include "body.hpp"
 #include "vec.hpp"
 #include "sataxes.hpp"
 #include "collisions.hpp"
 
-struct Collision {
-    Body* body;
-    Body* other;
+struct UnresolvedCollision {
+    std::shared_ptr<Body> a;
+    std::shared_ptr<Body> b;
+
+    double time;
+    Vec touch_point;
+    Vec normal;
+};
+
+struct ResolvedCollision {
+    std::shared_ptr<Body> body;
+    std::shared_ptr<Body> other;
     double time;
     Vec touch_point;
     Vec impulse;
@@ -44,27 +54,28 @@ struct Collision {
 class World {
 public:
     World(double frame_time_=1);
-    void addBody(Body* body);
-    void removeBody(Body* body);
+    void addBody(std::shared_ptr<Body> body);
+    void removeBody(std::shared_ptr<Body> body);
     void beginFrame();
-    CollisionTimeResult nextCollision();
-    std::pair<Collision, Collision> calculateCollision(const CollisionTimeResult& collision, const CollisionParameters& params);
-    void finishedCollision(const CollisionTimeResult& collision, bool renotify);
+    UnresolvedCollision nextCollision();
+    std::pair<ResolvedCollision, ResolvedCollision> calculateCollision(const UnresolvedCollision& collision, const CollisionParameters& params);
+    void finishedCollision(const UnresolvedCollision& collision, bool renotify);
     bool hasNextCollision();
     void endFrame();
+    const std::vector<std::shared_ptr<Body>>& bodies() const {
+        return _bodies;
+    }
 private:
     double time_until = 0, current_time = 0, frame_time;
-    std::vector<Body*> bodies;
+    std::vector<std::shared_ptr<Body>> _bodies;
     std::vector<SigObject> sigobjs;
     std::map<Body*, double> body_times;
     std::set<Body*> changed_bodies, removed_bodies;
     std::map<std::pair<Body*, Body*>, bool> ignore_current_collision;
-    std::vector<CollisionTimeResult> collision_times;
+    std::vector<std::tuple<CollisionTimeResult, Shape*, Body*, Shape*, Body*>> collision_times;
     SATAxes sat_axes;
 
-    void _updateCollisionTimes();
-    void _updateCollisionTimesChanged();
-    void _updateCollisionTimesCommon();
+    void _updateCollisionTimes(bool initial);
     void _updateBodySensorView(Body* body);
 };
 

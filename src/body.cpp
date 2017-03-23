@@ -36,7 +36,7 @@ Body::Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
                               _side(side_) {
 }
 
-AABB aabbAtAngle(const vector<Shape*>& shapes, double angle) {
+AABB aabbAtAngle(const vector<shared_ptr<Shape>>& shapes, double angle) {
     auto iter = shapes.begin();
     auto end = shapes.end();
     AABB aabb = {0, 0, 0, 0};
@@ -58,10 +58,10 @@ AABB aabbAtAngle(const vector<Shape*>& shapes, double angle) {
 }
 
 AABB Body::aabb(double time) const {
-    AABB aabb = aabbAtAngle(shapes, _angle);
+    AABB aabb = aabbAtAngle(_shapes, _angle);
     if (_angular_velocity) {
         auto end_angle = _angle + _angular_velocity * time;
-        aabb &= aabbAtAngle(shapes, end_angle);
+        aabb &= aabbAtAngle(_shapes, end_angle);
         int extreme_start = ceil(_angle / hpi());
         int extreme_range = (end_angle - _angle) / hpi();
         int extreme_end;
@@ -74,7 +74,7 @@ AABB Body::aabb(double time) const {
         }
 
         for (; extreme_start <= extreme_end; ++extreme_start) {
-            aabb &= aabbAtAngle(shapes, extreme_start * hpi());
+            aabb &= aabbAtAngle(_shapes, extreme_start * hpi());
         }
     }
     return aabb & (aabb + _velocity * time);
@@ -82,7 +82,7 @@ AABB Body::aabb(double time) const {
 
 Signature Body::signature() {
     Signature sig;
-    for (const auto& shape : shapes) {
+    for (const auto& shape : _shapes) {
         sig.radar_cross_section += shape->signature.radar_cross_section;
         sig.radar_emissions += shape->signature.radar_emissions;
         sig.thermal_emissions += shape->signature.thermal_emissions;
@@ -91,12 +91,12 @@ Signature Body::signature() {
 }
 
 double Body::mass() const {
-    return accumulate(shapes.begin(), shapes.end(), 0.0, [](double acc, const Shape* shape){return acc + shape->mass;});
+    return accumulate(_shapes.begin(), _shapes.end(), 0.0, [](double acc, const shared_ptr<Shape>& shape){return acc + shape->mass;});
 }
 
 double Body::momentOfInertia() const {
     double moi = 0;
-    for (const auto& shape : shapes) {
+    for (const auto& shape : _shapes) {
         moi += shape->momentOfInertia() + shape->mass * shape->position.squared();
     }
     return moi;
@@ -112,74 +112,62 @@ void Body::updateVelocity(double time) {
 //     _angular_velocity += angular_acceleration * time;
 }
 
-void Body::addShape(Shape* shape) {
-    if (shape->body) {
-        throw runtime_error("Shape already has body");
-    }
-    shapes.push_back(shape);
-    shape->body = this;
+void Body::addShape(shared_ptr<Shape> shape) {
+    _shapes.push_back(shape);
 }
 
-void Body::removeShape(Shape* shape) {
-    if (shape->body != this) {
-        throw runtime_error("Shape not attached to this body");
-    }
-    shapes.erase(remove(shapes.begin(), shapes.end(), shape), shapes.end());
-    shape->body = nullptr;
+void Body::removeShape(shared_ptr<Shape> shape) {
+    _shapes.erase(remove(_shapes.begin(), _shapes.end(), shape), _shapes.end());
 }
 
-void Body::addSensor(Sensor* sensor) {
-    if (sensor->body) {
-        throw runtime_error("Sensor already has body");
-    }
-    sensors.push_back(sensor);
-    sensor->body = this;
+void Body::addSensor(shared_ptr<Sensor> sensor) {
+    _sensors.push_back(sensor);
 }
 
-void Body::removeSensor(Sensor* sensor) {
-    if (sensor->body != this) {
-        throw runtime_error("Sensor not attached to this body");
-    }
-    sensors.erase(remove(sensors.begin(), sensors.end(), sensor), sensors.end());
-    sensor->body = nullptr;
+void Body::removeSensor(shared_ptr<Sensor> sensor) {
+    _sensors.erase(remove(_sensors.begin(), _sensors.end(), sensor), _sensors.end());
 }
 
-CollisionTimeResult Body::collide(Body* other, double end_time, bool ignore_initial) const {
+tuple<CollisionTimeResult, Shape*, Shape*> Body::collide(Body* other, double end_time, bool ignore_initial) const {
     auto soonest = CollisionTimeResult{};
+    Shape* a;
+    Shape* b;
     soonest.time = end_time + 1;
-    for (const auto my_shape : shapes) {
+    for (const auto my_shape : _shapes) {
         if (!my_shape->canCollide()) {
             continue;
         }
-        for (const auto their_shape : other->shapes) {
+        for (const auto their_shape : other->_shapes) {
             if (!their_shape->canCollide()) {
                 continue;
             }
-            auto collr = collideShapes(my_shape, their_shape, end_time, ignore_initial);
+            auto collr = collideShapes(*my_shape, *this, *their_shape, *other, end_time, ignore_initial);
             if (collr.time != -1 && collr.time < soonest.time) {
                 soonest = move(collr);
+                a = my_shape.get();
+                b = their_shape.get();
             }
         }
     }
     if (soonest.time < end_time) {
-        return soonest;
+        return {soonest, a, b};
     }
     soonest.time = -1;
-    return soonest;
+    return {soonest, nullptr, nullptr};
 }
 
 double Body::distanceBetween(Body* other) const {
     bool initial = true;
     double dist = (other->_position - _position).abs();
-    for (const auto my_shape : shapes) {
+    for (const auto my_shape : _shapes) {
         if (!my_shape->canCollide()) {
             continue;
         }
-        for (const auto their_shape : other->shapes) {
+        for (const auto their_shape : other->_shapes) {
             if (!their_shape->canCollide()) {
                 continue;
             }
-            auto d = ::distanceBetween(my_shape, their_shape).distance;
+            auto d = ::distanceBetween(*my_shape, *this, *their_shape, *other).distance;
             if (initial || d < dist) {
                 dist = d;
                 initial = false;
@@ -220,7 +208,7 @@ void Body::changeSide(int side) {
 
 double Body::maxSensorRange() const {
     double m = 0;
-    for (const auto& sensor : sensors) {
+    for (const auto& sensor : _sensors) {
         m = max(m, sensor->maxRange());
     }
     return m;

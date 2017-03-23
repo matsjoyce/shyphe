@@ -20,8 +20,11 @@
 #ifndef SENSOR_HPP
 #define SENSOR_HPP
 
+#include <memory>
+
 #include "vec.hpp"
 #include "shape.hpp"
+
 
 class Body;
 
@@ -39,28 +42,28 @@ struct SensedObject {
         unknown
     };
 
-    constexpr SensedObject(const Vec& pos, const Vec& vel, const Signature& signature_, Side side_, Body* body_) : position(pos),
-                                                                                                                   velocity(vel),
-                                                                                                                   signature(signature_),
-                                                                                                                   side(side_),
-                                                                                                                   body(body_) {
+    SensedObject(const Vec& pos, const Vec& vel, const Signature& signature_,
+                 Side side_, std::shared_ptr<Body> body_) : position(pos),
+                                                            velocity(vel),
+                                                            signature(signature_),
+                                                            side(side_),
+                                                            body(body_) {
     }
     bool operator==(const SensedObject& other);
 
     Vec position, velocity;
     Signature signature;
     Side side;
-    Body* body;
+    std::shared_ptr<Body> body;
 };
 
-class Sensor {
+class Sensor : public std::enable_shared_from_this<Sensor> {
 public:
     virtual Signature intensity(const SigObject& signature, double dist) const = 0;
     virtual bool givesIdentification() const = 0;
     virtual double maxRange() const = 0;
     virtual Sensor* clone() const = 0;
 
-    Body* body = nullptr;
     double perf = 1;
 };
 

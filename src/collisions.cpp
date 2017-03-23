@@ -39,24 +39,25 @@ const map<pair<type_index, type_index>, DistanceDispatch> DISPATCH_TABLE = {
     {{type_index(typeid(Polygon)), type_index(typeid(Polygon))}, &distanceBetweenPolygonPolygon}
 };
 
-DistanceResult distanceBetween(const Shape* a, const Shape* b) {
-    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a->shape_type(), b->shape_type()));
-    return dist_func(*a, *a->body, *b, *b->body);
+DistanceResult distanceBetween(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a.shape_type(), b.shape_type()));
+    return dist_func(a, a_body, b, b_body);
 }
 
-CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool ignore_initial) {
-    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a->shape_type(), b->shape_type()));
-    Body abody = *a->body, bbody = *b->body;
+CollisionTimeResult collideShapes(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body, double end_time, bool ignore_initial) {
+    // Based on algorithm from bottom of http://www.wildbunny.co.uk/blog/2011/04/20/collision-detection-for-dummies/
+    DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a.shape_type(), b.shape_type()));
+    Body abody = a_body, bbody = b_body;
     auto vel_diff = abody.velocity() - bbody.velocity();
     DistanceResult current_distance;
     double time = 0;
     unsigned int iteration = 0;
     while (iteration < 1000) {
-        current_distance = dist_func(*a, abody, *b, bbody);
+        current_distance = dist_func(a, abody, b, bbody);
 
         double vel = vel_diff.dot(current_distance.normal)
-                     + (a->position.abs() + a->boundingRadius()) * abs(a->body->angularVelocity())
-                     + (b->position.abs() + b->boundingRadius()) * abs(b->body->angularVelocity());
+                     + (a.position.abs() + a.boundingRadius()) * abs(abody.angularVelocity())
+                     + (b.position.abs() + b.boundingRadius()) * abs(bbody.angularVelocity());
         double add_time = abs(current_distance.distance) / vel;
         time += add_time;
 
@@ -68,8 +69,8 @@ CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool igno
         }
         if (current_distance.distance < COLLISION_LIMIT) {
             auto vel_at = vel_diff
-                          - (current_distance.a_point - abody.position()).perp() * a->body->angularVelocity()
-                          + (current_distance.b_point - bbody.position()).perp() * b->body->angularVelocity();
+                          - (current_distance.a_point - abody.position()).perp() * abody.angularVelocity()
+                          + (current_distance.b_point - bbody.position()).perp() * bbody.angularVelocity();
             if (vel_at.dot(current_distance.normal) > 0 && !ignore_initial) {
                 break;
             }
@@ -87,7 +88,7 @@ CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool igno
 
         ++iteration;
     }
-    return {a->body, b->body, a, b, time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
+    return {time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
 }
 
 DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
@@ -167,8 +168,8 @@ DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, 
     return d;
 }
 
-DistanceResult distanceBetweenPolygonCircle(const Shape& p, const Body& pb, const Shape& c, const Body& cb) {
-    auto d = distanceBetweenCirclePolygon(c, cb, p, pb);
+DistanceResult distanceBetweenPolygonCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+    auto d = distanceBetweenCirclePolygon(b, b_body, a, a_body);
     return {d.distance, d.b_point, d.a_point, -d.normal};
 }
 
@@ -219,6 +220,7 @@ DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body,
     auto ray = bpos - apos;
     DistanceResult dist;
 
+    // Use SAT to find closest edges, then find closest distance
     auto a_res = axis_proj_poly(a_poly, b_poly, ray, a_body.angle(), b_body.angle());
     auto b_res = axis_proj_poly(b_poly, a_poly, -ray, b_body.angle(), a_body.angle());
     Vec a1, a2, b1, b2, plane_norm;
@@ -252,9 +254,8 @@ inline double square(double x) {
     return x * x;
 }
 
-CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params) {
-    const Body& a = *cr.a;
-    const Body& b = *cr.b;
+CollisionResult collisionResult(const CollisionTimeResult& cr, const Body& a, const Body& b, const CollisionParameters& params) {
+    // http://chrishecker.com/images/e/e7/Gdmphys3.pdf
     Vec a_perp_touch_point = -(cr.touch_point - a.position()).perp();
     Vec b_perp_touch_point = -(cr.touch_point - b.position()).perp();
     Vec a_vel = a.velocity() + a_perp_touch_point * a.angularVelocity();

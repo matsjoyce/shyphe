@@ -10,32 +10,32 @@ def test_distance_between_simple(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    assert physics.distance_between(c, p).distance == pytest.approx(8)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(8)
 
     b1.teleport((1, 0))
     b2.teleport((4, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(1)
 
     b2.teleport((2.9, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-0.1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-0.1)
 
     b2.teleport((0, 3))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(1)
 
     b2.teleport((0, 1.9))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-0.1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-0.1)
 
     b2.teleport((0.5, 0.5))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-1.5)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-1.5)
 
     b2.teleport((0, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-1)
 
 
 def test_distance_between_simple2(physics):
@@ -47,35 +47,35 @@ def test_distance_between_simple2(physics):
     p = physics.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)])
     b2.add_shape(p)
 
-    assert physics.distance_between(c, p).distance == pytest.approx(8)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(8)
 
     c.position = (1, 0)
     b2.teleport((4, 0))
 
-    assert physics.distance_between(p, c).distance == pytest.approx(1)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx(1)
 
     b2.teleport((2.9, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-0.1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-0.1)
 
     c.position = (0, 0)
     b2.teleport((0, 3))
 
-    assert physics.distance_between(p, c).distance == pytest.approx(1)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx(1)
 
     x = (1 + 2 ** -0.5) * 2 ** -0.5
 
     b2.teleport((x - 0.0001, x - 0.0001))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-(0.0001 ** 2 * 2) ** 0.5)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-(0.0001 ** 2 * 2) ** 0.5)
 
     b2.teleport((x + 0.0001, x + 0.0001))
 
-    assert physics.distance_between(p, c).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
 
     b2.teleport((0, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-1 - 2 ** -0.5)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-1 - 2 ** -0.5)
 
 
 def test_distance_between_rotated(physics):
@@ -87,35 +87,35 @@ def test_distance_between_rotated(physics):
     p = physics.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)])
     b2.add_shape(p)
 
-    assert physics.distance_between(c, p).distance == pytest.approx(8)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(8)
 
     b1.teleport((1, 0))
     b2.teleport((4, 0))
 
-    assert physics.distance_between(p, c).distance == pytest.approx(1)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx(1)
 
     b2.teleport((2.9, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-0.1)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-0.1)
 
     b1.teleport((0, 0))
     b2.teleport((0, 3))
 
-    assert physics.distance_between(p, c).distance == pytest.approx(1)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx(1)
 
     x = (1 + 2 ** -0.5) * 2 ** -0.5
 
     b2.teleport((x - 0.0001, x - 0.0001))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-(0.0001 ** 2 * 2) ** 0.5)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-(0.0001 ** 2 * 2) ** 0.5)
 
     b2.teleport((x + 0.0001, x + 0.0001))
 
-    assert physics.distance_between(p, c).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
+    assert physics.distance_between(p, b2, c, b1).distance == pytest.approx((0.0001 ** 2 * 2) ** 0.5)
 
     b2.teleport((0, 0))
 
-    assert physics.distance_between(c, p).distance == pytest.approx(-1 - 2 ** -0.5)
+    assert physics.distance_between(c, b1, p, b2).distance == pytest.approx(-1 - 2 ** -0.5)
 
 
 def test_circle_polygon_horizontal(physics):
@@ -127,12 +127,10 @@ def test_circle_polygon_horizontal(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1.5, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1.5, False)
     assert coll.time == pytest.approx(1.0)
     assert coll.normal.as_tuple() == pytest.approx((1, 0))
     assert coll.touch_point.as_tuple() == pytest.approx((3, 0))
-    assert coll.a is b1
-    assert coll.b is b2
 
 
 def test_circle_polygon_vertical(physics):
@@ -144,12 +142,10 @@ def test_circle_polygon_vertical(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1.5, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1.5, False)
     assert coll.time == pytest.approx(1.0)
     assert coll.normal.as_tuple() == pytest.approx((0, 1))
     assert coll.touch_point.as_tuple() == pytest.approx((0, 3))
-    assert coll.a is b1
-    assert coll.b is b2
 
 
 def test_circle_polygon_vertical_near_hit(physics):
@@ -161,7 +157,7 @@ def test_circle_polygon_vertical_near_hit(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1.5, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1.5, False)
     assert coll.time == pytest.approx(1.125, 1e-5)
 
 
@@ -174,7 +170,7 @@ def test_circle_polygon_vertical_near_miss(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1, False)
     assert coll.time == -1
 
 
@@ -187,10 +183,8 @@ def test_circle_polygon_no_collision_opposite_dir(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1, False)
     assert coll.time == -1.0
-    assert coll.a is None
-    assert coll.b is None
 
 
 def test_circle_polygon_no_collision_parallel(physics):
@@ -202,10 +196,8 @@ def test_circle_polygon_no_collision_parallel(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1, False)
     assert coll.time == -1.0
-    assert coll.a is None
-    assert coll.b is None
 
 
 def test_circle_polygon_out_of_time(physics):
@@ -217,7 +209,5 @@ def test_circle_polygon_out_of_time(physics):
     p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p)
 
-    coll = physics.collide_shapes(c, p, 1, False)
+    coll = physics.collide_shapes(c, b1, p, b2, 1, False)
     assert coll.time == -1.0
-    assert coll.a is None
-    assert coll.b is None

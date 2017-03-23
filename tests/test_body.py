@@ -3,9 +3,12 @@ import pytest
 
 def test_add_shape(physics):
     b = physics.Body()
-    b.add_shape(physics.MassShape(mass=10))
+    m = physics.MassShape(mass=10)
+    b.add_shape(m)
 
     assert b.mass == 10
+    assert b.shapes[0] is m
+    assert list(b.shapes) == [m]
 
 
 def test_remove_shape(physics):
@@ -15,24 +18,6 @@ def test_remove_shape(physics):
     b.remove_shape(c)
 
     assert b.mass == 0
-
-
-def test_broken_add_remove(physics):
-    b = physics.Body()
-    b2 = physics.Body()
-    c = physics.MassShape(mass=10)
-    b.add_shape(c)
-
-    with pytest.raises(RuntimeError):
-        b2.add_shape(c)
-
-    with pytest.raises(RuntimeError):
-        b2.remove_shape(c)
-
-    b.remove_shape(c)
-
-    with pytest.raises(RuntimeError):
-        b.remove_shape(c)
 
 
 def test_body_distance(physics):
@@ -60,7 +45,7 @@ def test_body_collide(physics):
     b2.add_shape(physics.Circle(radius=1, position=(-1, 0)))
     b2.add_shape(physics.MassShape(position=(-5, 0)))
 
-    colr = b1.collide(b2, 2, False)
+    colr, a, b = b1.collide(b2, 2, False)
 
     assert colr.time == pytest.approx(1.0)
 

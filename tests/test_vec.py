@@ -38,6 +38,13 @@ def test_squared(physics):
     assert physics.Vec(2, 0).squared() == 4
 
 
+def test_reflect(physics):
+    assert physics.Vec(1, 1).reflect((0, 1)).as_tuple() == (-1, 1)
+    assert physics.Vec(1, 1).reflect((1, 0)).as_tuple() == (1, -1)
+    assert physics.Vec(1, 1).reflect((1, 1)).as_tuple() == (1, 1)
+    assert physics.Vec(1, 1).reflect((-1, 1)).as_tuple() == (-1, -1)
+
+
 def test_norm(physics):
     assert physics.Vec(1, 1).norm().as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
     assert physics.Vec(1, 0).norm().as_tuple() == (1, 0)

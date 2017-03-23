@@ -39,12 +39,7 @@ struct DistanceResult {
 };
 
 struct CollisionTimeResult {
-    constexpr CollisionTimeResult(Body* a_, Body* b_, Shape* a_shape_, Shape* b_shape_,
-                                  double time_, Vec tp, Vec norm): a(a_),
-                                                                   b(b_),
-                                                                   a_shape(a_shape_),
-                                                                   b_shape(b_shape_),
-                                                                   time(time_),
+    constexpr CollisionTimeResult(double time_, Vec tp, Vec norm): time(time_),
                                                                    touch_point(tp),
                                                                    normal(norm) {
     }
@@ -52,22 +47,18 @@ struct CollisionTimeResult {
     constexpr CollisionTimeResult() {
     }
 
-    Body* a = nullptr;
-    Body* b = nullptr;
-    Shape* a_shape = nullptr;
-    Shape* b_shape = nullptr;
     double time = -1;
     Vec touch_point = {0, 0};
     Vec normal = {0, 0};
 };
 
-CollisionTimeResult collideShapes(Shape* a, Shape* b, double end_time, bool ignore_initial);
+CollisionTimeResult collideShapes(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body, double end_time, bool ignore_initial);
 
-DistanceResult distanceBetweenCircleCircle(const Shape&, const Body&, const Shape&, const Body&);
-DistanceResult distanceBetweenCirclePolygon(const Shape&, const Body&, const Shape&, const Body&);
-DistanceResult distanceBetweenPolygonCircle(const Shape&, const Body&, const Shape&, const Body&);
-DistanceResult distanceBetweenPolygonPolygon(const Shape&, const Body&, const Shape&, const Body&);
-DistanceResult distanceBetween(const Shape*, const Shape*);
+DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body);
+DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body);
+DistanceResult distanceBetweenPolygonCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body);
+DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body);
+DistanceResult distanceBetween(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body);
 
 struct CollisionResult {
     Vec impulse;
@@ -81,6 +72,6 @@ struct CollisionParameters {
     double restitution;
 };
 
-CollisionResult collisionResult(const CollisionTimeResult& cr, const CollisionParameters& params);
+CollisionResult collisionResult(const CollisionTimeResult& cr, const Body& a, const Body& b, const CollisionParameters& params);
 
 #endif // COLLISIONS_HPP

@@ -121,6 +121,13 @@ public:
         return {-y, x};
     }
 
+    inline Vec reflect(const Vec& axis) const {
+        Vec res = proj(axis);
+        res *= 2;
+        res -= *this;
+        return res;
+    }
+
     inline Vec proj(const Vec& axis) const {
         Vec res = axis;
         res *= dot(axis) / axis.squared();

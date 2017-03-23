@@ -21,3 +21,5 @@ Features:
  - High speed bodies
  - Rigid bodies
  - Impulse
+
+Extra reading: http://www.kuffner.org/james/software/dynamics/mirtich/mirtichThesis.pdf
