@@ -101,43 +101,69 @@ DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, c
     return {ray.abs() - a_circle.radius - b_circle.radius, apos + a_circle.radius * norm, bpos - b_circle.radius * norm, norm};
 }
 
+Vec closestPointOnLineseg(Vec point, Vec l1, Vec l2) {
+    auto u = l2 - l1, v = point - l1;
+    auto determinant = u.dot(v) / u.squared();
+    Vec p;
+    if (0 <= determinant && determinant <= 1) {
+        p = l1 + determinant * u;
+    }
+    else if (determinant < 0) {
+        p = l1;
+    }
+    else {
+        p = l2;
+    }
+    return p;
+}
+
+int updateMinimumDistance(DistanceResult& dist, Vec point, Vec l1, Vec l2, Vec line_pos, int number, bool initial, bool invert) {
+    auto p = closestPointOnLineseg(point - line_pos, l1, l2) + line_pos;
+    auto ray = p - point;
+
+    if (ray.abs() < abs(dist.distance) || initial) {
+        dist.normal = ray ? ray.norm() : -(l2 - l1).perp().norm();
+        dist.distance = ray.abs();
+        if ((l2 - l1).cross(dist.normal) > 0) {
+            dist.distance = -dist.distance;
+            dist.normal = -dist.normal;
+        }
+        dist.a_point = point;
+        dist.b_point = p;
+        if (invert) {
+            swap(dist.a_point, dist.b_point);
+            dist.normal = -dist.normal;
+        }
+        number = 1;
+    }
+    else if (number && (((l2 - l1).cross(ray) > 0) ? -ray.abs() : ray.abs()) == dist.distance) {
+        if (invert) {
+            dist.a_point += p;
+            dist.b_point += point;
+        }
+        else {
+            dist.a_point += point;
+            dist.b_point += p;
+        }
+        ++number;
+    }
+    return number;
+}
+
 DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     const auto& a_circle = dynamic_cast<const Circle&>(a);
     const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
     auto apos = a_body.position() + a_circle.position.rotate(a_body.angle());
     auto bpos = b_body.position() + b_poly.position.rotate(b_body.angle());
-    cout << a_circle.position << bpos << endl;
     DistanceResult d;
+
     for (unsigned int i = 0; i < b_poly.points.size(); ++i) {
         auto p1 = b_poly.points[i].rotate(b_body.angle()), p2 = b_poly.points[(i + 1) % b_poly.points.size()].rotate(b_body.angle());
-        auto u = p2 - p1, v = apos - p1 - bpos;
-        auto determinant = u.dot(v) / u.squared();
-        Vec p;
-        if (0 <= determinant && determinant <= 1) {
-            p = bpos + p1 + determinant * u;
-        }
-        else if (determinant < 0) {
-            p = bpos + p1;
-        }
-        else {
-            p = bpos + p2;
-        }
-        auto ray = p - apos;
-        if (ray.abs() < abs(d.distance) || !i) {
-            if (u.perp().dot(ray) < 0) {
-                d.distance = ray.abs();
-                d.normal = ray.norm();
-            }
-            else {
-                d.distance = -ray.abs();
-                d.normal = -ray.norm();
-            }
-            d.a_point = apos + d.normal * a_circle.radius;
-            d.b_point = p;
-            d.distance -= a_circle.radius;
-        }
+        updateMinimumDistance(d, apos, p1, p2, bpos, 0, !i, false);
     }
+    d.a_point += d.normal * a_circle.radius;
+    d.distance -= a_circle.radius;
     return d;
 }
 
@@ -165,35 +191,23 @@ tuple<double, Vec, Vec> axis_proj(const vector<Vec>& points, Vec axis, double an
     return {min, p1, p2};
 }
 
-tuple<double, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Polygon& b_poly, Vec ray, double a_angle, double b_angle) {
-    Vec p1, p2, min_axis, axis;
-    double first_min, second_min;
+tuple<double, Vec, Vec, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Polygon& b_poly, Vec ray, double a_angle, double b_angle) {
+    tuple<double, Vec, Vec, Vec, Vec> res;
 
     for (unsigned int i = 0; i < a_poly.points.size(); ++i) {
         auto v1 = a_poly.points[i].rotate(a_angle), v2 = a_poly.points[(i + 1) % a_poly.points.size()].rotate(a_angle);
-        axis = (v2 - v1).norm().perp();
+        auto axis = (v2 - v1).norm().perp();
         auto mins = axis_proj(b_poly.points, axis, b_angle);
         auto min = get<0>(mins) - v1.dot(axis) + ray.dot(axis);
-        if (!i || min > first_min) {
-            second_min = first_min;
-            first_min = min;
-            min_axis = axis;
-
-            if (i >= 1 && (get<1>(mins) == p2 || get<2>(mins) == p2)) {
-                p1 = get<2>(mins); p2 = get<1>(mins);
-            }
-            else {
-                p1 = get<1>(mins); p2 = get<2>(mins);
-            }
-        }
-        else if (i >= 1 && min >= second_min) {
-            second_min = min;
-            if (get<1>(mins) == p2 || get<2>(mins) == p2) {
-                p1 = p2;
-            }
+        if (!i || min > get<0>(res)) {
+            get<0>(res) = min;
+            get<1>(res) = v1;
+            get<2>(res) = v2;
+            get<3>(res) = get<1>(mins);
+            get<4>(res) = get<2>(mins);
         }
     }
-    return {first_min, min_axis, p1};
+    return res;
 }
 
 DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
@@ -205,18 +219,31 @@ DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body,
     auto ray = bpos - apos;
     DistanceResult dist;
 
-    auto res = axis_proj_poly(a_poly, b_poly, ray, a_body.angle(), b_body.angle());
-    dist.distance = get<0>(res);
-    dist.normal = get<1>(res);
-    dist.b_point = get<2>(res) + bpos;
-    dist.a_point = dist.b_point - dist.normal * dist.distance;
+    auto a_res = axis_proj_poly(a_poly, b_poly, ray, a_body.angle(), b_body.angle());
+    auto b_res = axis_proj_poly(b_poly, a_poly, -ray, b_body.angle(), a_body.angle());
+    Vec a1, a2, b1, b2, plane_norm;
+    double dummy;
 
-    res = axis_proj_poly(b_poly, a_poly, -ray, b_body.angle(), a_body.angle());
-    if (get<0>(res) > dist.distance) {
-        dist.distance = get<0>(res);
-        dist.normal = -get<1>(res);
-        dist.a_point = get<2>(res) + apos;
-        dist.b_point = dist.a_point + dist.normal * dist.distance;
+    if (get<0>(a_res) > get<0>(b_res)) {
+        tie(dummy, a1, a2, b1, b2) = a_res;
+    }
+    else {
+        tie(dummy, b1, b2, a1, a2) = b_res;
+    }
+
+    if (a1 == a2) {
+        updateMinimumDistance(dist, apos + a1, b1, b2, bpos, 0, true, false);
+    }
+    else if (b1 == b2) {
+        updateMinimumDistance(dist, bpos + b1, a1, a2, apos, 0, true, true);
+    }
+    else {
+        auto n = updateMinimumDistance(dist, apos + a1, b1, b2, bpos, 0, true, false);
+        n = updateMinimumDistance(dist, apos + a2, b1, b2, bpos, n, false, false);
+        n = updateMinimumDistance(dist, bpos + b1, a1, a2, apos, n, false, true);
+        n = updateMinimumDistance(dist, bpos + b2, a1, a2, apos, n, false, true);
+        dist.a_point /= n;
+        dist.b_point /= n;
     }
     return dist;
 }

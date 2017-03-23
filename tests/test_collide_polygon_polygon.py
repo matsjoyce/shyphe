@@ -10,20 +10,39 @@ def test_distance_between_square_square(physics):
     p2 = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
     b2.add_shape(p2)
 
-    assert physics.distance_between(p1, p2).distance == pytest.approx(8)
+    db = physics.distance_between(p1, p2)
+
+    assert db.distance == pytest.approx(8)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (1, 0)
+    assert db.b_point.as_tuple() == (9, 0)
 
     b1.teleport((1, 0))
     b2.teleport((4, 0))
 
-    assert physics.distance_between(p1, p2).distance == pytest.approx(1)
+    db = physics.distance_between(p1, p2)
+
+    assert db.distance == pytest.approx(1)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (3, 0)
 
     b2.teleport((3, 0))
 
-    assert physics.distance_between(p1, p2).distance == pytest.approx(0)
+    db = physics.distance_between(p1, p2)
+
+    assert db.distance == pytest.approx(0)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (2, 0)
 
     b2.teleport((2, 0))
 
-    assert physics.distance_between(p1, p2).distance == pytest.approx(-1)
+    db = physics.distance_between(p1, p2)
+    assert db.distance == pytest.approx(-1)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (1, 0)
 
     b2.teleport((1, 0))
 
@@ -40,6 +59,10 @@ def test_distance_between_square_square(physics):
     b2.teleport((2, 2))
 
     assert physics.distance_between(p1, p2).distance == pytest.approx(0)
+
+    b2.teleport((3, 3))
+
+    assert physics.distance_between(p1, p2).distance == pytest.approx(2 ** 0.5)
 
 
 def test_distance_between_square_triangle(physics):
@@ -131,8 +154,7 @@ def test_square_square_horizontal(physics):
     coll = physics.collide_shapes(p1, p2, 1.5, False)
     assert coll.time == pytest.approx(1.0)
     assert coll.normal.as_tuple() == pytest.approx((1, 0))
-    assert coll.touch_point.x == pytest.approx(3)
-    assert -1 <= coll.touch_point.y <= 1
+    assert coll.touch_point.as_tuple() == pytest.approx((3, 0))
     assert coll.a is b1
     assert coll.b is b2
 
@@ -149,8 +171,7 @@ def test_square_square_vertical(physics):
     coll = physics.collide_shapes(p1, p2, 1.5, False)
     assert coll.time == pytest.approx(1.0)
     assert coll.normal.as_tuple() == pytest.approx((0, 1))
-    assert -1 <= coll.touch_point.x <= 1
-    assert coll.touch_point.y == pytest.approx(3)
+    assert coll.touch_point.as_tuple() == pytest.approx((0, 3))
     assert coll.a is b1
     assert coll.b is b2
 
@@ -167,7 +188,7 @@ def test_square_square_vertical_near_hit(physics):
     coll = physics.collide_shapes(p1, p2, 1.5, False)
     assert coll.time == pytest.approx(1)
     assert coll.normal.as_tuple() == pytest.approx((0, 1))
-    assert coll.touch_point.as_tuple() == pytest.approx((1, 3))
+    assert coll.touch_point.as_tuple() == pytest.approx((1.99999 / 2, 3))
     assert coll.a is b1
     assert coll.b is b2
 

@@ -48,7 +48,7 @@ while window.active():
     world.begin_frame()
     while world.has_next_collision():
         ctr = world.next_collision()
-        cola, colb = world.calculate_collision(ctr, physics.CollisionParameters(0.9, 10000, 1))
+        cola, colb = world.calculate_collision(ctr, physics.CollisionParameters(0.9))
         cola.apply_impulse()
         colb.apply_impulse()
         world.finished_collision(ctr, True)
