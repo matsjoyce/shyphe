@@ -1,6 +1,6 @@
 /*
- * <one line to give the library's name and an idea of what it does.>
- * Copyright (C) 2017  <copyright holder> <email>
+ * shyphe - Stiff HIgh velocity PHysics Engine
+ * Copyright (C) 2017 Matthew Joyce matsjoyce@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 /*
- * LunyFringe.core.engine.physics - rigid body physics engine
- * Copyright (C) 2016 Matthew Joyce matsjoyce@gmail.com
+ * shyphe - Stiff HIgh velocity PHysics Engine
+ * Copyright (C) 2017 Matthew Joyce matsjoyce@gmail.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
