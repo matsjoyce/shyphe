@@ -22,6 +22,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace shyphe;
 
 void SATAxes::reset(int reserve_hint)
 {

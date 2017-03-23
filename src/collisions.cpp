@@ -28,6 +28,7 @@
 #include <tuple>
 
 using namespace std;
+using namespace shyphe;
 
 const double COLLISION_LIMIT = 1e-8;
 typedef DistanceResult (*DistanceDispatch)(const Shape&, const Body&, const Shape&, const Body&);
@@ -39,12 +40,12 @@ const map<pair<type_index, type_index>, DistanceDispatch> DISPATCH_TABLE = {
     {{type_index(typeid(Polygon)), type_index(typeid(Polygon))}, &distanceBetweenPolygonPolygon}
 };
 
-DistanceResult distanceBetween(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+DistanceResult shyphe::distanceBetween(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a.shape_type(), b.shape_type()));
     return dist_func(a, a_body, b, b_body);
 }
 
-CollisionTimeResult collideShapes(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body, double end_time, bool ignore_initial) {
+CollisionTimeResult shyphe::collideShapes(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body, double end_time, bool ignore_initial) {
     // Based on algorithm from bottom of http://www.wildbunny.co.uk/blog/2011/04/20/collision-detection-for-dummies/
     DistanceDispatch dist_func = DISPATCH_TABLE.at(make_pair(a.shape_type(), b.shape_type()));
     Body abody = a_body, bbody = b_body;
@@ -91,7 +92,7 @@ CollisionTimeResult collideShapes(const Shape& a, const Body& a_body, const Shap
     return {time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
 }
 
-DistanceResult distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+DistanceResult shyphe::distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     const auto& a_circle = dynamic_cast<const Circle&>(a);
     const auto& b_circle = dynamic_cast<const Circle&>(b);
 
@@ -151,7 +152,7 @@ int updateMinimumDistance(DistanceResult& dist, Vec point, Vec l1, Vec l2, Vec l
     return number;
 }
 
-DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+DistanceResult shyphe::distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     const auto& a_circle = dynamic_cast<const Circle&>(a);
     const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
@@ -168,7 +169,7 @@ DistanceResult distanceBetweenCirclePolygon(const Shape& a, const Body& a_body, 
     return d;
 }
 
-DistanceResult distanceBetweenPolygonCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+DistanceResult shyphe::distanceBetweenPolygonCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     auto d = distanceBetweenCirclePolygon(b, b_body, a, a_body);
     return {d.distance, d.b_point, d.a_point, -d.normal};
 }
@@ -211,7 +212,7 @@ tuple<double, Vec, Vec, Vec, Vec> axis_proj_poly(const Polygon& a_poly, const Po
     return res;
 }
 
-DistanceResult distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
+DistanceResult shyphe::distanceBetweenPolygonPolygon(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {
     const auto& a_poly = dynamic_cast<const Polygon&>(a);
     const auto& b_poly = dynamic_cast<const Polygon&>(b);
 
@@ -254,7 +255,7 @@ inline double square(double x) {
     return x * x;
 }
 
-CollisionResult collisionResult(const CollisionTimeResult& cr, const Body& a, const Body& b, const CollisionParameters& params) {
+CollisionResult shyphe::collisionResult(const CollisionTimeResult& cr, const Body& a, const Body& b, const CollisionParameters& params) {
     // http://chrishecker.com/images/e/e7/Gdmphys3.pdf
     Vec a_perp_touch_point = -(cr.touch_point - a.position()).perp();
     Vec b_perp_touch_point = -(cr.touch_point - b.position()).perp();

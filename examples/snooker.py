@@ -1,18 +1,18 @@
-from build import physics
+from build import shyphe
 import pygame_go as pygo
 import draw_shape
 
 SHAPE_SIZE = 50
 
 window = pygo.window(1200, 600, frame_rate=60)
-world = physics.World(0.3)
+world = shyphe.World(0.3)
 
 for i in range(5):
     y = 300 - i * SHAPE_SIZE
     for c in range(i + 1):
         x = window.width / 2 + i / 2 * SHAPE_SIZE - c * SHAPE_SIZE
-        body = physics.Body(position=(x, window.height - y))
-        body.add_shape(physics.Circle(mass=1, radius=SHAPE_SIZE // 2))
+        body = shyphe.Body(position=(x, window.height - y))
+        body.add_shape(shyphe.Circle(mass=1, radius=SHAPE_SIZE // 2))
         world.add_body(body)
 
 
@@ -21,8 +21,8 @@ while window.active():
 
     for event in window.events():
         if event.is_key() and event.key == " ":
-            body = physics.Body(position=(pygo.mouse_position()[0], 10), velocity=(0, 25))
-            body.add_shape(physics.Circle(mass=1, radius=SHAPE_SIZE // 2))
+            body = shyphe.Body(position=(pygo.mouse_position()[0], 10), velocity=(0, 25))
+            body.add_shape(shyphe.Circle(mass=1, radius=SHAPE_SIZE // 2))
             world.add_body(body)
 
     for body in world.bodies:
@@ -35,7 +35,7 @@ while window.active():
     world.begin_frame()
     while world.has_next_collision():
         ctr = world.next_collision()
-        cola, colb = world.calculate_collision(ctr, physics.CollisionParameters(0.9))
+        cola, colb = world.calculate_collision(ctr, shyphe.CollisionParameters(0.9))
         cola.apply_impulse()
         colb.apply_impulse()
         world.finished_collision(ctr, True)

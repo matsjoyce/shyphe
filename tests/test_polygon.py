@@ -17,8 +17,8 @@
 import pytest
 
 
-def test_clone(physics):
-    p = physics.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=10)
+def test_clone(shyphe):
+    p = shyphe.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=10)
 
     assert p.mass == 10
     assert list(p.points) == [(0, 0), (1, 1), (1, 0)]
@@ -39,42 +39,43 @@ def test_clone(physics):
     assert p2.mass == 55
 
 
-def test_bad_shaped(physics):
+def test_bad_shaped(shyphe):
     # concave
     with pytest.raises(RuntimeError):
-        physics.Polygon(points=[(0, 1), (1, 1), (1, 0), (0.8, 0.8)], mass=10)
+        shyphe.Polygon(points=[(0, 1), (1, 1), (1, 0), (0.8, 0.8)], mass=10)
 
     # not enough points
     with pytest.raises(RuntimeError):
-        physics.Polygon(points=[(0, 0), (1, 1)])
+        shyphe.Polygon(points=[(0, 0), (1, 1)])
 
 
-def test_normalization(physics):
-    p1 = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
-    p2 = physics.Polygon(points=[(1, -1), (1, 1), (-1, 1), (-1, -1)])
+def test_normalization(shyphe):
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(1, -1), (1, 1), (-1, 1), (-1, -1)])
 
-    assert list(p1.points) == list(p2.points) == [physics.Vec(-1, -1), physics.Vec(-1, 1), physics.Vec(1, 1), physics.Vec(1, -1)]
-
-
-def test_degenerate(physics):
-    p1 = physics.Polygon(points=[(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)])
-
-    assert list(p1.points) == [physics.Vec(-1, -1), physics.Vec(-1, 1), physics.Vec(1, 1), physics.Vec(1, -1)]
+    assert list(p1.points) == list(p2.points) == [shyphe.Vec(-1, -1), shyphe.Vec(-1, 1),
+                                                  shyphe.Vec(1, 1), shyphe.Vec(1, -1)]
 
 
-def test_aabb(physics):
-    p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+def test_degenerate(shyphe):
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)])
+
+    assert list(p1.points) == [shyphe.Vec(-1, -1), shyphe.Vec(-1, 1), shyphe.Vec(1, 1), shyphe.Vec(1, -1)]
+
+
+def test_aabb(shyphe):
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
 
     assert p.can_collide()
     assert p.aabb(0).as_tuple() == (-1, 1, -1, 1)
-    assert p.aabb(physics.to_rad(45)).as_tuple() == pytest.approx((-2 ** 0.5, 2 ** 0.5, -2 ** 0.5, 2 ** 0.5))
+    assert p.aabb(shyphe.to_rad(45)).as_tuple() == pytest.approx((-2 ** 0.5, 2 ** 0.5, -2 ** 0.5, 2 ** 0.5))
 
 
-def test_moi(physics):
-    p = physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=5)
+def test_moi(shyphe):
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=5)
 
     assert p.moment_of_inertia == 10 / 3
 
-    p = physics.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=10)
+    p = shyphe.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=10)
 
     assert p.moment_of_inertia == 20 / 3

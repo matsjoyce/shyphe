@@ -29,6 +29,7 @@
 #include "polygon.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 python::tuple sig_as_tuple(const Signature& s) {
     return python::make_tuple(s.radar_emissions, s.thermal_emissions, s.radar_cross_section);

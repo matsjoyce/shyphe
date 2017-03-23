@@ -17,27 +17,28 @@
  *
  */
 
-#ifndef POLYGON_HPP
-#define POLYGON_HPP
+#ifndef SHYPHE_POLYGON_HPP
+#define SHYPHE_POLYGON_HPP
 
 #include <vector>
 #include "shape.hpp"
 #include "vec.hpp"
 
-class Polygon : public Shape {
-public:
-    std::vector<Vec> points;
+namespace shyphe {
+    class Polygon : public Shape {
+    public:
+        std::vector<Vec> points;
 
-    Polygon(const std::vector<Vec>& points_={}, double mass_=0, const Vec& position_={},
-            double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
+        Polygon(const std::vector<Vec>& points_={}, double mass_=0, const Vec& position_={},
+                double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
 
-    virtual AABB aabb(double angle) const override;
-    virtual Shape* clone() const override;
-    virtual bool canCollide() const override;
-    virtual std::type_index shape_type() const override;
-    virtual double boundingRadius() const override;
-    virtual double momentOfInertia() const override;
+        virtual AABB aabb(double angle) const override;
+        virtual Shape* clone() const override;
+        virtual bool canCollide() const override;
+        virtual std::type_index shape_type() const override;
+        virtual double boundingRadius() const override;
+        virtual double momentOfInertia() const override;
+    };
+}
 
-};
-
-#endif // POLYGON_HPP
+#endif // SHYPHE_POLYGON_HPP

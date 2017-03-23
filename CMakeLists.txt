@@ -1,12 +1,12 @@
 cmake_minimum_required (VERSION 3.6)
-project(physics)
+project(shyphe)
 
 set(PROJECT_FILES src/aabb.cpp src/body.cpp src/circle.cpp
-            src/collisions.cpp src/massshape.cpp src/polygon.cpp
-            src/sataxes.cpp src/sensor.cpp src/shape.cpp src/vec.cpp
-            src/world.cpp src/python/module.cpp src/python/wrap_body.cpp
-            src/python/wrap_collisions.cpp src/python/wrap_sensors.cpp
-            src/python/wrap_vec.cpp src/python/wrap_world.cpp)
+                  src/collisions.cpp src/massshape.cpp src/polygon.cpp
+                  src/sataxes.cpp src/sensor.cpp src/shape.cpp src/vec.cpp
+                  src/world.cpp src/python/module.cpp src/python/wrap_body.cpp
+                  src/python/wrap_collisions.cpp src/python/wrap_sensors.cpp
+                  src/python/wrap_vec.cpp src/python/wrap_world.cpp)
 
 find_package(ECM 0.0.11 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
@@ -47,15 +47,15 @@ string(STRIP "${PYTHON_LDFLAGS}" PYTHON_LDFLAGS)
 
 include_directories(src)
 
-add_library(physics SHARED ${PROJECT_FILES})
-set_target_properties(physics PROPERTIES PREFIX "")
-target_link_libraries(physics ${Boost_LIBRARIES})
-target_link_libraries(physics ${PYTHON_LDFLAGS})
+add_library(shyphe SHARED ${PROJECT_FILES})
+set_target_properties(shyphe PROPERTIES PREFIX "")
+target_link_libraries(shyphe ${Boost_LIBRARIES})
+target_link_libraries(shyphe ${PYTHON_LDFLAGS})
 
-add_library(physics_coverage SHARED ${PROJECT_FILES} src/python/coverage.cpp)
-target_link_libraries(physics_coverage ${Boost_LIBRARIES})
-target_link_libraries(physics_coverage ${PYTHON_LDFLAGS})
-target_compile_options(physics_coverage PRIVATE "-fprofile-arcs"
+add_library(shyphe_coverage SHARED ${PROJECT_FILES} src/python/coverage.cpp)
+target_link_libraries(shyphe_coverage ${Boost_LIBRARIES})
+target_link_libraries(shyphe_coverage ${PYTHON_LDFLAGS})
+target_compile_options(shyphe_coverage PRIVATE "-fprofile-arcs"
                                                 "-ftest-coverage"
                                                 "-fno-elide-constructors"
                                                 "-fno-inline"
@@ -65,10 +65,10 @@ target_compile_options(physics_coverage PRIVATE "-fprofile-arcs"
                                                 "-fno-default-inline"
                                                 "-DCOVERAGE"
                                                 "-lgcov")
-set_target_properties(physics_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage"
-                                                  OUTPUT_NAME "physics"
+set_target_properties(shyphe_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage"
+                                                  OUTPUT_NAME "shyphe"
                                                   PREFIX "")
-target_link_libraries(physics_coverage gcov)
+target_link_libraries(shyphe_coverage gcov)
 
 # get_cmake_property(_variableNames VARIABLES)
 # foreach (_variableName ${_variableNames})

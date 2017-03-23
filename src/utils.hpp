@@ -17,50 +17,52 @@
  *
  */
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef SHYPHE_UTILS_HPP
+#define SHYPHE_UTILS_HPP
 
 #include <cmath>
 
-constexpr double pi() {
-    return 3.141592653589793238462643383279502884;
+namespace shyphe {
+    constexpr double pi() {
+        return 3.141592653589793238462643383279502884;
+    }
+
+    constexpr double hpi() {
+        // Half pi
+        return 3.141592653589793238462643383279502884 / 2;
+    }
+
+    constexpr double dpi() {
+        // Double pi
+        return 2 * 3.141592653589793238462643383279502884;
+    }
+
+    constexpr double deg_to_rad() {
+        return pi() / 180.0;
+    }
+
+    constexpr double rad_to_deg() {
+        return 180.0 / pi();
+    }
+
+    constexpr inline double norm_rad(double angle) {
+        // radians are in the range [-pi, pi]
+        return std::remainder(angle, dpi());
+    }
+
+    constexpr inline double norm_deg(double angle) {
+        // degrees are in the range (0, 360]
+        auto x = std::remainder(angle, 360.0);
+        return x < 0 ? x + 360.0 : x;
+    }
+
+    constexpr inline double to_deg(double angle) {
+        return norm_deg(angle * rad_to_deg());
+    }
+
+    constexpr inline double to_rad(double angle) {
+        return norm_rad(angle * deg_to_rad());
+    }
 }
 
-constexpr double hpi() {
-    // Half pi
-    return 3.141592653589793238462643383279502884 / 2;
-}
-
-constexpr double dpi() {
-    // Double pi
-    return 2 * 3.141592653589793238462643383279502884;
-}
-
-constexpr double deg_to_rad() {
-    return pi() / 180.0;
-}
-
-constexpr double rad_to_deg() {
-    return 180.0 / pi();
-}
-
-constexpr inline double norm_rad(double angle) {
-    // radians are in the range [-pi, pi]
-    return std::remainder(angle, dpi());
-}
-
-constexpr inline double norm_deg(double angle) {
-    // degrees are in the range (0, 360]
-    auto x = std::remainder(angle, 360.0);
-    return x < 0 ? x + 360.0 : x;
-}
-
-constexpr inline double to_deg(double angle) {
-    return norm_deg(angle * rad_to_deg());
-}
-
-constexpr inline double to_rad(double angle) {
-    return norm_rad(angle * deg_to_rad());
-}
-
-#endif // UTILS_HPP
+#endif // SHYPHE_UTILS_HPP

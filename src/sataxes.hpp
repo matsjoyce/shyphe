@@ -17,30 +17,32 @@
  *
  */
 
-#ifndef SATAXES_HPP
-#define SATAXES_HPP
+#ifndef SHYPHE_SATAXES_HPP
+#define SHYPHE_SATAXES_HPP
 
 #include <vector>
 #include <set>
 #include <utility>
 #include "body.hpp"
 
-struct SATShadow {
-    double position;
-    bool start;
-    Body* body;
-};
+namespace shyphe {
+    struct SATShadow {
+        double position;
+        bool start;
+        Body* body;
+    };
 
-class SATAxes{
-public:
-    void addBody(Body* body, double time);
-    void removeBody(Body* body);
-    void reset(int reserve_hint=0);
-    std::set<std::pair<Body*, Body*>> possibleCollisions();
-private:
-    std::vector<SATShadow> x_axis, y_axis;
+    class SATAxes{
+    public:
+        void addBody(Body* body, double time);
+        void removeBody(Body* body);
+        void reset(int reserve_hint=0);
+        std::set<std::pair<Body*, Body*>> possibleCollisions();
+    private:
+        std::vector<SATShadow> x_axis, y_axis;
 
-    std::set<std::pair<Body*, Body*>> _collisionsOnAxis(const std::vector<SATShadow>& axis);
-};
+        std::set<std::pair<Body*, Body*>> _collisionsOnAxis(const std::vector<SATShadow>& axis);
+    };
+}
 
-#endif // SATAXES_HPP
+#endif // SHYPHE_SATAXES_HPP

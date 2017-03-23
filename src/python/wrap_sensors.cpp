@@ -23,6 +23,7 @@
 #include "sensor.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 void wrap_sensors() {
     SharedConverter<Sensor>();

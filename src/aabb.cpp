@@ -19,7 +19,10 @@
 
 #include "aabb.hpp"
 
-std::ostream& operator<<(std::ostream& os, const AABB& bb) {
+using namespace std;
+using namespace shyphe;
+
+std::ostream& shyphe::operator<<(std::ostream& os, const AABB& bb) {
     os << "AABB(" << bb.min_x << " - " << bb.max_x << ", " << bb.min_y << " - " << bb.max_y << ")";
     return os;
 }

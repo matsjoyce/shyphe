@@ -23,6 +23,7 @@
 #include "shape.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 void wrap_collisions() {
     python::def("collide_shapes", collideShapes);

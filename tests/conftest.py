@@ -23,9 +23,13 @@ import subprocess
 DIR = pathlib.Path(__file__).parent.parent
 
 
+def pytest_addoption(parser):
+    parser.addoption("--coverage", action="store_true")
+
+
 @pytest.fixture
-def physics(request):
-    return sys.modules["physics"]
+def shyphe(request):
+    return sys.modules["shyphe"]
 
 
 def pytest_configure(config):
@@ -34,7 +38,7 @@ def pytest_configure(config):
         for path in (DIR / "build").glob("**/*.gcda"):
             path.unlink()
         print("done")
-    print("Building physics module...", end=" ", flush=True)
+    print("Building shyphe module...", end=" ", flush=True)
 
     sys.path.insert(0, str(DIR))
 
@@ -45,11 +49,11 @@ def pytest_configure(config):
 
     subprocess.check_call(["ninja"], cwd=DIR / "build", stdout=subprocess.DEVNULL)
     if config.getoption("--coverage"):
-        from build.coverage import physics
-        sys.modules["physics"] = physics
+        from build.coverage import shyphe
+        sys.modules["shyphe"] = shyphe
     else:
-        from build import physics
-        sys.modules["physics"] = physics
+        from build import shyphe
+        sys.modules["shyphe"] = shyphe
     sys.path.pop(0)
 
     print("done")
@@ -57,9 +61,9 @@ def pytest_configure(config):
 
 def pytest_unconfigure(config):
     if config.getoption("--coverage"):
-        import physics
+        import shyphe
 
-        physics.flush_coverage()
+        shyphe.flush_coverage()
 
         print("Generating coverage report...", end=" ", flush=True)
         subprocess.check_call("lcov --capture --directory . --output-file .coverage.info --no-external".split(),

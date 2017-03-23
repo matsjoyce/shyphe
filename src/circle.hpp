@@ -17,24 +17,26 @@
  *
  */
 
-#ifndef CIRCLE_HPP
-#define CIRCLE_HPP
+#ifndef SHYPHE_CIRCLE_HPP
+#define SHYPHE_CIRCLE_HPP
 
 #include "shape.hpp"
 #include "collisions.hpp"
 
-class Circle : public Shape {
-public:
-    double radius = 0;
+namespace shyphe {
+    class Circle : public Shape {
+    public:
+        double radius = 0;
 
-    Circle(double radius_=0, double mass_=0, const Vec& position_={},
-           double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
-    virtual AABB aabb(double angle) const override;
-    virtual Shape* clone() const override;
-    virtual bool canCollide() const override;
-    virtual std::type_index shape_type() const override;
-    virtual double boundingRadius() const override;
-    virtual double momentOfInertia() const override;
-};
+        Circle(double radius_=0, double mass_=0, const Vec& position_={},
+               double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
+        virtual AABB aabb(double angle) const override;
+        virtual Shape* clone() const override;
+        virtual bool canCollide() const override;
+        virtual std::type_index shape_type() const override;
+        virtual double boundingRadius() const override;
+        virtual double momentOfInertia() const override;
+    };
+}
 
-#endif // CIRCLE_HPP
+#endif // SHYPHE_CIRCLE_HPP

@@ -22,131 +22,131 @@ def map_round(a):
     return tuple(round(i, 3) for i in a)
 
 
-def test_construct(physics):
-    assert physics.Vec(1, 2).as_tuple() == (1, 2)
-    assert physics.Vec() == (0, 0)
+def test_construct(shyphe):
+    assert shyphe.Vec(1, 2).as_tuple() == (1, 2)
+    assert shyphe.Vec() == (0, 0)
 
 
-def test_distance_to(physics):
-    assert physics.Vec(1, 1).distance_to((5, 4)) == 5
-    assert physics.Vec(1, 1).distance_to((1, 2)) == 1
-    assert physics.Vec(1, 1).distance_to((1, 0)) == 1
-    assert physics.Vec(1, 1).distance_to((2, 1)) == 1
-    assert physics.Vec(1, 1).distance_to((0, 1)) == 1
-    assert physics.Vec(1, 1).distance_to((0, 0)) == 2 ** 0.5
+def test_distance_to(shyphe):
+    assert shyphe.Vec(1, 1).distance_to((5, 4)) == 5
+    assert shyphe.Vec(1, 1).distance_to((1, 2)) == 1
+    assert shyphe.Vec(1, 1).distance_to((1, 0)) == 1
+    assert shyphe.Vec(1, 1).distance_to((2, 1)) == 1
+    assert shyphe.Vec(1, 1).distance_to((0, 1)) == 1
+    assert shyphe.Vec(1, 1).distance_to((0, 0)) == 2 ** 0.5
 
 
-def test_abs(physics):
-    assert physics.Vec(1, 1).abs() == 2 ** 0.5
-    assert physics.Vec(0, 1).abs() == 1
-    assert physics.Vec(1, 0).abs() == 1
-    assert physics.Vec(0, -1).abs() == 1
-    assert physics.Vec(-1, 0).abs() == 1
-    assert physics.Vec(2, 0).abs() == 2
+def test_abs(shyphe):
+    assert shyphe.Vec(1, 1).abs() == 2 ** 0.5
+    assert shyphe.Vec(0, 1).abs() == 1
+    assert shyphe.Vec(1, 0).abs() == 1
+    assert shyphe.Vec(0, -1).abs() == 1
+    assert shyphe.Vec(-1, 0).abs() == 1
+    assert shyphe.Vec(2, 0).abs() == 2
 
 
-def test_squared(physics):
-    assert physics.Vec(1, 1).squared() == 2
-    assert physics.Vec(0, 1).squared() == 1
-    assert physics.Vec(1, 0).squared() == 1
-    assert physics.Vec(0, -1).squared() == 1
-    assert physics.Vec(-1, 0).squared() == 1
-    assert physics.Vec(2, 0).squared() == 4
+def test_squared(shyphe):
+    assert shyphe.Vec(1, 1).squared() == 2
+    assert shyphe.Vec(0, 1).squared() == 1
+    assert shyphe.Vec(1, 0).squared() == 1
+    assert shyphe.Vec(0, -1).squared() == 1
+    assert shyphe.Vec(-1, 0).squared() == 1
+    assert shyphe.Vec(2, 0).squared() == 4
 
 
-def test_reflect(physics):
-    assert physics.Vec(1, 1).reflect((0, 1)).as_tuple() == (-1, 1)
-    assert physics.Vec(1, 1).reflect((1, 0)).as_tuple() == (1, -1)
-    assert physics.Vec(1, 1).reflect((1, 1)).as_tuple() == (1, 1)
-    assert physics.Vec(1, 1).reflect((-1, 1)).as_tuple() == (-1, -1)
+def test_reflect(shyphe):
+    assert shyphe.Vec(1, 1).reflect((0, 1)).as_tuple() == (-1, 1)
+    assert shyphe.Vec(1, 1).reflect((1, 0)).as_tuple() == (1, -1)
+    assert shyphe.Vec(1, 1).reflect((1, 1)).as_tuple() == (1, 1)
+    assert shyphe.Vec(1, 1).reflect((-1, 1)).as_tuple() == (-1, -1)
 
 
-def test_norm(physics):
-    assert physics.Vec(1, 1).norm().as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
-    assert physics.Vec(1, 0).norm().as_tuple() == (1, 0)
-    assert physics.Vec(-3, 4).norm().as_tuple() == (-0.6, 0.8)
+def test_norm(shyphe):
+    assert shyphe.Vec(1, 1).norm().as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
+    assert shyphe.Vec(1, 0).norm().as_tuple() == (1, 0)
+    assert shyphe.Vec(-3, 4).norm().as_tuple() == (-0.6, 0.8)
 
 
-def test_operators(physics):
-    assert physics.Vec(1, 1) + physics.Vec(1, 1) == physics.Vec(2, 2)
-    assert physics.Vec(1, 1) - physics.Vec(1, 1) == physics.Vec(0, 0)
-    assert physics.Vec(1, 5) + physics.Vec(-1, 1) == physics.Vec(0, 6)
-    assert physics.Vec(1, 5) - physics.Vec(-1, 1) == physics.Vec(2, 4)
+def test_operators(shyphe):
+    assert shyphe.Vec(1, 1) + shyphe.Vec(1, 1) == shyphe.Vec(2, 2)
+    assert shyphe.Vec(1, 1) - shyphe.Vec(1, 1) == shyphe.Vec(0, 0)
+    assert shyphe.Vec(1, 5) + shyphe.Vec(-1, 1) == shyphe.Vec(0, 6)
+    assert shyphe.Vec(1, 5) - shyphe.Vec(-1, 1) == shyphe.Vec(2, 4)
 
-    assert physics.Vec(1, 5) * 5 == physics.Vec(5, 25)
-    assert 5 * physics.Vec(1, 5) == physics.Vec(5, 25)
-    assert physics.Vec(25, 5) / 5 == physics.Vec(5, 1)
+    assert shyphe.Vec(1, 5) * 5 == shyphe.Vec(5, 25)
+    assert 5 * shyphe.Vec(1, 5) == shyphe.Vec(5, 25)
+    assert shyphe.Vec(25, 5) / 5 == shyphe.Vec(5, 1)
 
-    assert -physics.Vec(25, 5) == physics.Vec(-25, -5)
-
-
-def test_compare(physics):
-    assert physics.Vec(1, 1) == physics.Vec(1, 1)
-    assert not (physics.Vec(1, 1) != physics.Vec(1, 1))
-    assert not (physics.Vec(1, 2) == physics.Vec(1, 1))
-    assert physics.Vec(1, 2) != physics.Vec(1, 1)
-
-    assert physics.Vec(1, 1) < physics.Vec(2, 2)
-    assert physics.Vec(1, 1) <= physics.Vec(2, 2)
-    assert not (physics.Vec(1, 1) > physics.Vec(2, 2))
-    assert not (physics.Vec(1, 1) >= physics.Vec(2, 2))
-
-    assert not (physics.Vec(1, 1) < physics.Vec(1, 1))
-    assert physics.Vec(1, 1) <= physics.Vec(1, 1)
-    assert not (physics.Vec(1, 1) > physics.Vec(1, 1))
-    assert physics.Vec(1, 1) >= physics.Vec(1, 1)
-
-    assert physics.Vec(1, 1) < physics.Vec(1, 2)
-    assert physics.Vec(1, 1) <= physics.Vec(1, 2)
-    assert not (physics.Vec(1, 1) > physics.Vec(1, 2))
-    assert not (physics.Vec(1, 1) >= physics.Vec(1, 2))
-
-    assert not (physics.Vec(1, 2) < physics.Vec(1, 1))
-    assert not (physics.Vec(1, 2) <= physics.Vec(1, 1))
-    assert physics.Vec(1, 2) > physics.Vec(1, 1)
-    assert physics.Vec(1, 2) >= physics.Vec(1, 1)
+    assert -shyphe.Vec(25, 5) == shyphe.Vec(-25, -5)
 
 
-def test_dot(physics):
-    assert physics.Vec(0, 1).dot((1, 0)) == 0
-    assert physics.Vec(1, 1).dot((1, 0)) == 1
-    assert physics.Vec(1, 1).dot((1, 1)) == 2
-    assert physics.Vec(-1, -1).dot((1, 1)) == -2
+def test_compare(shyphe):
+    assert shyphe.Vec(1, 1) == shyphe.Vec(1, 1)
+    assert not (shyphe.Vec(1, 1) != shyphe.Vec(1, 1))
+    assert not (shyphe.Vec(1, 2) == shyphe.Vec(1, 1))
+    assert shyphe.Vec(1, 2) != shyphe.Vec(1, 1)
+
+    assert shyphe.Vec(1, 1) < shyphe.Vec(2, 2)
+    assert shyphe.Vec(1, 1) <= shyphe.Vec(2, 2)
+    assert not (shyphe.Vec(1, 1) > shyphe.Vec(2, 2))
+    assert not (shyphe.Vec(1, 1) >= shyphe.Vec(2, 2))
+
+    assert not (shyphe.Vec(1, 1) < shyphe.Vec(1, 1))
+    assert shyphe.Vec(1, 1) <= shyphe.Vec(1, 1)
+    assert not (shyphe.Vec(1, 1) > shyphe.Vec(1, 1))
+    assert shyphe.Vec(1, 1) >= shyphe.Vec(1, 1)
+
+    assert shyphe.Vec(1, 1) < shyphe.Vec(1, 2)
+    assert shyphe.Vec(1, 1) <= shyphe.Vec(1, 2)
+    assert not (shyphe.Vec(1, 1) > shyphe.Vec(1, 2))
+    assert not (shyphe.Vec(1, 1) >= shyphe.Vec(1, 2))
+
+    assert not (shyphe.Vec(1, 2) < shyphe.Vec(1, 1))
+    assert not (shyphe.Vec(1, 2) <= shyphe.Vec(1, 1))
+    assert shyphe.Vec(1, 2) > shyphe.Vec(1, 1)
+    assert shyphe.Vec(1, 2) >= shyphe.Vec(1, 1)
 
 
-def test_proj_rej(physics):
-    assert physics.Vec(5, 0).proj((1, 1)).as_tuple() == (2.5, 2.5)
-    assert physics.Vec(5, 0).rej((1, 1)).as_tuple() == (2.5, -2.5)
-    assert physics.Vec(5, 9).proj((2, 4)) + physics.Vec(5, 9).rej((2, 4)) == physics.Vec(5, 9)
+def test_dot(shyphe):
+    assert shyphe.Vec(0, 1).dot((1, 0)) == 0
+    assert shyphe.Vec(1, 1).dot((1, 0)) == 1
+    assert shyphe.Vec(1, 1).dot((1, 1)) == 2
+    assert shyphe.Vec(-1, -1).dot((1, 1)) == -2
 
 
-def test_from_bearing(physics):
-    assert (physics.Vec.from_bearing(physics.Vec(5, 9).bearing()).as_tuple()
-            == pytest.approx(physics.Vec(5, 9).norm().as_tuple()))
-    assert (physics.Vec.from_bearing(physics.Vec(1, 0).bearing()).as_tuple()
-            == pytest.approx(physics.Vec(1, 0).norm().as_tuple()))
-    assert (physics.Vec.from_bearing(physics.Vec(0, 1).bearing()).as_tuple()
-            == pytest.approx(physics.Vec(0, 1).norm().as_tuple()))
-    assert (physics.Vec.from_bearing(physics.Vec(-1, 0).bearing()).as_tuple()
-            == pytest.approx(physics.Vec(-1, 0).norm().as_tuple()))
-    assert (physics.Vec.from_bearing(physics.Vec(0, -1).bearing()).as_tuple()
-            == pytest.approx(physics.Vec(0, -1).norm().as_tuple()))
+def test_proj_rej(shyphe):
+    assert shyphe.Vec(5, 0).proj((1, 1)).as_tuple() == (2.5, 2.5)
+    assert shyphe.Vec(5, 0).rej((1, 1)).as_tuple() == (2.5, -2.5)
+    assert shyphe.Vec(5, 9).proj((2, 4)) + shyphe.Vec(5, 9).rej((2, 4)) == shyphe.Vec(5, 9)
 
 
-def test_bearing_to(physics):
-    assert physics.Vec(0, 0).bearing_to((1, 0)) == math.pi / 2
-    assert physics.Vec(0, 0).bearing_to((-1, 0)) == -math.pi / 2
-    assert physics.Vec(0, 0).bearing_to((0, 1)) == 0
-    assert physics.Vec(0, 0).bearing_to((0, -1)) == math.pi
+def test_from_bearing(shyphe):
+    assert (shyphe.Vec.from_bearing(shyphe.Vec(5, 9).bearing()).as_tuple()
+            == pytest.approx(shyphe.Vec(5, 9).norm().as_tuple()))
+    assert (shyphe.Vec.from_bearing(shyphe.Vec(1, 0).bearing()).as_tuple()
+            == pytest.approx(shyphe.Vec(1, 0).norm().as_tuple()))
+    assert (shyphe.Vec.from_bearing(shyphe.Vec(0, 1).bearing()).as_tuple()
+            == pytest.approx(shyphe.Vec(0, 1).norm().as_tuple()))
+    assert (shyphe.Vec.from_bearing(shyphe.Vec(-1, 0).bearing()).as_tuple()
+            == pytest.approx(shyphe.Vec(-1, 0).norm().as_tuple()))
+    assert (shyphe.Vec.from_bearing(shyphe.Vec(0, -1).bearing()).as_tuple()
+            == pytest.approx(shyphe.Vec(0, -1).norm().as_tuple()))
 
 
-def test_vec_str(physics):
-    assert str(physics.Vec(1, 3)) == "(1, 3)"
-    assert repr(physics.Vec(1, 3)) == "Vec(1, 3)"
+def test_bearing_to(shyphe):
+    assert shyphe.Vec(0, 0).bearing_to((1, 0)) == math.pi / 2
+    assert shyphe.Vec(0, 0).bearing_to((-1, 0)) == -math.pi / 2
+    assert shyphe.Vec(0, 0).bearing_to((0, 1)) == 0
+    assert shyphe.Vec(0, 0).bearing_to((0, -1)) == math.pi
 
 
-def test_python_conv(physics):
-    v = physics.Vec(1.1, 2.1)
+def test_vec_str(shyphe):
+    assert str(shyphe.Vec(1, 3)) == "(1, 3)"
+    assert repr(shyphe.Vec(1, 3)) == "Vec(1, 3)"
+
+
+def test_python_conv(shyphe):
+    v = shyphe.Vec(1.1, 2.1)
 
     assert len(v) == 2
     assert v[0] == v[-2] == 1.1
@@ -189,17 +189,17 @@ def test_python_conv(physics):
     with pytest.raises(TypeError):
         v.distance_to([])
 
-    assert physics.Vec(1, 0)
-    assert physics.Vec(0, 1)
-    assert not physics.Vec()
+    assert shyphe.Vec(1, 0)
+    assert shyphe.Vec(0, 1)
+    assert not shyphe.Vec()
 
 
-def test_rotate(physics):
-    assert physics.Vec(1, 0).rotate(0).as_tuple() == pytest.approx((1, 0))
-    assert physics.Vec(1, 0).rotate(math.pi).as_tuple() == pytest.approx((-1, 0))
-    assert physics.Vec(0, 1).rotate(math.pi).as_tuple() == pytest.approx((0, -1))
-    assert physics.Vec(2, 1).rotate(math.pi).as_tuple() == pytest.approx((-2, -1))
-    assert physics.Vec(2, 1).rotate(math.pi / 2).as_tuple() == pytest.approx((1, -2))
-    assert physics.Vec(2, 1).rotate(-math.pi / 2).as_tuple() == pytest.approx((-1, 2))
-    assert physics.Vec(0, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
-    assert physics.Vec(1, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** 0.5, 0))
+def test_rotate(shyphe):
+    assert shyphe.Vec(1, 0).rotate(0).as_tuple() == pytest.approx((1, 0))
+    assert shyphe.Vec(1, 0).rotate(math.pi).as_tuple() == pytest.approx((-1, 0))
+    assert shyphe.Vec(0, 1).rotate(math.pi).as_tuple() == pytest.approx((0, -1))
+    assert shyphe.Vec(2, 1).rotate(math.pi).as_tuple() == pytest.approx((-2, -1))
+    assert shyphe.Vec(2, 1).rotate(math.pi / 2).as_tuple() == pytest.approx((1, -2))
+    assert shyphe.Vec(2, 1).rotate(-math.pi / 2).as_tuple() == pytest.approx((-1, 2))
+    assert shyphe.Vec(0, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** -0.5, 2 ** -0.5))
+    assert shyphe.Vec(1, 1).rotate(math.pi / 4).as_tuple() == pytest.approx((2 ** 0.5, 0))

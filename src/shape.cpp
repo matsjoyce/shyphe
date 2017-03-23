@@ -19,6 +19,9 @@
 
 #include "shape.hpp"
 
+using namespace std;
+using namespace shyphe;
+
 Shape::Shape(double mass_/*=0*/, const Vec& position_/*={}*/,
              double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : mass(mass_),
                                                                                                                position(position_),

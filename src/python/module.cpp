@@ -23,6 +23,7 @@
 #include "module.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 BOOST_PYTHON_MODULE(shyphe) {
     cout.sync_with_stdio(true);

@@ -22,10 +22,12 @@
 #include "shape.hpp"
 #include "sensor.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <numeric>
 
 using namespace std;
+using namespace shyphe;
 
 Body::Body(const Vec& position_/*={}*/, const Vec& velocity_/*={}*/,
            double angle_/*=0*/, double angular_velocity_/*=0*/,

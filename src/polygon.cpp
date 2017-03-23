@@ -21,6 +21,7 @@
 #include <algorithm>
 
 using namespace std;
+using namespace shyphe;
 
 Polygon::Polygon(const std::vector<Vec>& points_/*={}*/, double mass_/*=0*/, const Vec& position_/*={}*/,
                  double radar_cross_section/*=0*/, double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_, position_,

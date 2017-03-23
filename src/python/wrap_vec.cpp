@@ -24,6 +24,7 @@
 #include "vec.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 struct Vec_from_tuple {
     Vec_from_tuple() {

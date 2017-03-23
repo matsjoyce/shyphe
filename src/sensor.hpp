@@ -17,87 +17,88 @@
  *
  */
 
-#ifndef SENSOR_HPP
-#define SENSOR_HPP
+#ifndef SHYPHE_SENSOR_HPP
+#define SHYPHE_SENSOR_HPP
 
 #include <memory>
 
 #include "vec.hpp"
 #include "shape.hpp"
 
+namespace shyphe {
+    class Body;
 
-class Body;
-
-struct SigObject {
-    Vec position;
-    Signature sig;
-    Body* body;
-};
-
-struct SensedObject {
-    enum Side {
-        friendly,
-        enemy,
-        neutral,
-        unknown
+    struct SigObject {
+        Vec position;
+        Signature sig;
+        Body* body;
     };
 
-    SensedObject(const Vec& pos, const Vec& vel, const Signature& signature_,
-                 Side side_, std::shared_ptr<Body> body_) : position(pos),
-                                                            velocity(vel),
-                                                            signature(signature_),
-                                                            side(side_),
-                                                            body(body_) {
-    }
-    bool operator==(const SensedObject& other);
+    struct SensedObject {
+        enum Side {
+            friendly,
+            enemy,
+            neutral,
+            unknown
+        };
 
-    Vec position, velocity;
-    Signature signature;
-    Side side;
-    std::shared_ptr<Body> body;
-};
+        SensedObject(const Vec& pos, const Vec& vel, const Signature& signature_,
+                     Side side_, std::shared_ptr<Body> body_) : position(pos),
+                                                                velocity(vel),
+                                                                signature(signature_),
+                                                                side(side_),
+                                                                body(body_) {
+        }
+        bool operator==(const SensedObject& other);
 
-class Sensor : public std::enable_shared_from_this<Sensor> {
-public:
-    virtual Signature intensity(const SigObject& signature, double dist) const = 0;
-    virtual bool givesIdentification() const = 0;
-    virtual double maxRange() const = 0;
-    virtual Sensor* clone() const = 0;
+        Vec position, velocity;
+        Signature signature;
+        Side side;
+        std::shared_ptr<Body> body;
+    };
 
-    double perf = 1;
-};
+    class Sensor : public std::enable_shared_from_this<Sensor> {
+    public:
+        virtual Signature intensity(const SigObject& signature, double dist) const = 0;
+        virtual bool givesIdentification() const = 0;
+        virtual double maxRange() const = 0;
+        virtual Sensor* clone() const = 0;
 
-class ActiveRadar : public Sensor {
-public:
-    ActiveRadar(double pwr=0, double sens=0);
-    virtual Signature intensity(const SigObject& signature, double dist) const override;
-    virtual bool givesIdentification() const override;
-    virtual double maxRange() const override;
-    virtual Sensor* clone() const override;
+        double perf = 1;
+    };
 
-    double power, sensitivity;
-};
+    class ActiveRadar : public Sensor {
+    public:
+        ActiveRadar(double pwr=0, double sens=0);
+        virtual Signature intensity(const SigObject& signature, double dist) const override;
+        virtual bool givesIdentification() const override;
+        virtual double maxRange() const override;
+        virtual Sensor* clone() const override;
 
-class PassiveRadar : public Sensor {
-public:
-    PassiveRadar(double sens=0);
-    virtual Signature intensity(const SigObject& signature, double dist) const override;
-    virtual bool givesIdentification() const override;
-    virtual double maxRange() const override;
-    virtual Sensor* clone() const override;
+        double power, sensitivity;
+    };
 
-    double sensitivity;
-};
+    class PassiveRadar : public Sensor {
+    public:
+        PassiveRadar(double sens=0);
+        virtual Signature intensity(const SigObject& signature, double dist) const override;
+        virtual bool givesIdentification() const override;
+        virtual double maxRange() const override;
+        virtual Sensor* clone() const override;
 
-class PassiveThermal : public Sensor {
-public:
-    PassiveThermal(double sens=0);
-    virtual Signature intensity(const SigObject& signature, double dist) const override;
-    virtual bool givesIdentification() const override;
-    virtual double maxRange() const override;
-    virtual Sensor* clone() const override;
+        double sensitivity;
+    };
 
-    double sensitivity;
-};
+    class PassiveThermal : public Sensor {
+    public:
+        PassiveThermal(double sens=0);
+        virtual Signature intensity(const SigObject& signature, double dist) const override;
+        virtual bool givesIdentification() const override;
+        virtual double maxRange() const override;
+        virtual Sensor* clone() const override;
 
-#endif // SENSOR_HPP
+        double sensitivity;
+    };
+}
+
+#endif // SHYPHE_SENSOR_HPP

@@ -21,6 +21,7 @@
 #include <tuple>
 
 using namespace std;
+using namespace shyphe;
 
 bool SensedObject::operator==(const SensedObject& other) {
     return tie(position, velocity, signature, side, body) == tie(other.position, other.velocity, other.signature, other.side, other.body);

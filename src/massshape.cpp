@@ -20,6 +20,7 @@
 #include "massshape.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 Shape* MassShape::clone() const {
     return new MassShape(mass, position, signature.radar_cross_section, signature.radar_emissions, signature.thermal_emissions);

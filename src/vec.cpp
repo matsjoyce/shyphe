@@ -19,7 +19,10 @@
 
 #include "vec.hpp"
 
-std::ostream& operator<<(std::ostream& os, const Vec& vec) {
+using namespace std;
+using namespace shyphe;
+
+std::ostream& shyphe::operator<<(std::ostream& os, const Vec& vec) {
     os << "(" << vec.x << ", " << vec.y << ")";
     return os;
 }

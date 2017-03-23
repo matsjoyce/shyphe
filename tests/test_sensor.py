@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pytest
 
-
-def test_clone(physics):
-    s = physics.ActiveRadar(power=50, sensitivity=2)
+def test_clone(shyphe):
+    s = shyphe.ActiveRadar(power=50, sensitivity=2)
     s2 = s.clone()
 
     assert s.power == s2.power
@@ -26,14 +24,14 @@ def test_clone(physics):
     assert s.max_range == s2.max_range
     assert type(s) is type(s2)
 
-    s = physics.PassiveRadar(sensitivity=3)
+    s = shyphe.PassiveRadar(sensitivity=3)
     s2 = s.clone()
 
     assert s.sensitivity == s2.sensitivity
     assert s.max_range == s2.max_range
     assert type(s) is type(s2)
 
-    s = physics.PassiveThermal(sensitivity=4)
+    s = shyphe.PassiveThermal(sensitivity=4)
     s2 = s.clone()
 
     assert s.sensitivity == s2.sensitivity
@@ -41,9 +39,9 @@ def test_clone(physics):
     assert type(s) is type(s2)
 
 
-def test_body_sensor(physics):
-    s = physics.ActiveRadar(power=50, sensitivity=2)
-    b = physics.Body()
+def test_body_sensor(shyphe):
+    s = shyphe.ActiveRadar(power=50, sensitivity=2)
+    b = shyphe.Body()
 
     assert b.max_sensor_range == 0
 
@@ -58,8 +56,8 @@ def test_body_sensor(physics):
     assert b.max_sensor_range == 0
 
 
-def test_perf(physics):
-    s = physics.ActiveRadar(power=50, sensitivity=2)
+def test_perf(shyphe):
+    s = shyphe.ActiveRadar(power=50, sensitivity=2)
 
     assert s.max_range == 625
 
@@ -67,7 +65,7 @@ def test_perf(physics):
 
     assert s.max_range == 625 / 2
 
-    s = physics.PassiveRadar(sensitivity=3)
+    s = shyphe.PassiveRadar(sensitivity=3)
 
     assert s.max_range == 50 / 3
 
@@ -75,7 +73,7 @@ def test_perf(physics):
 
     assert s.max_range == 50 / 6
 
-    s = physics.PassiveThermal(sensitivity=3)
+    s = shyphe.PassiveThermal(sensitivity=3)
 
     assert s.max_range == 2500 / 3
 

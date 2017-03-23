@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def test_clone(physics):
-    m = physics.MassShape(mass=45)
+
+def test_clone(shyphe):
+    m = shyphe.MassShape(mass=45)
 
     assert m.mass == 45
 
@@ -34,15 +35,15 @@ def test_clone(physics):
     assert m2.mass == 55
 
 
-def test_aabb(physics):
-    m = physics.MassShape(mass=45)
+def test_aabb(shyphe):
+    m = shyphe.MassShape(mass=45)
 
     assert not m.can_collide()
     assert m.aabb(0).as_tuple() == (0, 0, 0, 0)
     assert m.aabb(1).as_tuple() == (0, 0, 0, 0)
 
 
-def test_moi(physics):
-    m = physics.MassShape(mass=45)
+def test_moi(shyphe):
+    m = shyphe.MassShape(mass=45)
 
     assert m.moment_of_inertia == 1

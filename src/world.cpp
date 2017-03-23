@@ -19,10 +19,12 @@
 
 #include "world.hpp"
 
+#include <algorithm>
 #include <numeric>
 #include <random>
 
 using namespace std;
+using namespace shyphe;
 
 pair<Body*, Body*> make_body_pair(Body* a, Body* b) {
     return (a < b) ? make_pair(a, b) : make_pair(b, a);

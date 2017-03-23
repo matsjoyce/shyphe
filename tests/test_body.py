@@ -17,9 +17,9 @@
 import pytest
 
 
-def test_add_shape(physics):
-    b = physics.Body()
-    m = physics.MassShape(mass=10)
+def test_add_shape(shyphe):
+    b = shyphe.Body()
+    m = shyphe.MassShape(mass=10)
     b.add_shape(m)
 
     assert b.mass == 10
@@ -27,48 +27,48 @@ def test_add_shape(physics):
     assert list(b.shapes) == [m]
 
 
-def test_remove_shape(physics):
-    b = physics.Body()
-    c = physics.MassShape(mass=10)
+def test_remove_shape(shyphe):
+    b = shyphe.Body()
+    c = shyphe.MassShape(mass=10)
     b.add_shape(c)
     b.remove_shape(c)
 
     assert b.mass == 0
 
 
-def test_body_distance(physics):
-    b1 = physics.Body(position=(0, 0))
-    b1.add_shape(physics.Circle(radius=1, position=(1, 0)))
-    b1.add_shape(physics.Circle(radius=1, position=(-1, 0)))
-    b1.add_shape(physics.MassShape(position=(5, 0)))
+def test_body_distance(shyphe):
+    b1 = shyphe.Body(position=(0, 0))
+    b1.add_shape(shyphe.Circle(radius=1, position=(1, 0)))
+    b1.add_shape(shyphe.Circle(radius=1, position=(-1, 0)))
+    b1.add_shape(shyphe.MassShape(position=(5, 0)))
 
-    b2 = physics.Body(position=(10, 0))
-    b2.add_shape(physics.Circle(radius=1, position=(0, 1)))
-    b2.add_shape(physics.Circle(radius=1, position=(-1, 0)))
-    b2.add_shape(physics.MassShape(position=(-5, 0)))
+    b2 = shyphe.Body(position=(10, 0))
+    b2.add_shape(shyphe.Circle(radius=1, position=(0, 1)))
+    b2.add_shape(shyphe.Circle(radius=1, position=(-1, 0)))
+    b2.add_shape(shyphe.MassShape(position=(-5, 0)))
 
     assert b1.distance_between(b2) == 6
 
 
-def test_body_collide(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(1, 0))
-    b1.add_shape(physics.Circle(radius=1, position=(1, 0)))
-    b1.add_shape(physics.Circle(radius=1, position=(-1, 0)))
-    b1.add_shape(physics.MassShape(position=(5, 0)))
+def test_body_collide(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(1, 0))
+    b1.add_shape(shyphe.Circle(radius=1, position=(1, 0)))
+    b1.add_shape(shyphe.Circle(radius=1, position=(-1, 0)))
+    b1.add_shape(shyphe.MassShape(position=(5, 0)))
 
-    b2 = physics.Body(position=(10, 0), velocity=(-5, 0))
-    b2.add_shape(physics.Circle(radius=1, position=(0, 1)))
-    b2.add_shape(physics.Circle(radius=1, position=(-1, 0)))
-    b2.add_shape(physics.MassShape(position=(-5, 0)))
+    b2 = shyphe.Body(position=(10, 0), velocity=(-5, 0))
+    b2.add_shape(shyphe.Circle(radius=1, position=(0, 1)))
+    b2.add_shape(shyphe.Circle(radius=1, position=(-1, 0)))
+    b2.add_shape(shyphe.MassShape(position=(-5, 0)))
 
     colr, a, b = b1.collide(b2, 2, False)
 
     assert colr.time == pytest.approx(1.0)
 
 
-def test_local_linear_acceleration(physics):
-    b = physics.Body()
-    c = physics.MassShape(mass=1)
+def test_local_linear_acceleration(shyphe):
+    b = shyphe.Body()
+    c = shyphe.MassShape(mass=1)
     b.add_shape(c)
     b.apply_local_force((1, 0), (0, 0))
 
@@ -91,9 +91,9 @@ def test_local_linear_acceleration(physics):
     assert b.velocity == (3, 0)
 
 
-def test_global_acceleration(physics):
-    b = physics.Body()
-    c = physics.MassShape(mass=1)
+def test_global_acceleration(shyphe):
+    b = shyphe.Body()
+    c = shyphe.MassShape(mass=1)
     b.add_shape(c)
     b.apply_global_force((1, 0), (0, 0))
 
@@ -116,9 +116,9 @@ def test_global_acceleration(physics):
     assert b.velocity == (3, 0)
 
 
-def test_aabb(physics):
-    b = physics.Body()
-    c = physics.Circle(radius=1, mass=1)
+def test_aabb(shyphe):
+    b = shyphe.Body()
+    c = shyphe.Circle(radius=1, mass=1)
     b.add_shape(c)
 
     assert b.aabb(0).as_tuple() == (-1, 1, -1, 1)
@@ -138,9 +138,9 @@ def test_aabb(physics):
     assert b.aabb(1).as_tuple() == (0, 3, -1, 1)
 
     b.apply_impulse((-1, -1), (0, 0))
-    b.apply_impulse((0, 1), (3 / 2 * physics.to_rad(45), 0))
+    b.apply_impulse((0, 1), (3 / 2 * shyphe.to_rad(45), 0))
 
-    assert b.angular_velocity == -physics.to_rad(45)
+    assert b.angular_velocity == -shyphe.to_rad(45)
     assert b.velocity.as_tuple() == (0, 0)
     assert b.aabb(0).as_tuple() == (0, 2, -1, 1)
     assert b.aabb(1).as_tuple() == (2 ** -0.5 - 1, 2, -1, 2 ** -0.5 + 1)
@@ -150,10 +150,10 @@ def test_aabb(physics):
 
     b.apply_impulse((1, 0), (0, 0))
 
-    assert b.angular_velocity == -physics.to_rad(45)
+    assert b.angular_velocity == -shyphe.to_rad(45)
     assert b.velocity.as_tuple() == (1, 0)
     assert b.aabb(0).as_tuple() == (0, 2, -1, 1)
-    #assert b.aabb(1).as_tuple() == (2 ** -0.5 - 1, 2, -1, 2 ** -0.5 + 1)
-    #assert b.aabb(2).as_tuple() == pytest.approx((-1, 3, -1, 2))
-    #assert b.aabb(3).as_tuple() == (-2 ** -0.5 - 1, 2, -1, 2)
-    #assert b.aabb(4).as_tuple() == pytest.approx((-2, 4, -1, 2))
+    # assert b.aabb(1).as_tuple() == (2 ** -0.5 - 1, 2, -1, 2 ** -0.5 + 1)
+    # assert b.aabb(2).as_tuple() == pytest.approx((-1, 3, -1, 2))
+    # assert b.aabb(3).as_tuple() == (-2 ** -0.5 - 1, 2, -1, 2)
+    # assert b.aabb(4).as_tuple() == pytest.approx((-2, 4, -1, 2))

@@ -17,20 +17,22 @@
  *
  */
 
-#ifndef MASSSHAPE_HPP
-#define MASSSHAPE_HPP
+#ifndef SHYPHE_MASSSHAPE_HPP
+#define SHYPHE_MASSSHAPE_HPP
 
 #include "shape.hpp"
 
-class MassShape : public Shape {
-public:
-    using Shape::Shape;
-    virtual AABB aabb(double angle) const override;
-    virtual Shape* clone() const override;
-    virtual bool canCollide() const override;
-    virtual std::type_index shape_type() const override;
-    virtual double boundingRadius() const override;
-    virtual double momentOfInertia() const override;
-};
+namespace shyphe {
+    class MassShape : public Shape {
+    public:
+        using Shape::Shape;
+        virtual AABB aabb(double angle) const override;
+        virtual Shape* clone() const override;
+        virtual bool canCollide() const override;
+        virtual std::type_index shape_type() const override;
+        virtual double boundingRadius() const override;
+        virtual double momentOfInertia() const override;
+    };
+}
 
-#endif // MASSSHAPE_HPP
+#endif // SHYPHE_MASSSHAPE_HPP

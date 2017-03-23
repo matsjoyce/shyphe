@@ -23,6 +23,7 @@
 #include "world.hpp"
 
 using namespace std;
+using namespace shyphe;
 
 void wrap_world() {
     python::class_<World>("World", python::init<double>())

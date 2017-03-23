@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def test_clone(physics):
-    c = physics.Circle(radius=5, mass=10)
+
+def test_clone(shyphe):
+    c = shyphe.Circle(radius=5, mass=10)
 
     assert c.mass == 10
     assert c.radius == 5
@@ -39,28 +40,28 @@ def test_clone(physics):
     assert c2.radius == 10
 
 
-def test_aabb(physics):
-    c = physics.Circle(radius=5, mass=10)
+def test_aabb(shyphe):
+    c = shyphe.Circle(radius=5, mass=10)
 
     assert c.can_collide()
     assert c.aabb(0).as_tuple() == (-5, 5, -5, 5)
     assert c.aabb(1).as_tuple() == (-5, 5, -5, 5)
 
-    c = physics.Circle(radius=100, mass=10)
+    c = shyphe.Circle(radius=100, mass=10)
 
     assert c.aabb(0).as_tuple() == (-100, 100, -100, 100)
     assert c.aabb(1).as_tuple() == (-100, 100, -100, 100)
 
 
-def test_moi(physics):
-    c = physics.Circle(radius=5, mass=10)
+def test_moi(shyphe):
+    c = shyphe.Circle(radius=5, mass=10)
 
     assert c.moment_of_inertia == 125
 
-    c = physics.Circle(radius=10, mass=10)
+    c = shyphe.Circle(radius=10, mass=10)
 
     assert c.moment_of_inertia == 500
 
-    c = physics.Circle(radius=10, mass=5)
+    c = shyphe.Circle(radius=10, mass=5)
 
     assert c.moment_of_inertia == 250

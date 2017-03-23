@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef SHAPE_HPP
-#define SHAPE_HPP
+#ifndef SHYPHE_SHAPE_HPP
+#define SHYPHE_SHAPE_HPP
 
 #include "aabb.hpp"
 #include "collisions.hpp"
@@ -26,52 +26,54 @@
 #include <typeindex>
 #include <memory>
 
-class Body;
-class Circle;
-class MassShape;
-class Polygon;
+namespace shyphe {
+    class Body;
+    class Circle;
+    class MassShape;
+    class Polygon;
 
-struct Signature {
-    double radar_emissions = 0;
-    double thermal_emissions = 0;
-    double radar_cross_section = 0;
+    struct Signature {
+        double radar_emissions = 0;
+        double thermal_emissions = 0;
+        double radar_cross_section = 0;
 
-    constexpr Signature(double re=0, double te=0, double rcs=0) : radar_emissions(re), thermal_emissions(te), radar_cross_section(rcs) {
-    }
+        constexpr Signature(double re=0, double te=0, double rcs=0) : radar_emissions(re), thermal_emissions(te), radar_cross_section(rcs) {
+        }
 
-    operator bool() const {
-        return radar_emissions || thermal_emissions || radar_cross_section;
-    }
+        operator bool() const {
+            return radar_emissions || thermal_emissions || radar_cross_section;
+        }
 
-    void operator&=(const Signature& other) {
-        radar_emissions = std::max(radar_emissions, other.radar_emissions);
-        thermal_emissions = std::max(thermal_emissions, other.thermal_emissions);
-        radar_cross_section = std::max(radar_cross_section, other.radar_cross_section);
-    }
+        void operator&=(const Signature& other) {
+            radar_emissions = std::max(radar_emissions, other.radar_emissions);
+            thermal_emissions = std::max(thermal_emissions, other.thermal_emissions);
+            radar_cross_section = std::max(radar_cross_section, other.radar_cross_section);
+        }
 
-    bool approx_equals(const Signature& other, double ratio) const {
-        return (
-            (other.radar_emissions >= radar_emissions * ratio) && (other.radar_emissions <= radar_emissions / ratio)
-            && (other.thermal_emissions >= thermal_emissions * ratio) && (other.thermal_emissions <= thermal_emissions / ratio)
-            && (other.radar_cross_section >= radar_cross_section * ratio) && (other.radar_cross_section <= radar_cross_section / ratio)
-        );
-    }
-};
+        bool approx_equals(const Signature& other, double ratio) const {
+            return (
+                (other.radar_emissions >= radar_emissions * ratio) && (other.radar_emissions <= radar_emissions / ratio)
+                && (other.thermal_emissions >= thermal_emissions * ratio) && (other.thermal_emissions <= thermal_emissions / ratio)
+                && (other.radar_cross_section >= radar_cross_section * ratio) && (other.radar_cross_section <= radar_cross_section / ratio)
+            );
+        }
+    };
 
-class Shape : public std::enable_shared_from_this<Shape> {
-public:
-    double mass = 0;
-    Vec position;
-    Signature signature;
+    class Shape : public std::enable_shared_from_this<Shape> {
+    public:
+        double mass = 0;
+        Vec position;
+        Signature signature;
 
-    Shape(double mass_=0, const Vec& position_={}, double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
-    virtual ~Shape() = default;
-    virtual AABB aabb(double angle) const = 0;
-    virtual Shape* clone() const = 0;
-    virtual bool canCollide() const = 0;
-    virtual std::type_index shape_type() const = 0;
-    virtual double boundingRadius() const = 0;
-    virtual double momentOfInertia() const = 0;
-};
+        Shape(double mass_=0, const Vec& position_={}, double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
+        virtual ~Shape() = default;
+        virtual AABB aabb(double angle) const = 0;
+        virtual Shape* clone() const = 0;
+        virtual bool canCollide() const = 0;
+        virtual std::type_index shape_type() const = 0;
+        virtual double boundingRadius() const = 0;
+        virtual double momentOfInertia() const = 0;
+    };
+}
 
-#endif // SHAPE_HPP
+#endif // SHYPHE_SHAPE_HPP

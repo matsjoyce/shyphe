@@ -17,21 +17,21 @@
 import pytest
 
 
-def test_single_bounce(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(2, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_single_bounce(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(8, 0), velocity=(-6, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(8, 0), velocity=(-6, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1)
+    c = shyphe.World(1)
     c.add_body(b1)
     c.add_body(b2)
     c.begin_frame()
 
     assert c.has_next_collision()
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -79,21 +79,21 @@ def test_single_bounce(physics):
     assert b2.position.as_tuple() == (6, 0)
 
 
-def test_rotating_hit(physics):
-    b1 = physics.Body(position=(0, 0), angular_velocity=1, angle=-1)
-    b1.add_shape(physics.Polygon(points=[(-10, 1), (-10, -1), (10, -1), (10, 1)], mass=1, position=(10, 0)))
+def test_rotating_hit(shyphe):
+    b1 = shyphe.Body(position=(0, 0), angular_velocity=1, angle=-1)
+    b1.add_shape(shyphe.Polygon(points=[(-10, 1), (-10, -1), (10, -1), (10, 1)], mass=1, position=(10, 0)))
 
-    b2 = physics.Body(position=(8, -2))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(8, -2))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.begin_frame()
 
     assert c.has_next_collision()
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -121,14 +121,14 @@ def test_rotating_hit(physics):
     assert not c.has_next_collision()
 
 
-def test_ignore_rotating_hit(physics):
-    b1 = physics.Body(position=(0, 0), angular_velocity=1, angle=-1)
-    b1.add_shape(physics.Polygon(points=[(-10, 1), (-10, -1), (10, -1), (10, 1)], mass=1, position=(10, 0)))
+def test_ignore_rotating_hit(shyphe):
+    b1 = shyphe.Body(position=(0, 0), angular_velocity=1, angle=-1)
+    b1.add_shape(shyphe.Polygon(points=[(-10, 1), (-10, -1), (10, -1), (10, 1)], mass=1, position=(10, 0)))
 
-    b2 = physics.Body(position=(8, -2))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(8, -2))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.begin_frame()
@@ -140,14 +140,14 @@ def test_ignore_rotating_hit(physics):
     assert not c.has_next_collision()
 
 
-def test_miss_with_aabb_hit(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(0, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_miss_with_aabb_hit(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(0, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(-4, -0.9), velocity=(4, 4))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(-4, -0.9), velocity=(4, 4))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(2)
+    c = shyphe.World(2)
     c.add_body(b1)
     c.add_body(b2)
     c.begin_frame()
@@ -158,17 +158,17 @@ def test_miss_with_aabb_hit(physics):
         c.next_collision()
 
 
-def test_double_bounce(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_double_bounce(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(4, 0), velocity=(-4, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(4, 0), velocity=(-4, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(8, 0), velocity=(0, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=1))
+    b3 = shyphe.Body(position=(8, 0), velocity=(0, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(0.75)
+    c = shyphe.World(0.75)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -177,7 +177,7 @@ def test_double_bounce(physics):
     assert c.has_next_collision()
 
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -214,7 +214,7 @@ def test_double_bounce(physics):
     assert c.has_next_collision()
 
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -246,17 +246,17 @@ def test_double_bounce(physics):
     assert not c.has_next_collision()
 
 
-def test_double_bounce_poly(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
-    b1.add_shape(physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1))
+def test_double_bounce_poly(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1))
 
-    b2 = physics.Body(position=(4, 0), velocity=(-4, 0))
-    b2.add_shape(physics.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)], mass=1))
+    b2 = shyphe.Body(position=(4, 0), velocity=(-4, 0))
+    b2.add_shape(shyphe.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)], mass=1))
 
-    b3 = physics.Body(position=(8, 0), velocity=(0, 0))
-    b3.add_shape(physics.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1))
+    b3 = shyphe.Body(position=(8, 0), velocity=(0, 0))
+    b3.add_shape(shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -265,7 +265,7 @@ def test_double_bounce_poly(physics):
     assert c.has_next_collision()
 
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -297,7 +297,7 @@ def test_double_bounce_poly(physics):
     assert c.has_next_collision()
 
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -329,23 +329,23 @@ def test_double_bounce_poly(physics):
     assert not c.has_next_collision()
 
 
-def test_simultaneous(physics):
-    b1 = physics.Body(position=(-4, 0), velocity=(4, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_simultaneous(shyphe):
+    b1 = shyphe.Body(position=(-4, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(0, 0), velocity=(0, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(0, 0), velocity=(0, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(4, 0), velocity=(-4, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=1))
+    b3 = shyphe.Body(position=(4, 0), velocity=(-4, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b4 = physics.Body(position=(0, -4), velocity=(0, 4))
-    b4.add_shape(physics.Circle(radius=1, mass=1))
+    b4 = shyphe.Body(position=(0, -4), velocity=(0, 4))
+    b4.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b5 = physics.Body(position=(0, 4), velocity=(0, -4))
-    b5.add_shape(physics.Circle(radius=1, mass=1))
+    b5 = shyphe.Body(position=(0, 4), velocity=(0, -4))
+    b5.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -356,7 +356,7 @@ def test_simultaneous(physics):
     collisions = 0
     while c.has_next_collision():
         ctr = c.next_collision()
-        cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+        cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
         cola.body.apply_impulse(cola.impulse, cola.touch_point)
         colb.body.apply_impulse(colb.impulse, colb.touch_point)
         c.finished_collision(ctr, True)
@@ -369,17 +369,17 @@ def test_simultaneous(physics):
     assert b4.velocity.y < b2.velocity.y < b5.velocity.y
 
 
-def test_triple(physics):
-    b1 = physics.Body(position=(-4, 0), velocity=(4.1, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_triple(shyphe):
+    b1 = shyphe.Body(position=(-4, 0), velocity=(4.1, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(0, 0), velocity=(0, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(0, 0), velocity=(0, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(4, 0), velocity=(-4, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=1))
+    b3 = shyphe.Body(position=(4, 0), velocity=(-4, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -388,7 +388,7 @@ def test_triple(physics):
     collisions = 0
     while c.has_next_collision():
         ctr = c.next_collision()
-        cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+        cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
         cola.body.apply_impulse(cola.impulse, cola.touch_point)
         colb.body.apply_impulse(colb.impulse, colb.touch_point)
         c.finished_collision(ctr, True)
@@ -400,17 +400,17 @@ def test_triple(physics):
     assert collisions >= 2
 
 
-def test_triple_inelastic(physics):
-    b1 = physics.Body(position=(-3, 0), velocity=(4, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_triple_inelastic(shyphe):
+    b1 = shyphe.Body(position=(-3, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(0, 0), velocity=(0, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(0, 0), velocity=(0, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(3, 0), velocity=(-4, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=1))
+    b3 = shyphe.Body(position=(3, 0), velocity=(-4, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(1.5)
+    c = shyphe.World(1.5)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -419,7 +419,7 @@ def test_triple_inelastic(physics):
     collisions = 0
     while c.has_next_collision():
         ctr = c.next_collision()
-        cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(0.5))
+        cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(0.5))
         cola.body.apply_impulse(cola.impulse, cola.touch_point)
         colb.body.apply_impulse(colb.impulse, colb.touch_point)
         c.finished_collision(ctr, True)
@@ -431,17 +431,17 @@ def test_triple_inelastic(physics):
     assert collisions > 2
 
 
-def test_single_bounce_die(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_single_bounce_die(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(4, 0), velocity=(-4, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(4, 0), velocity=(-4, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(8, 0), velocity=(0, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=1))
+    b3 = shyphe.Body(position=(8, 0), velocity=(0, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    c = physics.World(2)
+    c = shyphe.World(2)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -450,7 +450,7 @@ def test_single_bounce_die(physics):
     assert c.has_next_collision()
 
     ctr = c.next_collision()
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
 
     assert cola.body is colb.other
     assert colb.body is cola.other
@@ -483,17 +483,17 @@ def test_single_bounce_die(physics):
     assert not c.has_next_collision()
 
 
-def test_ignored(physics):
-    b1 = physics.Body(position=(0, 0), velocity=(4, 0))
-    b1.add_shape(physics.Circle(radius=1, mass=1))
+def test_ignored(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(4, 0))
+    b1.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b2 = physics.Body(position=(4, 0), velocity=(0, 0))
-    b2.add_shape(physics.Circle(radius=1, mass=1))
+    b2 = shyphe.Body(position=(4, 0), velocity=(0, 0))
+    b2.add_shape(shyphe.Circle(radius=1, mass=1))
 
-    b3 = physics.Body(position=(10, 0), velocity=(0, 0))
-    b3.add_shape(physics.Circle(radius=1, mass=10))
+    b3 = shyphe.Body(position=(10, 0), velocity=(0, 0))
+    b3.add_shape(shyphe.Circle(radius=1, mass=10))
 
-    c = physics.World(6)
+    c = shyphe.World(6)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)
@@ -513,7 +513,7 @@ def test_ignored(physics):
 
     assert (ctr.a, ctr.b) == (b1, b3) or (ctr.b, ctr.a) == (b1, b3)
 
-    cola, colb = c.calculate_collision(ctr, physics.CollisionParameters(1))
+    cola, colb = c.calculate_collision(ctr, shyphe.CollisionParameters(1))
     cola.body.apply_impulse(cola.impulse, cola.touch_point)
     colb.body.apply_impulse(colb.impulse, colb.touch_point)
 
@@ -528,14 +528,14 @@ def test_ignored(physics):
     assert (ctr.a, ctr.b) == (b1, b2) or (ctr.b, ctr.a) == (b1, b2)
 
 
-def test_bodies(physics):
-    b1 = physics.Body()
-    b2 = physics.Body()
-    b3 = physics.Body()
-    b4 = physics.Body()
-    b5 = physics.Body()
+def test_bodies(shyphe):
+    b1 = shyphe.Body()
+    b2 = shyphe.Body()
+    b3 = shyphe.Body()
+    b4 = shyphe.Body()
+    b5 = shyphe.Body()
 
-    c = physics.World(1)
+    c = shyphe.World(1)
     c.add_body(b1)
     c.add_body(b2)
     c.add_body(b3)

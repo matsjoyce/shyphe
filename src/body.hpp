@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef BODY_HPP
-#define BODY_HPP
+#ifndef SHYPHE_BODY_HPP
+#define SHYPHE_BODY_HPP
 
 #include <vector>
 #include <tuple>
@@ -30,80 +30,82 @@
 #include "shape.hpp"
 #include "sensor.hpp"
 
-class Body : public std::enable_shared_from_this<Body> {
-public:
-    Body(const Vec& position_={}, const Vec& velocity_={},
-         double angle_=0, double angular_velocity_=0, int side_=0);
-    virtual ~Body() = default;
+namespace shyphe {
+    class Body : public std::enable_shared_from_this<Body> {
+    public:
+        Body(const Vec& position_={}, const Vec& velocity_={},
+             double angle_=0, double angular_velocity_=0, int side_=0);
+        virtual ~Body() = default;
 
-    AABB aabb(double time) const;
-    double mass() const;
-    double momentOfInertia() const;
+        AABB aabb(double time) const;
+        double mass() const;
+        double momentOfInertia() const;
 
-    inline const Vec& position() const {
-        return _position;
-    }
+        inline const Vec& position() const {
+            return _position;
+        }
 
-    inline const Vec& velocity() const {
-        return _velocity;
-    }
+        inline const Vec& velocity() const {
+            return _velocity;
+        }
 
-    inline double angle() const {
-        return _angle;
-    }
+        inline double angle() const {
+            return _angle;
+        }
 
-    inline double angularVelocity() const {
-        return _angular_velocity;
-    }
+        inline double angularVelocity() const {
+            return _angular_velocity;
+        }
 
-    inline int side() const {
-        return _side;
-    }
+        inline int side() const {
+            return _side;
+        }
 
-    inline const std::vector<SensedObject>& sensorView() const {
-        return _sensor_view;
-    }
+        inline const std::vector<SensedObject>& sensorView() const {
+            return _sensor_view;
+        }
 
-    inline const std::vector<std::shared_ptr<Shape>>& shapes() const {
-        return _shapes;
-    }
+        inline const std::vector<std::shared_ptr<Shape>>& shapes() const {
+            return _shapes;
+        }
 
-    inline const std::vector<std::shared_ptr<Sensor>>& sensors() const {
-        return _sensors;
-    }
+        inline const std::vector<std::shared_ptr<Sensor>>& sensors() const {
+            return _sensors;
+        }
 
-    void changeSide(int new_side);
-    void teleport(const Vec& to);
+        void changeSide(int new_side);
+        void teleport(const Vec& to);
 
-    void applyImpulse(Vec impulse, Vec position);
-    void applyLocalForce(Vec force, Vec position);
-    void applyGlobalForce(Vec force, Vec position);
-    void clearLocalForces();
-    void clearGlobalForces();
+        void applyImpulse(Vec impulse, Vec position);
+        void applyLocalForce(Vec force, Vec position);
+        void applyGlobalForce(Vec force, Vec position);
+        void clearLocalForces();
+        void clearGlobalForces();
 
-    void HACK_setAngularVelocity(double vel);
+        void HACK_setAngularVelocity(double vel);
 
-    Signature signature();
-    void updatePosition(double time);
-    void updateVelocity(double time);
-    void addShape(std::shared_ptr<Shape> shape);
-    void removeShape(std::shared_ptr<Shape> shape);
-    void addSensor(std::shared_ptr<Sensor> shape);
-    void removeSensor(std::shared_ptr<Sensor> shape);
-    std::tuple<CollisionTimeResult, Shape*, Shape*> collide(Body* other, double end_time, bool ignore_initial) const;
-    double distanceBetween(Body* other) const;
-    double maxSensorRange() const;
-private:
-    Vec _position, _velocity;
-    Vec _local_forces = {}, _global_forces = {};
-    double _angle, _angular_velocity;
-    int _side;
-    std::vector<SensedObject> _sensor_view;
+        Signature signature();
+        void updatePosition(double time);
+        void updateVelocity(double time);
+        void addShape(std::shared_ptr<Shape> shape);
+        void removeShape(std::shared_ptr<Shape> shape);
+        void addSensor(std::shared_ptr<Sensor> shape);
+        void removeSensor(std::shared_ptr<Sensor> shape);
+        std::tuple<CollisionTimeResult, Shape*, Shape*> collide(Body* other, double end_time, bool ignore_initial) const;
+        double distanceBetween(Body* other) const;
+        double maxSensorRange() const;
+    private:
+        Vec _position, _velocity;
+        Vec _local_forces = {}, _global_forces = {};
+        double _angle, _angular_velocity;
+        int _side;
+        std::vector<SensedObject> _sensor_view;
 
-    std::vector<std::shared_ptr<Shape>> _shapes;
-    std::vector<std::shared_ptr<Sensor>> _sensors;
+        std::vector<std::shared_ptr<Shape>> _shapes;
+        std::vector<std::shared_ptr<Sensor>> _sensors;
 
-    friend class World;
-};
+        friend class World;
+    };
+}
 
-#endif // BODY_HPP
+#endif // SHYPHE_BODY_HPP
