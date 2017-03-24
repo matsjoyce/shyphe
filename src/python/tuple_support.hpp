@@ -21,6 +21,7 @@
 #define PYTHON_TUPLE_SUPPORT_HPP
 
 #include <tuple>
+#include <utility>
 #include <boost/python.hpp>
 
 namespace python = boost::python;

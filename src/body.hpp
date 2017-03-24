@@ -96,7 +96,8 @@ namespace shyphe {
         double maxSensorRange() const;
     private:
         Vec _position, _velocity;
-        Vec _local_forces = {}, _global_forces = {};
+        Vec _local_force = {}, _global_force = {};
+        double _local_torque = 0, _global_torque = 0;
         double _angle, _angular_velocity;
         int _side;
         std::vector<SensedObject> _sensor_view;

@@ -73,47 +73,130 @@ def test_local_linear_acceleration(shyphe):
     b.apply_local_force((1, 0), (0, 0))
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (1, 0)
+    assert b.angular_velocity == 0
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (2, 0)
+    assert b.angular_velocity == 0
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (3, 0)
+    assert b.angular_velocity == 0
 
     b.clear_local_forces()
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (3, 0)
+    assert b.angular_velocity == 0
 
 
-def test_global_acceleration(shyphe):
+def test_global_linear_acceleration(shyphe):
     b = shyphe.Body()
     c = shyphe.MassShape(mass=1)
     b.add_shape(c)
     b.apply_global_force((1, 0), (0, 0))
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (1, 0)
+    assert b.angular_velocity == 0
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (2, 0)
+    assert b.angular_velocity == 0
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (3, 0)
+    assert b.angular_velocity == 0
 
     b.clear_global_forces()
 
     b.update_velocity(1)
+    b.update_position(1)
 
     assert b.velocity == (3, 0)
+    assert b.angular_velocity == 0
+
+
+def test_local_rotational_acceleration(shyphe):
+    b = shyphe.Body()
+    c = shyphe.MassShape(mass=1)
+    b.add_shape(c)
+    b.apply_local_force((1, 0), (0, 1))
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (1, 0)
+    assert b.angular_velocity == 1
+    assert b.angle == 1
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (1, 0) + shyphe.Vec(1, 0).rotate(1)
+    assert b.angular_velocity == 2
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (1, 0) + shyphe.Vec(1, 0).rotate(1) + shyphe.Vec(1, 0).rotate(3)
+    assert b.angular_velocity == 3
+
+    b.clear_local_forces()
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (1, 0) + shyphe.Vec(1, 0).rotate(1) + shyphe.Vec(1, 0).rotate(3)
+    assert b.angular_velocity == 3
+
+
+def test_global_rotational_acceleration(shyphe):
+    b = shyphe.Body()
+    c = shyphe.MassShape(mass=1)
+    b.add_shape(c)
+    b.apply_global_force((1, 0), (0, 1))
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (1, 0)
+    assert b.angular_velocity == 1
+
+    b.update_position(1)
+    b.update_velocity(1)
+
+    assert b.velocity == (2, 0)
+    assert b.angular_velocity == 2
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (3, 0)
+    assert b.angular_velocity == 3
+
+    b.clear_global_forces()
+
+    b.update_velocity(1)
+    b.update_position(1)
+
+    assert b.velocity == (3, 0)
+    assert b.angular_velocity == 3
 
 
 def test_aabb(shyphe):

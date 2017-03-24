@@ -110,8 +110,8 @@ void Body::updatePosition(double time) {
 }
 
 void Body::updateVelocity(double time) {
-    _velocity += (_local_forces.rotate(_angle) + _global_forces) * time / mass();
-//     _angular_velocity += angular_acceleration * time;
+    _velocity += (_local_force.rotate(_angle) + _global_force) * time / mass();
+    _angular_velocity += (_local_torque + _global_torque) * time / momentOfInertia();
 }
 
 void Body::addShape(shared_ptr<Shape> shape) {
@@ -185,19 +185,23 @@ void Body::applyImpulse(Vec impulse, Vec position) {
 }
 
 void Body::applyLocalForce(Vec impulse, Vec position) {
-    _local_forces += impulse;
+    _local_force += impulse;
+    _local_torque -= position.perp().dot(impulse);
 }
 
 void Body::clearLocalForces() {
-    _local_forces = {0, 0};
+    _local_force = {0, 0};
+    _local_torque = 0;
 }
 
 void Body::applyGlobalForce(Vec impulse, Vec position) {
-    _global_forces += impulse;
+    _global_force += impulse;
+    _global_torque -= position.perp().dot(impulse);
 }
 
 void Body::clearGlobalForces() {
-    _global_forces = {0, 0};
+    _global_force = {0, 0};
+    _global_torque = 0;
 }
 
 void Body::teleport(const Vec& to) {
