@@ -48,8 +48,8 @@ For examples:
 
  - [pygame-go](https://github.com/matsjoyce/pygame-go) (tested using 1.0)
 
-Building
---------
+Installation
+------------
 
 ```bash
 git clone https://github.com/matsjoyce/shyphe.git
@@ -58,6 +58,7 @@ mkdir build
 cd build
 cmake ..
 make
+make install
 ```
 
 Testing

@@ -69,3 +69,28 @@ set_target_properties(shyphe_coverage PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMA
                                                  OUTPUT_NAME "shyphe"
                                                  PREFIX "")
 target_link_libraries(shyphe_coverage gcov)
+
+set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/src/python/setup.py.in")
+set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+set(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
+
+# get_property(SHYPHE_LOCATION TARGET shyphe PROPERTY LOCATION)
+# set(SHYPHE_LOCATION "$<TARGET_OBJECTS:shyphe>")
+# file(GENERATE
+#      OUTPUT SETUP_PY
+#      INPUT SETUP_PY_IN)
+file(GENERATE
+     OUTPUT
+     "${CMAKE_CURRENT_BINARY_DIR}/setup.py"
+     INPUT
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/python/setup.py.in"
+     )
+
+add_custom_command(OUTPUT ${OUTPUT}
+                   COMMAND ${PYTHON} ${SETUP_PY} build
+                   COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+                   DEPENDS shyphe)
+
+add_custom_target(target ALL DEPENDS ${OUTPUT})
+
+install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install)")
