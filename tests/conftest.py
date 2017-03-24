@@ -57,6 +57,7 @@ def pytest_configure(config):
     sys.path.pop(0)
 
     print("done")
+    print("Loaded shyphe version", shyphe.__version__)
 
 
 def pytest_unconfigure(config):

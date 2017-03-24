@@ -23,6 +23,32 @@
 #include <cmath>
 
 namespace shyphe {
+
+    constexpr const char* version() {
+        return "0.1.0-alpha";
+    }
+
+    constexpr unsigned int hexversion() {
+        return 0x000100;
+    }
+
+    struct Metadata {
+        const char* version = shyphe::version();
+        unsigned int hexversion = shyphe::hexversion();
+        const char* author = "Matthew Joyce";
+        const char* author_email = "matsjoyce@gmail.com";
+        const char* copyright = "2017, Matthew Joyce";
+        const char* credits = "Matthew Joyce";
+        const char* license = "LGPLv3";
+        const char* maintainer = "Matthew Joyce";
+        const char* email = "matsjoyce@gmail.com";
+        const char* status = "Development";
+    };
+
+    constexpr Metadata metadata() {
+        return {};
+    }
+
     constexpr double pi() {
         return 3.141592653589793238462643383279502884;
     }

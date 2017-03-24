@@ -25,6 +25,19 @@ def test_consts(shyphe):
     assert shyphe.hpi == math.pi / 2
 
 
+def test_metadata(shyphe):
+    assert isinstance(shyphe.__version__, str)
+    assert isinstance(shyphe.__hexversion__, int)
+    assert isinstance(shyphe.__author__, str)
+    assert isinstance(shyphe.__author_email__, str)
+    assert isinstance(shyphe.__copyright__, str)
+    assert isinstance(shyphe.__credits__, list)
+    assert isinstance(shyphe.__license__, str)
+    assert isinstance(shyphe.__maintainer__, str)
+    assert isinstance(shyphe.__email__, str)
+    assert isinstance(shyphe.__status__, str)
+
+
 def test_to_deg(shyphe):
     assert shyphe.to_deg(0) == 0
     assert shyphe.to_deg(math.pi / 2) == 90

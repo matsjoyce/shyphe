@@ -36,6 +36,17 @@ BOOST_PYTHON_MODULE(shyphe) {
     python::scope().attr("hpi") = hpi();
     python::scope().attr("dpi") = dpi();
 
+    python::scope().attr("__version__") = metadata().version;
+    python::scope().attr("__hexversion__") = metadata().hexversion;
+    python::scope().attr("__author__") = metadata().author;
+    python::scope().attr("__author_email__") = metadata().author_email;
+    python::scope().attr("__copyright__") = metadata().copyright;
+    python::scope().attr("__credits__") = python::str(metadata().credits).split(", ");
+    python::scope().attr("__license__") = metadata().license;
+    python::scope().attr("__maintainer__") = metadata().maintainer;
+    python::scope().attr("__email__") = metadata().email;
+    python::scope().attr("__status__") = metadata().status;
+
     wrap_vec();
     wrap_collisions();
     wrap_body();
