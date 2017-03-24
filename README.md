@@ -16,7 +16,7 @@ FAQs
 
  - **Can I make springs and joins and stuff?**
 
-     No, shyphe is an impulse based physics engine. For a constraint-based physics engine see [Chipmunk] or [Box2D]
+     No, shyphe is an impulse based physics engine. For a constraint-based physics engine see [Chipmunk](https://chipmunk-physics.net/) or [Box2D](http://box2d.org/).
 
  - **What is shyphe bad at?**
 
