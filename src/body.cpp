@@ -219,7 +219,3 @@ double Body::maxSensorRange() const {
     }
     return m;
 }
-
-void Body::HACK_setAngularVelocity(double vel) {
-    _angular_velocity = vel;
-}

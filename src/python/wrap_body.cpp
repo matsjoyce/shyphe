@@ -83,7 +83,6 @@ void wrap_body() {
         .def("clear_local_forces", &Body::clearLocalForces)
         .def("apply_global_force", &Body::applyGlobalForce)
         .def("clear_global_forces", &Body::clearGlobalForces)
-        .def("HACK_set_angular_velocity", &Body::HACK_setAngularVelocity)
         .def("collide", body_collide)
         .def("distance_between", &Body::distanceBetween)
         .def("add_shape", &Body::addShape)

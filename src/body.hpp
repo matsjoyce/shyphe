@@ -82,8 +82,6 @@ namespace shyphe {
         void clearLocalForces();
         void clearGlobalForces();
 
-        void HACK_setAngularVelocity(double vel);
-
         Signature signature();
         void updatePosition(double time);
         void updateVelocity(double time);
