@@ -108,9 +108,9 @@ def test_rotating_hit(shyphe):
 
     assert col1.time == col2.time == pytest.approx(1)
     assert col1.touch_point.as_tuple() == pytest.approx((8, -1))
-    assert col2.touch_point.as_tuple() == pytest.approx((0, 1), abs=1e-8)
-    assert col1.closing_velocity.as_tuple() == pytest.approx((0, 8), abs=1e-8)
-    assert col2.closing_velocity.as_tuple() == pytest.approx((0, -8), abs=1e-8)
+    assert col2.touch_point.as_tuple() == pytest.approx((0, 1), abs=1e-7)
+    assert col1.closing_velocity.as_tuple() == pytest.approx((0, 8), abs=1e-7)
+    assert col2.closing_velocity.as_tuple() == pytest.approx((0, -8), abs=1e-7)
     assert col1.body.position.as_tuple() == pytest.approx((0, 0))
     assert col2.body.position.as_tuple() == pytest.approx((8, -2))
 
@@ -197,6 +197,7 @@ def test_double_bounce(shyphe):
     assert col2.impulse.as_tuple() == (8, 0)
     assert col1.closing_velocity.as_tuple() == (-8, 0)
     assert col2.closing_velocity.as_tuple() == (8, 0)
+    assert abs(b1.distance_between(b2)) == pytest.approx(0)
 
     b1.apply_impulse(col1.impulse, col1.touch_point)
     b2.apply_impulse(col2.impulse, col2.touch_point)
@@ -234,6 +235,7 @@ def test_double_bounce(shyphe):
     assert col2.impulse.as_tuple() == (-4, 0)
     assert col3.closing_velocity.as_tuple() == (4, 0)
     assert col2.closing_velocity.as_tuple() == (-4, 0)
+    assert abs(b3.distance_between(b2)) == pytest.approx(0)
 
     b3.apply_impulse(col3.impulse, col3.touch_point)
     b2.apply_impulse(col2.impulse, col2.touch_point)

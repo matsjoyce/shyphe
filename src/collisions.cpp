@@ -31,6 +31,7 @@ using namespace std;
 using namespace shyphe;
 
 const double COLLISION_LIMIT = 1e-8;
+const unsigned int MAX_ITERATIONS = 1000;
 typedef DistanceResult (*DistanceDispatch)(const Shape&, const Body&, const Shape&, const Body&);
 
 const map<pair<type_index, type_index>, DistanceDispatch> DISPATCH_TABLE = {
@@ -53,43 +54,43 @@ CollisionTimeResult shyphe::collideShapes(const Shape& a, const Body& a_body, co
     DistanceResult current_distance;
     double time = 0;
     unsigned int iteration = 0;
-    while (iteration < 1000) {
+    while (iteration < MAX_ITERATIONS) {
         current_distance = dist_func(a, abody, b, bbody);
+        double add_time = 0;
 
-        double vel = vel_diff.dot(current_distance.normal)
-                     + (a.position.abs() + a.boundingRadius()) * abs(abody.angularVelocity())
-                     + (b.position.abs() + b.boundingRadius()) * abs(bbody.angularVelocity());
-        double add_time = abs(current_distance.distance) / vel;
-        time += add_time;
-
-        abody.updatePosition(add_time);
-        bbody.updatePosition(add_time);
-
-        if (time > end_time) {
-            return {};
-        }
         if (current_distance.distance < COLLISION_LIMIT) {
             auto vel_at = vel_diff
                           - (current_distance.a_point - abody.position()).perp() * abody.angularVelocity()
                           + (current_distance.b_point - bbody.position()).perp() * bbody.angularVelocity();
             if (vel_at.dot(current_distance.normal) > 0 && !ignore_initial) {
-                break;
+                return {time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
             }
-            add_time = max(COLLISION_LIMIT * 3, COLLISION_LIMIT * 3 / abs(vel_at.dot(current_distance.normal)));
-            time += add_time;
-            abody.updatePosition(add_time);
-            bbody.updatePosition(add_time);
+            add_time += max(COLLISION_LIMIT * 3, COLLISION_LIMIT * 3 / abs(vel_at.dot(current_distance.normal)));
         }
         else {
             ignore_initial = false;
         }
-        if (vel <= 0 || time < 0) {
+
+        double vel = vel_diff.dot(current_distance.normal)
+                     + (a.position.abs() + a.boundingRadius()) * abs(abody.angularVelocity())
+                     + (b.position.abs() + b.boundingRadius()) * abs(bbody.angularVelocity());
+
+        if (vel <= 0) {
             return {};
         }
 
+        add_time += abs(current_distance.distance) / vel;
+        time += add_time;
+
+        if (time < 0 || time > end_time) {
+            return {};
+        }
+
+        abody.updatePosition(add_time);
+        bbody.updatePosition(add_time);
         ++iteration;
     }
-    return {time, (current_distance.a_point + current_distance.b_point) / 2.0, current_distance.normal};
+    return {};
 }
 
 DistanceResult shyphe::distanceBetweenCircleCircle(const Shape& a, const Body& a_body, const Shape& b, const Body& b_body) {

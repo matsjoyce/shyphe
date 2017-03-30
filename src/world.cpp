@@ -30,12 +30,10 @@ pair<Body*, Body*> make_body_pair(Body* a, Body* b) {
     return (a < b) ? make_pair(a, b) : make_pair(b, a);
 }
 
-World::World(double frame_time_/*=1*/) : frame_time(frame_time_) {
+World::World(double frame_time_/*=1*/) : time_until(frame_time_), frame_time(frame_time_) {
 }
 
 void World::beginFrame() {
-    current_time = time_until;
-    time_until = current_time + frame_time;
     sigobjs.clear();
     sigobjs.reserve(_bodies.size());
     for (const auto& body: _bodies) {
@@ -53,6 +51,8 @@ void World::endFrame() {
         body->updateVelocity(frame_time);
         body_times[body.get()] = time_until;
     }
+    current_time = time_until;
+    time_until = current_time + frame_time;
 }
 
 void World::addBody(shared_ptr<Body> body) {
@@ -66,6 +66,9 @@ void World::removeBody(shared_ptr<Body> body) {
     removed_bodies.insert(body.get());
     changed_bodies.erase(body.get());
     _bodies.erase(remove(_bodies.begin(), _bodies.end(), body), _bodies.end());
+    auto pred = [this, &body](const tuple<CollisionTimeResult, Shape*, Body*, Shape*, Body*>& col)
+                {return body.get() == get<2>(col) || body.get() == get<4>(col);};
+    collision_times.erase(remove_if(collision_times.begin(), collision_times.end(), pred), collision_times.end());
 }
 
 void World::_updateCollisionTimes(bool initial) {
@@ -76,12 +79,12 @@ void World::_updateCollisionTimes(bool initial) {
         }
     }
     else {
-        for (auto body : removed_bodies) {
-            sat_axes.removeBody(body);
-        }
         for (auto body : changed_bodies) {
             sat_axes.removeBody(body);
             sat_axes.addBody(body, time_until - body_times[body]);
+        }
+        for (auto body : removed_bodies) {
+            sat_axes.removeBody(body);
         }
     }
     auto possibleCollisions = sat_axes.possibleCollisions();

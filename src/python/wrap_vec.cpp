@@ -102,6 +102,10 @@ python::tuple vec_as_tuple(const Vec& v) {
     return python::make_tuple(v.x, v.y);
 }
 
+python::object vec_hash(const Vec& v) {
+    return python::make_tuple(v.x, v.y).attr("__hash__")();
+}
+
 void wrap_vec() {
     Vec_from_tuple();
     // Note: inplace operators are not wrapped so vectors are immutable in python. As python does not copy objects, this makes everything safer
@@ -146,5 +150,6 @@ void wrap_vec() {
         .def("__len__", vec_len)
         .def("__getitem__", vec_getitem)
         .def("__setitem__", vec_setitem)
+        .def("__hash__", vec_hash)
         .def("as_tuple", vec_as_tuple);
 }
