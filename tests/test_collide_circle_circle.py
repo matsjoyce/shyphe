@@ -17,6 +17,74 @@
 import pytest
 
 
+def test_distance_between_circle_circle(shyphe):
+    b1 = shyphe.Body(position=(0, 0))
+    c1 = shyphe.Circle(radius=1)
+    b1.add_shape(c1)
+
+    b2 = shyphe.Body(position=(10, 0))
+    c2 = shyphe.Circle(radius=1)
+    b2.add_shape(c2)
+
+    db = shyphe.distance_between(c1, b1, c2, b2)
+
+    assert db.distance == pytest.approx(8)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (1, 0)
+    assert db.b_point.as_tuple() == (9, 0)
+
+    b1.teleport((1, 0))
+    b2.teleport((4, 0))
+
+    db = shyphe.distance_between(c1, b1, c2, b2)
+
+    assert db.distance == pytest.approx(1)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (3, 0)
+
+    b2.teleport((3, 0))
+
+    db = shyphe.distance_between(c1, b1, c2, b2)
+
+    assert db.distance == pytest.approx(0)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (2, 0)
+
+    b2.teleport((2, 0))
+
+    db = shyphe.distance_between(c1, b1, c2, b2)
+    assert db.distance == pytest.approx(-1)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (1, 0)
+
+    b2.teleport((1, 0))
+
+    db = shyphe.distance_between(c1, b1, c2, b2)
+    assert db.distance == pytest.approx(-2)
+    assert db.normal.as_tuple() == pytest.approx((1, 0))
+    assert db.a_point.as_tuple() == (2, 0)
+    assert db.b_point.as_tuple() == (0, 0)
+
+    b2.teleport((1, 1))
+
+    assert shyphe.distance_between(c1, b1, c2, b2).distance == pytest.approx(-1)
+
+    b1.teleport((0, 0))
+
+    assert shyphe.distance_between(c1, b1, c2, b2).distance == pytest.approx(2 ** 0.5 - 2)
+
+    b2.teleport((2, 2))
+
+    assert shyphe.distance_between(c1, b1, c2, b2).distance == pytest.approx(8 ** 0.5 - 2)
+
+    b2.teleport((3, 3))
+
+    assert shyphe.distance_between(c1, b1, c2, b2).distance == pytest.approx(18 ** 0.5 - 2)
+
+
 def test_circle_circle_horizontal(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
     c1 = shyphe.Circle(radius=1)
