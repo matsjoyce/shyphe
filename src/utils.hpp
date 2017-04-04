@@ -23,7 +23,6 @@
 #include <cmath>
 
 namespace shyphe {
-
     constexpr const char* version() {
         return "0.1.0-alpha";
     }
@@ -88,6 +87,22 @@ namespace shyphe {
 
     constexpr inline double to_rad(double angle) {
         return norm_rad(angle * deg_to_rad());
+    }
+
+    constexpr inline double angle_diff_rad(double a, double b) {
+        double d = norm_rad(a - b);
+        if (d > pi()) {
+            d -= dpi();
+        }
+        return d;
+    }
+
+    constexpr inline double angle_diff_deg(double a, double b) {
+        double d = norm_deg(a - b);
+        if (d > 180.0) {
+            d -= 360.0;
+        }
+        return d;
     }
 }
 

@@ -31,6 +31,8 @@ BOOST_PYTHON_MODULE(shyphe) {
     python::def("norm_deg", norm_deg);
     python::def("to_deg", to_deg);
     python::def("to_rad", to_rad);
+    python::def("angle_diff_deg", angle_diff_deg);
+    python::def("angle_diff_rad", angle_diff_rad);
 
     python::scope().attr("pi") = pi();
     python::scope().attr("hpi") = hpi();
