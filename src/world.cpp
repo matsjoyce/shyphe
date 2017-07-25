@@ -47,8 +47,7 @@ void World::beginFrame() {
 
 void World::endFrame() {
     for (auto body : _bodies) {
-        body->updatePosition(time_until - body_times[body.get()]);
-        body->updateVelocity(frame_time);
+        body->update(time_until - body_times[body.get()]);
         body_times[body.get()] = time_until;
     }
     current_time = time_until;
@@ -94,10 +93,11 @@ void World::_updateCollisionTimes(bool initial) {
         }
 
         double time_window = frame_time, start_time = current_time;
+        BodyState a_state = poscol.first->state(), b_state = poscol.second->state();
         if (!initial) {
             start_time = max(body_times[poscol.first], body_times[poscol.second]);
-            poscol.first->updatePosition(start_time - body_times[poscol.first]);
-            poscol.second->updatePosition(start_time - body_times[poscol.second]);
+            poscol.first->update(start_time - body_times[poscol.first]);
+            poscol.second->update(start_time - body_times[poscol.second]);
             time_window = time_until - start_time;
         }
         auto p = make_body_pair(poscol.second, poscol.first);
@@ -107,8 +107,8 @@ void World::_updateCollisionTimes(bool initial) {
         tie(colresult, a, b) = poscol.first->collide(poscol.second, time_window, ignore_current_collision[p]);
 
         if (!initial) {
-            poscol.first->updatePosition(body_times[poscol.first] - start_time);
-            poscol.second->updatePosition(body_times[poscol.second] - start_time);
+            poscol.first->reset(a_state);
+            poscol.second->reset(b_state);
         }
 
         if (colresult.time == -1) {
@@ -148,8 +148,8 @@ UnresolvedCollision World::nextCollision() {
     collision_times.pop_back();
     changed_bodies.insert(a_body);
     changed_bodies.insert(b_body);
-    a_body->updatePosition(colresult.time - body_times[a_body]);
-    b_body->updatePosition(colresult.time - body_times[b_body]);
+    a_body->update(colresult.time - body_times[a_body]);
+    b_body->update(colresult.time - body_times[b_body]);
     body_times[a_body] = body_times[b_body] = colresult.time;
     return {a_body->shared_from_this(), b_body->shared_from_this(), colresult.time, colresult.touch_point, colresult.normal};
 }

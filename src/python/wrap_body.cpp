@@ -50,6 +50,9 @@ tuple<CollisionTimeResult, shared_ptr<Shape>, shared_ptr<Shape>> body_collide(Bo
     Shape* s1;
     Shape* s2;
     tie(ctr, s1, s2) = a.collide(b, et, i);
+    if (ctr.time == -1) {
+        return {ctr, {}, {}};
+    }
     return {ctr, s1->shared_from_this(), s2->shared_from_this()};
 }
 
@@ -74,8 +77,7 @@ void wrap_body() {
         .add_property("shapes", python::make_function(&Body::shapes, python::return_internal_reference<>()))
         .add_property("sensors", python::make_function(&Body::sensors, python::return_internal_reference<>()))
         .def("aabb", &Body::aabb)
-        .def("update_position", &Body::updatePosition)
-        .def("update_velocity", &Body::updateVelocity)
+        .def("update", &Body::update)
         .def("teleport", &Body::teleport)
         .def("change_side", &Body::changeSide)
         .def("apply_impulse", &Body::applyImpulse)

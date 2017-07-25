@@ -104,14 +104,41 @@ double Body::momentOfInertia() const {
     return moi;
 }
 
-void Body::updatePosition(double time) {
-    _position += _velocity * time;
-    _angle = norm_rad(_angle + _angular_velocity * time);
-}
+void Body::update(double time) {
+    if (!time) {
+        return;
+    }
+    if (time < 0) {
+        throw runtime_error("time cannot be negative, use state() and reset()");
+    }
 
-void Body::updateVelocity(double time) {
-    _velocity += (_local_force.rotate(_angle) + _global_force) * time / mass();
-    _angular_velocity += (_local_torque + _global_torque) * time / momentOfInertia();
+    auto angular_acceleration = (_local_torque + _global_torque) / momentOfInertia();
+
+    // Use trapezium rule to integrate local forces
+
+    int strips = ceil(time * 100);
+    auto vel_accumulator = _local_force.rotate(_angle);
+    auto pos_accumulator = Vec{};
+
+    for (auto i = 1; i != strips; ++i) {
+        auto t = i / static_cast<double>(strips) * time;
+        auto angle = _angle + _angular_velocity * t + angular_acceleration * t * t / 2;
+        auto impulse = _local_force.rotate(angle);
+        vel_accumulator += impulse;
+        pos_accumulator += vel_accumulator;
+        vel_accumulator += impulse;
+    }
+
+    _angle = norm_rad(_angle + _angular_velocity * time + angular_acceleration * time * time / 2);
+    _angular_velocity = _angular_velocity + angular_acceleration * time;
+
+    vel_accumulator += _local_force.rotate(_angle);
+    pos_accumulator += vel_accumulator / 2;
+    vel_accumulator /= strips * 2;
+    pos_accumulator /= strips * strips * 2;
+
+    _position += _velocity * time + (pos_accumulator + _global_force / 2) * time * time / mass();
+    _velocity += (vel_accumulator + _global_force) * time / mass();
 }
 
 void Body::addShape(shared_ptr<Shape> shape) {
@@ -218,4 +245,22 @@ double Body::maxSensorRange() const {
         m = max(m, sensor->maxRange());
     }
     return m;
+}
+
+BodyState Body::state() const {
+    return {_position, _velocity,
+            _local_force, _global_force,
+            _local_torque, _global_torque,
+            _angle, _angular_velocity};
+}
+
+void Body::reset(BodyState state) {
+    _position = state.position;
+    _velocity = state.velocity;
+    _local_force = state.local_force;
+    _global_force = state.global_force;
+    _local_torque = state.local_torque;
+    _global_torque = state.global_torque;
+    _angle = state.angle;
+    _angular_velocity = state.angular_velocity;
 }

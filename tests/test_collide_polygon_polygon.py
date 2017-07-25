@@ -19,11 +19,11 @@ import pytest
 
 def test_distance_between_square_square(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(10, 0))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     db = shyphe.distance_between(p1, b1, p2, b2)
@@ -83,11 +83,11 @@ def test_distance_between_square_square(shyphe):
 
 def test_distance_between_square_triangle(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(10, 0))
-    p2 = shyphe.Polygon(points=[(-1, -1), (1, -1), (0, 1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (1, -1), (0, 1)], mass=1)
     b2.add_shape(p2)
 
     db = shyphe.distance_between(p1, b1, p2, b2)
@@ -136,11 +136,11 @@ def test_distance_between_square_triangle(shyphe):
 
 def test_distance_between_triangle_triangle(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    p1 = shyphe.Polygon(points=[(0, 0), (1, 1), (1, 0)])
+    p1 = shyphe.Polygon(points=[(0, 0), (1, 1), (1, 0)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(10, 0))
-    p2 = shyphe.Polygon(points=[(1.5, 1), (2, 0), (-1, 0.5)])
+    p2 = shyphe.Polygon(points=[(1.5, 1), (2, 0), (-1, 0.5)], mass=1)
     b2.add_shape(p2)
 
     db = shyphe.distance_between(p1, b1, p2, b2)
@@ -160,11 +160,11 @@ def test_distance_between_triangle_triangle(shyphe):
 
 def test_square_square_horizontal(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(10, 0), velocity=(-6, 0))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1.5, False)
@@ -175,11 +175,11 @@ def test_square_square_horizontal(shyphe):
 
 def test_square_square_vertical(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1.5, False)
@@ -190,11 +190,11 @@ def test_square_square_vertical(shyphe):
 
 def test_square_square_vertical_near_hit(shyphe):
     b1 = shyphe.Body(position=(1.99999, 0), velocity=(0, 2))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1.5, False)
@@ -205,11 +205,11 @@ def test_square_square_vertical_near_hit(shyphe):
 
 def test_square_square_vertical_near_miss(shyphe):
     b1 = shyphe.Body(position=(2.001, 0), velocity=(0, 2))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1, False)
@@ -218,11 +218,11 @@ def test_square_square_vertical_near_miss(shyphe):
 
 def test_square_square_no_collision_opposite_dir(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, 6))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1, False)
@@ -231,11 +231,11 @@ def test_square_square_no_collision_opposite_dir(shyphe):
 
 def test_square_square_no_collision_parallel(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(2, 0))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1, False)
@@ -244,11 +244,11 @@ def test_square_square_no_collision_parallel(shyphe):
 
 def test_square_square_out_of_time(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p1 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b1.add_shape(p1)
 
     b2 = shyphe.Body(position=(0, 100), velocity=(0, -6))
-    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p2 = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p2)
 
     coll = shyphe.collide_shapes(p1, b1, p2, b2, 1, False)

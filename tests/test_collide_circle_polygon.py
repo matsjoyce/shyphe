@@ -19,11 +19,11 @@ import pytest
 
 def test_distance_between_simple(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(10, 0))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     assert shyphe.distance_between(c, b1, p, b2).distance == pytest.approx(8)
@@ -56,11 +56,11 @@ def test_distance_between_simple(shyphe):
 
 def test_distance_between_simple2(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(10, 0))
-    p = shyphe.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)])
+    p = shyphe.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)], mass=1)
     b2.add_shape(p)
 
     assert shyphe.distance_between(c, b1, p, b2).distance == pytest.approx(8)
@@ -96,11 +96,11 @@ def test_distance_between_simple2(shyphe):
 
 def test_distance_between_rotated(shyphe):
     b1 = shyphe.Body(position=(0, 0))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(10, 0))
-    p = shyphe.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)])
+    p = shyphe.Polygon(points=[(0, 1), (1, 0), (0, -1), (-1, 0)], mass=1)
     b2.add_shape(p)
 
     assert shyphe.distance_between(c, b1, p, b2).distance == pytest.approx(8)
@@ -136,11 +136,11 @@ def test_distance_between_rotated(shyphe):
 
 def test_circle_polygon_horizontal(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(10, 0), velocity=(-6, 0))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1.5, False)
@@ -151,11 +151,11 @@ def test_circle_polygon_horizontal(shyphe):
 
 def test_circle_polygon_vertical(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1.5, False)
@@ -166,11 +166,11 @@ def test_circle_polygon_vertical(shyphe):
 
 def test_circle_polygon_vertical_near_hit(shyphe):
     b1 = shyphe.Body(position=(2, 0), velocity=(0, 2))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1.5, False)
@@ -179,11 +179,11 @@ def test_circle_polygon_vertical_near_hit(shyphe):
 
 def test_circle_polygon_vertical_near_miss(shyphe):
     b1 = shyphe.Body(position=(2.001, 0), velocity=(0, 2))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, -6))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1, False)
@@ -192,11 +192,11 @@ def test_circle_polygon_vertical_near_miss(shyphe):
 
 def test_circle_polygon_no_collision_opposite_dir(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(0, 6))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1, False)
@@ -205,11 +205,11 @@ def test_circle_polygon_no_collision_opposite_dir(shyphe):
 
 def test_circle_polygon_no_collision_parallel(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(2, 0))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 10), velocity=(2, 0))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1, False)
@@ -218,11 +218,11 @@ def test_circle_polygon_no_collision_parallel(shyphe):
 
 def test_circle_polygon_out_of_time(shyphe):
     b1 = shyphe.Body(position=(0, 0), velocity=(0, 2))
-    c = shyphe.Circle(radius=1)
+    c = shyphe.Circle(radius=1, mass=1)
     b1.add_shape(c)
 
     b2 = shyphe.Body(position=(0, 100), velocity=(0, -6))
-    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+    p = shyphe.Polygon(points=[(-1, -1), (-1, 1), (1, 1), (1, -1)], mass=1)
     b2.add_shape(p)
 
     coll = shyphe.collide_shapes(c, b1, p, b2, 1, False)

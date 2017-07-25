@@ -31,6 +31,15 @@
 #include "sensor.hpp"
 
 namespace shyphe {
+    struct BodyState {
+        Vec position, velocity;
+        Vec local_force, global_force;
+        double local_torque, global_torque;
+        double angle, angular_velocity;
+
+        friend class Body;
+    };
+
     class Body : public std::enable_shared_from_this<Body> {
     public:
         Body(const Vec& position_={}, const Vec& velocity_={},
@@ -83,8 +92,7 @@ namespace shyphe {
         void clearGlobalForces();
 
         Signature signature();
-        void updatePosition(double time);
-        void updateVelocity(double time);
+        void update(double time);
         void addShape(std::shared_ptr<Shape> shape);
         void removeShape(std::shared_ptr<Shape> shape);
         void addSensor(std::shared_ptr<Sensor> shape);
@@ -92,6 +100,9 @@ namespace shyphe {
         std::tuple<CollisionTimeResult, Shape*, Shape*> collide(Body* other, double end_time, bool ignore_initial) const;
         double distanceBetween(Body* other) const;
         double maxSensorRange() const;
+
+        BodyState state() const;
+        void reset(BodyState state);
     private:
         Vec _position, _velocity;
         Vec _local_force = {}, _global_force = {};

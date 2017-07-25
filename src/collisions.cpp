@@ -86,8 +86,8 @@ CollisionTimeResult shyphe::collideShapes(const Shape& a, const Body& a_body, co
             return {};
         }
 
-        abody.updatePosition(add_time);
-        bbody.updatePosition(add_time);
+        abody.update(add_time);
+        bbody.update(add_time);
         ++iteration;
     }
     return {};
