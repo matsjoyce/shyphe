@@ -32,6 +32,16 @@
 
 namespace shyphe {
     struct BodyState {
+        BodyState(Vec position_, Vec velocity_,
+                  Vec local_force_, Vec global_force_,
+                  double local_torque_, double global_torque_,
+                  double angle_, double angular_velocity_) : position(position_), velocity(velocity_),
+                                                             local_force(local_force_), global_force(global_force_),
+                                                             local_torque(local_torque_), global_torque(global_torque_),
+                                                             angle(angle_), angular_velocity(angular_velocity_) {
+
+        }
+
         Vec position, velocity;
         Vec local_force, global_force;
         double local_torque, global_torque;

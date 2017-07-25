@@ -36,6 +36,36 @@ def test_remove_shape(shyphe):
     assert b.mass == 0
 
 
+def test_state(shyphe):
+    b1 = shyphe.Body(position=(1, 2), velocity=(3, 4), angle=5, angular_velocity=6)
+    b1.add_shape(shyphe.MassShape(mass=10))
+    b1.apply_global_force((2, 1), (1, 0))
+    b1.apply_local_force((2, 1), (-1, 0))
+
+    state = b1.state()
+
+    assert state.position == (1, 2)
+    assert state.velocity == (3, 4)
+    assert state.angle == 5
+    assert state.angular_velocity == 6
+    assert state.local_force == (2, 1)
+    assert state.global_force == (2, 1)
+    assert state.local_torque == 1
+    assert state.global_torque == -1
+
+    b2 = shyphe.Body()
+    b2.add_shape(shyphe.MassShape(mass=10))
+    b2.reset(state)
+
+    b1.update(2)
+    b2.update(2)
+
+    assert b1.position == b2.position
+    assert b1.velocity == b2.velocity
+    assert b1.angle == b2.angle
+    assert b1.angular_velocity == b2.angular_velocity
+
+
 def test_body_distance(shyphe):
     b1 = shyphe.Body(position=(0, 0))
     b1.add_shape(shyphe.Circle(radius=1, position=(1, 0)))

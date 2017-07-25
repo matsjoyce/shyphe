@@ -94,7 +94,9 @@ void wrap_body() {
         .def("add_shape", &Body::addShape)
         .def("remove_shape", &Body::removeShape)
         .def("add_sensor", &Body::addSensor)
-        .def("remove_sensor", &Body::removeSensor);
+        .def("remove_sensor", &Body::removeSensor)
+        .def("state", &Body::state)
+        .def("reset", &Body::reset);
     python::class_<Signature>("Signature",
         python::init<double, double, double>((python::arg("radar_emissions")=0,
                                               python::arg("thermal_emissions")=0,
@@ -121,6 +123,25 @@ void wrap_body() {
         .def(op::str(op::self))
         .def("as_tuple", aabb_as_tuple)
         .def("__repr__", aabb_repr);
+
+    python::class_<BodyState>("BodyState",
+        python::init<const Vec&, const Vec&, const Vec&, const Vec&,
+                     double, double, double, double>((python::arg("position")=Vec{},
+                                                      python::arg("velocity")=Vec{},
+                                                      python::arg("local_force")=Vec{},
+                                                      python::arg("global_force")=Vec{},
+                                                      python::arg("local_torque")=0,
+                                                      python::arg("global_torque")=0,
+                                                      python::arg("angle")=0,
+                                                      python::arg("angular_velocity")=0)))
+        .def_readwrite("position", &BodyState::position)
+        .def_readwrite("velocity", &BodyState::velocity)
+        .def_readwrite("local_force", &BodyState::local_force)
+        .def_readwrite("global_force", &BodyState::global_force)
+        .def_readwrite("local_torque", &BodyState::local_torque)
+        .def_readwrite("global_torque", &BodyState::global_torque)
+        .def_readwrite("angle", &BodyState::angle)
+        .def_readwrite("angular_velocity", &BodyState::angular_velocity);
 
     SharedConverter<Shape>();
     python::class_<Shape, boost::noncopyable, py_ptr<Shape>>("Shape", python::no_init)
