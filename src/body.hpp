@@ -66,6 +66,22 @@ namespace shyphe {
             return _angular_velocity;
         }
 
+        inline Vec localForce() const {
+            return _local_force;
+        }
+
+        inline Vec globalForce() const {
+            return _global_force;
+        }
+
+        inline double localTorque() const {
+            return _local_torque;
+        }
+
+        inline double globalTorque() const {
+            return _global_torque;
+        }
+
         inline int side() const {
             return _side;
         }

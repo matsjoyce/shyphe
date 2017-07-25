@@ -66,6 +66,20 @@ def test_body_collide(shyphe):
     assert colr.time == pytest.approx(1.0)
 
 
+def test_body_accelerating_collide(shyphe):
+    b1 = shyphe.Body(position=(0, 0), velocity=(1, 0))
+    b1.add_shape(shyphe.Circle(radius=1, position=(0, 0), mass=1))
+    b1.apply_local_force((1, 0), (0, 0))
+
+    b2 = shyphe.Body(position=(5, 0), velocity=(-1, 0))
+    b2.add_shape(shyphe.Circle(radius=1, position=(0, 0), mass=1))
+    b2.apply_local_force((-1, 0), (0, 0))
+
+    colr, a, b = b1.collide(b2, 2, False)
+
+    assert colr.time == pytest.approx(1.0)
+
+
 def test_local_linear_acceleration(shyphe):
     b = shyphe.Body()
     c = shyphe.MassShape(mass=1)

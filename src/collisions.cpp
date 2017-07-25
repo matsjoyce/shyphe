@@ -70,10 +70,14 @@ CollisionTimeResult shyphe::collideShapes(const Shape& a, const Body& a_body, co
         else {
             ignore_initial = false;
         }
-
+        double time_left = end_time - time;
         double vel = vel_diff.dot(current_distance.normal)
-                     + (a.position.abs() + a.boundingRadius()) * abs(abody.angularVelocity())
-                     + (b.position.abs() + b.boundingRadius()) * abs(bbody.angularVelocity());
+                     + (abody.globalForce().abs() + abody.localForce().abs()) / abody.mass() * time_left
+                     + (bbody.globalForce().abs() + bbody.localForce().abs()) / bbody.mass() * time_left
+                     + (a.position.abs() + a.boundingRadius())
+                         * abs(abody.angularVelocity() + (abody.localTorque() + abody.globalTorque()) / abody.momentOfInertia() * time_left)
+                     + (b.position.abs() + b.boundingRadius())
+                         * abs(bbody.angularVelocity() + (bbody.localTorque() + bbody.globalTorque()) / bbody.momentOfInertia() * time_left);
 
         if (vel <= 0) {
             return {};
