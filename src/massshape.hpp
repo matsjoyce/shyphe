@@ -25,13 +25,16 @@
 namespace shyphe {
     class MassShape : public Shape {
     public:
-        using Shape::Shape;
+        MassShape(double moment_of_inertia_=1, double mass_=0, const Vec& position_={},
+                  double radar_cross_section=0, double radar_emissions=0, double thermal_emissions=0);
         virtual AABB aabb(double angle) const override;
         virtual Shape* clone() const override;
         virtual bool canCollide() const override;
         virtual std::type_index shape_type() const override;
         virtual double boundingRadius() const override;
         virtual double momentOfInertia() const override;
+
+        double moment_of_inertia = 1;
     };
 }
 

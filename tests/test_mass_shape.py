@@ -47,3 +47,7 @@ def test_moi(shyphe):
     m = shyphe.MassShape(mass=45)
 
     assert m.moment_of_inertia == 1
+
+    m = shyphe.MassShape(mass=45, moment_of_inertia=3)
+
+    assert m.moment_of_inertia == 3

@@ -22,8 +22,18 @@
 using namespace std;
 using namespace shyphe;
 
+MassShape::MassShape(double moment_of_inertia_/*=1*/, double mass_/*=0*/, const Vec& position_/*={}*/, double radar_cross_section/*=0*/,
+                     double radar_emissions/*=0*/, double thermal_emissions/*=0*/) : Shape(mass_,
+                                                                                           position_,
+                                                                                           radar_cross_section,
+                                                                                           radar_emissions,
+                                                                                           thermal_emissions),
+                                                                                     moment_of_inertia(moment_of_inertia_) {
+}
+
 Shape* MassShape::clone() const {
-    return new MassShape(mass, position, signature.radar_cross_section, signature.radar_emissions, signature.thermal_emissions);
+    return new MassShape(moment_of_inertia, mass, position, signature.radar_cross_section,
+                         signature.radar_emissions, signature.thermal_emissions);
 }
 
 bool MassShape::canCollide() const {
@@ -31,7 +41,7 @@ bool MassShape::canCollide() const {
 }
 
 double MassShape::momentOfInertia() const {
-    return 1;
+    return moment_of_inertia;
 }
 
 // LCOV_EXCL_START

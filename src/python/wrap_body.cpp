@@ -164,11 +164,13 @@ void wrap_body() {
                                                                           python::arg("thermal_emissions")=0)))
         .def_readwrite("radius", &Circle::radius);
     python::class_<MassShape, boost::noncopyable, python::bases<Shape>, py_ptr<MassShape>>("MassShape",
-        python::init<double, const Vec&, double, double, double>((python::arg("mass")=0,
-                                                                  python::arg("position")=Vec{},
-                                                                  python::arg("radar_cross_section")=0,
-                                                                  python::arg("radar_emissions")=0,
-                                                                  python::arg("thermal_emissions")=0)));
+        python::init<double, double, const Vec&, double, double, double>((python::arg("moment_of_inertia")=1,
+                                                                          python::arg("mass")=0,
+                                                                          python::arg("position")=Vec{},
+                                                                          python::arg("radar_cross_section")=0,
+                                                                          python::arg("radar_emissions")=0,
+                                                                          python::arg("thermal_emissions")=0)))
+        .def_readwrite("moment_of_inertia", &MassShape::moment_of_inertia);
     python::class_<Polygon, boost::noncopyable, python::bases<Shape>, py_ptr<Polygon>>("Polygon",
         python::init<vector<Vec>, double, const Vec&, double, double, double>((python::arg("points")=python::list(),
                                                                                python::arg("mass")=0,
